@@ -9,7 +9,7 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Image source={require("../../assets/images/1.png")} style={styles.image} />
+      <Image source={require("../assets/images/1.png")} style={styles.image} />
       <Text style={globalStyles.title}>Explore the app</Text>
       <Text style={styles.subtitle}>
         Now your finances are in one place and always under control
@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
 <CustomButton
   style={styles.createAccountButton}
   variant="outline"
-  onPress={() => router.push("/register")}
+  onPress={() => router.push("/signup")}
 >
   Create Account
 </CustomButton>
@@ -39,8 +39,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   image: {
-    width: 250,
-    height: 250,
+    width: 300,
+    height: 300,
     resizeMode: "contain",
     marginBottom: 30,
   },
