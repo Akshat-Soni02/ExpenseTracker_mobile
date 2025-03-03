@@ -3,7 +3,9 @@ import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
-
+import ImageIcon from "@/components/ImageIcon";
+import TransactionCard from "@/components/TransactionCard";
+// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 export default function WelcomeScreen() {
   const router = useRouter();
 
@@ -26,6 +28,12 @@ export default function WelcomeScreen() {
 >
   Create Account
 </CustomButton>
+<TransactionCard
+imageName="sampleProfilePic"
+title ="Some Description"
+subtitle = "account name"
+amount="$100"
+optionText="10:10am"/> 
     </View>
   );
 }
