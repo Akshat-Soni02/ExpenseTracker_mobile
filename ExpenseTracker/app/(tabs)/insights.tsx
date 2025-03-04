@@ -3,7 +3,6 @@ import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
-import ImageIcon from "@/components/ImageIcon";
 import TransactionCard from "@/components/TransactionCard";
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 export default function WelcomeScreen() {
@@ -24,7 +23,7 @@ export default function WelcomeScreen() {
 <CustomButton
   style={styles.createAccountButton}
   variant="outline"
-  onPress={() => router.push("/register")}
+  onPress={() => router.push("/signup")}
 >
   Create Account
 </CustomButton>
@@ -37,7 +36,6 @@ optionText="10:10am"/>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
