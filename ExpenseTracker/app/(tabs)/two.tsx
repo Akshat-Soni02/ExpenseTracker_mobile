@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
 <CustomButton
   style={styles.createAccountButton}
   variant="outline"
-  onPress={() => router.push("/register")}
+  onPress={() => router.push("/signin")}
 >
   Create Account
 </CustomButton>
@@ -57,12 +57,14 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   signInButton: {
-    width: "90%",
+    // width: "90%",
     marginBottom: 10,
+    alignSelf: "center"
   },
   createAccountButton: {
-    width: "90%",
-    backgroundColor: "white"
+    // width: "90%",
+    // backgroundColor: "white"
+    alignSelf: "center"
   },
 });
 

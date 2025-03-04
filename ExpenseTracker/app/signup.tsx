@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from "reac
 import { FontAwesome } from "@expo/vector-icons"; // Icons for eye and Facebook
 import CustomButton from "../components/button/CustomButton";
 import { useRouter } from "expo-router";
+import GoogleButton from "@/components/GoogleButton";
 
 export default function SignUpScreen() {
     const router = useRouter();
@@ -58,14 +59,9 @@ export default function SignUpScreen() {
       </View>
 
       {/* Social Login Buttons */}
-        <CustomButton
-        variant="outline"
-        onPress={() => console.log("Google login")}
-        style={styles.googleButton}
-      >
-        {/* <FontAwesome name="google" size={20} color="#000" /> */}
-        <Text style={styles.googleText}> Continue with Google</Text>
-      </CustomButton>
+        <View style = {styles.googleButton}>
+          <GoogleButton/>
+        </View>
 
       {/* Already have an account? Log in */}
       <Text style={styles.loginText}>

@@ -4,6 +4,7 @@ import { globalStyles } from "../styles/globalStyles";
 import CustomButton from "../components/button/CustomButton";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import GoogleButton from "@/components/GoogleButton";
 
 
 export default function LoginScreen() {
@@ -49,14 +50,7 @@ export default function LoginScreen() {
       </View>
 
       {/* Social Login Button (Google) */}
-      <CustomButton
-        variant="outline"
-        onPress={() => console.log("Google login")}
-        style={styles.googleButton}
-      >
-        {/* <FontAwesome name="google" size={20} color="#000" /> */}
-        <Text style={styles.googleText}> Continue with Google</Text>
-      </CustomButton>
+      <GoogleButton/>
 
       {/* Sign Up Link */}
       <Text style={styles.signupText}>
