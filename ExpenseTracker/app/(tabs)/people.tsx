@@ -1,74 +1,75 @@
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet, Image,ScrollView } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 import TransactionCard from "@/components/TransactionCard";
+import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native";
+
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
-export default function WelcomeScreen() {
+export default function PeopleScreen() {
   const router = useRouter();
 
+
   return (
-    <View style={styles.container}>
-      <Image source={require("../../assets/images/1.png")} style={styles.image} />
-      <Text style={globalStyles.title}>Explore the app</Text>
-      <Text style={styles.subtitle}>
-        Now your finances are in one place and always under control
-      </Text>
-
-      <CustomButton style={styles.signInButton} onPress={() => router.push("/login")}>
-  Sign In
-</CustomButton>
-
-<CustomButton
-  style={styles.createAccountButton}
-  variant="outline"
-  onPress={() => router.push("/signup")}
->
-  Create Account
-</CustomButton>
-<TransactionCard
-imageName="sampleProfilePic"
-title ="Some Description"
-subtitle = "account name"
-amount="$100"
-optionText="10:10am"/> 
-    </View>
+        <ScrollView style={styles.container}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <FontAwesome name="arrow-left" size={20} color="black" />
+          </TouchableOpacity>      
+          <Text style={styles.headerText}>People</Text>
+          <View style={styles.transactionsContainer}>
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="A Random Name"
+              subtitle="3 unsettled splits"
+              amount="$100"
+              optionText="you owe"
+            />
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="A Random Name"
+              subtitle="3 unsettled splits"
+              amount="$100"
+              optionText="you owe"
+            />
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="A Random Name"
+              subtitle="3 unsettled splits"
+              amount="$100"
+              optionText="you owe"
+            />
+          </View>
+        </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     backgroundColor: "#fff",
+    paddingTop: 0, // Add padding to the top to avoid overlap with status bar
   },
-  image: {
-    width: 250,
-    height: 250,
-    resizeMode: "contain",
-    marginBottom: 30,
+  backButton: {
+    // position: "absolute",
+    left: 10,
+    top: 20, // Space above the back button
+    marginBottom: 20, // Space below the back button
   },
-  title: {
-    fontSize: 30,
+  headerText: {
+    position: "absolute",
+    top: 20, // Space above the header text
+    fontSize: 22,
+    right: 10,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 20, // Space below the header text
   },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    color: "#666",
-    marginBottom: 30,
-  },
-  signInButton: {
-    width: "90%",
-    marginBottom: 10,
-  },
-  createAccountButton: {
-    width: "90%",
-    backgroundColor: "white"
+  transactionsContainer: {
+    marginTop: 20, // Space above the transactions
+    alignItems: "flex-start",
+    width: "100%",
+    paddingVertical: 10, // Space above and below the transactions
   },
 });
-

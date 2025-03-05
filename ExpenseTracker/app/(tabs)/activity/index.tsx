@@ -6,65 +6,67 @@ import { globalStyles } from "@/styles/globalStyles";
 import TransactionCard from "@/components/TransactionCard";
 import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
+
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 export default function ActivityScreen() {
   const router = useRouter();
 
-  return (
-    <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <FontAwesome name="arrow-left" size={20} color="black" />
-      </TouchableOpacity>      
-      <Text style={styles.headerText}>All Records</Text>
-      <View style={styles.navbar}>
-        <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
-      </View>
-      <Text style={styles.todayText}>Today</Text>
-      <View style={styles.transactionsContainer}>
-        <TransactionCard
-          imageName="sampleProfilePic"
-          title="Some Description"
-          amount="$100"
-          optionText="10:10am"
-        />
-        <TransactionCard
-          imageName="sampleProfilePic"
-          title="Some Description"
-          amount="$250"
-          optionText="12:30pm"
-        />
-        <TransactionCard
-          imageName="sampleProfilePic"
-          title="Some Description"
-          amount="$75"
-          optionText="2:45pm"
-        />
-      </View>
-      <Text style={styles.todayText}>19 Feb</Text>
-      <View style={styles.transactionsContainer}>
-        <TransactionCard
-          imageName="sampleProfilePic"
-          title="Some Description"
-          amount="$100"
-          optionText="10:10am"
-        />
-        <TransactionCard
-          imageName="sampleProfilePic"
-          title="Some Description"
-          amount="$250"
-          optionText="12:30pm"
-        />
-        <TransactionCard
-          imageName="sampleProfilePic"
-          title="Some Description"
-          amount="$75"
-          optionText="2:45pm"
-        />
-      </View>
 
-    </ScrollView>
+  return (
+        <ScrollView style={styles.container}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <FontAwesome name="arrow-left" size={20} color="black" />
+          </TouchableOpacity>      
+          <Text style={styles.headerText}>All Records</Text>
+          <View style={styles.navbar}>
+            <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
+          </View>
+          <Text style={styles.todayText}>Today</Text>
+          <View style={styles.transactionsContainer}>
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="Some Description"
+              amount="$100"
+              optionText="10:10am"
+            />
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="Some Description"
+              amount="$250"
+              optionText="12:30pm"
+            />
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="Some Description"
+              amount="$75"
+              optionText="2:45pm"
+            />
+          </View>
+          <Text style={styles.todayText}>19 Feb</Text>
+          <View style={styles.transactionsContainer}>
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="Some Description"
+              amount="$100"
+              optionText="10:10am"
+            />
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="Some Description"
+              amount="$250"
+              optionText="12:30pm"
+            />
+            <TransactionCard
+              imageName="sampleProfilePic"
+              title="Some Description"
+              amount="$75"
+              optionText="2:45pm"
+            />
+          </View>
+
+        </ScrollView>
   );
 }
 
