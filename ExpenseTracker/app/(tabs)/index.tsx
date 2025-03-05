@@ -11,9 +11,9 @@ import { Divider} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
 
 const transactions = [
-  { id: "1", title:"Paytmqr28100743...",type: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" },
-  { id: "2",title:"Paytmqr28100743...", type: "income", amount: "₹90", time: "6:16 pm · 19 Feb" },
-  { id: "3", title:"Paytmqr28100743...",type: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" },
+  { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
+  { id: "2",title:"Paytmqr28100743...", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
+  { id: "3", title:"Paytmqr28100743...",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
 ];
 
 const groups = ["AnyGroupA", "AnyGroupB", "AnyGroupC"];
@@ -82,25 +82,12 @@ export default function TabOneScreen() {
         data={transactions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          // <View style={styles.transactionItem}>
-          //   <Ionicons
-          //     name={item.type === "expense" ? "arrow-up" : "arrow-down"}
-          //     size={20}
-          //     color={item.type === "expense" ? "red" : "green"}
-          //   />
-          //   <View style={styles.transactionDetails}>
-          //     <Text style={styles.transactionTitle}>Paytmqr28100743...</Text>
-          //     <Text style={styles.transactionTime}>{item.time}</Text>
-          //   </View>
-          //   <Text style={styles.transactionAmount}>{item.amount}</Text>
-          //   <Divider/>
-          //   <Divider/>
-          // </View>
           <TransactionCard 
           title = {item.title}
-          type = {item.type}
+          imageType = {item.imageType}
           amount={item.amount}
           subtitle={item.time}
+          transactionType={item.transactionType}
           />
           
         )}

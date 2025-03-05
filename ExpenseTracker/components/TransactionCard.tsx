@@ -9,10 +9,11 @@ interface TransactionCardProps {
   subtitle?: string; // Optional subtitle
   amount: string; // Amount text
   optionText?: string; // Optional text above the amount
-  type?:string;
+  imageType?:string;
+  transactionType?:string;
 }
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,type }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType }) => {
   return (
     // <View style={styles.card}>
     //   {imageName&&<ImageIcon size={50} />}
@@ -27,18 +28,31 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     // </View>
     <View style={styles.transactionItem}>
       {imageName&&<ImageIcon size={50} />}
-      {type&&<Ionicons
-        name={type === "expense" ? "arrow-up" : "arrow-down"}
+      {imageType&&<Ionicons
+        name={imageType === "expense" ? "arrow-up" : "arrow-down"}
         size={20}
-        color={type === "expense" ? "red" : "green"}
+        color={imageType === "expense" ? "red" : "green"}
       />}
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle}>{title}</Text>
         <Text style={styles.transactionSubtitle}>{subtitle}</Text>
       </View>
       <View style={styles.amountDetails}>
-        <Text style={styles.topAmountText}>Hii</Text>
-        <Text style={styles.transactionAmount}>{amount}</Text>
+        <Text style={styles.topAmountText}>{optionText}</Text>
+        <Text
+          style={[
+            styles.transactionAmount,
+            { 
+              color: transactionType === "income" 
+                ? "green" 
+                : transactionType === "expense" 
+                ? "red" 
+                : "black" // Default color if transactionType is undefined
+            }
+          ]}
+        >
+          {amount}
+        </Text>
       </View>
     </View>
   );

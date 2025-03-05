@@ -1,4 +1,4 @@
-import { StyleSheet, Image,ScrollView } from "react-native";
+import { StyleSheet, Image,ScrollView,FlatList } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
@@ -7,6 +7,11 @@ import TransactionCard from "@/components/TransactionCard";
 import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 
+const people = [
+  { id: "1", title:"Akshat",imageName:"Akshat", amount: "₹60", time: "3 unsettled splits" ,optionText:"You Owe",transactionType:"income"},
+  { id: "2",title:"Atharva",imageName:"Atharva",amount: "₹90", time: "2 unsettled splits" ,optionText:"You are Due",transactionType:"expense"},
+  { id: "3", title:"ABC",imageName:"ABC", amount: "₹80", time: "5 unsettled splits" ,optionText:"You Owe",transactionType:"income"},
+];
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 export default function PeopleScreen() {
   const router = useRouter();
@@ -19,26 +24,25 @@ export default function PeopleScreen() {
           </TouchableOpacity>      
           <Text style={styles.headerText}>People</Text>
           <View style={styles.transactionsContainer}>
-            <TransactionCard
-              imageName="sampleProfilePic"
-              title="A Random Name"
-              subtitle="3 unsettled splits"
-              amount="$100"
-              optionText="you owe"
-            />
-            <TransactionCard
-              imageName="sampleProfilePic"
-              title="A Random Name"
-              subtitle="3 unsettled splits"
-              amount="$100"
-              optionText="you owe"
-            />
-            <TransactionCard
-              imageName="sampleProfilePic"
-              title="A Random Name"
-              subtitle="3 unsettled splits"
-              amount="$100"
-              optionText="you owe"
+            <FlatList
+              data={people}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TransactionCard 
+                imageName={item.imageName}
+                title = {item.title}
+                amount={item.amount}
+                subtitle={item.time}
+                optionText={item.optionText}
+                transactionType={item.transactionType}
+                />
+                
+              )}
+              ItemSeparatorComponent={() => (
+                <View style={{  height: 1, backgroundColor: 'black'}} />
+              )}
+              contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+
             />
           </View>
         </ScrollView>
@@ -67,8 +71,8 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Space below the header text
   },
   transactionsContainer: {
-    marginTop: 20, // Space above the transactions
-    alignItems: "flex-start",
+    marginTop: 40, // Space above the transactions
+    // alignItems: "flex-start",
     width: "100%",
     paddingVertical: 10, // Space above and below the transactions
   },
