@@ -7,11 +7,13 @@ import * as React from 'react';
 // import { Card, Text } from 'react-native-paper';
 import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Divider} from 'react-native-paper';
+import TransactionCard from '@/components/TransactionCard';
 
 const transactions = [
-  { id: "1", type: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" },
-  { id: "2", type: "income", amount: "₹90", time: "6:16 pm · 19 Feb" },
-  { id: "3", type: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" },
+  { id: "1", title:"Paytmqr28100743...",type: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" },
+  { id: "2",title:"Paytmqr28100743...", type: "income", amount: "₹90", time: "6:16 pm · 19 Feb" },
+  { id: "3", title:"Paytmqr28100743...",type: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" },
 ];
 
 const groups = ["AnyGroupA", "AnyGroupB", "AnyGroupC"];
@@ -20,10 +22,11 @@ export default function TabOneScreen() {
   const router = useRouter();
 
   return (
+  <View style={styles.page}>
     <View style={styles.container}>
       {/* Profile Card */}
       <View style={styles.profileCard}>
-        <View style={styles.profileColumn}>
+        <View style={styles.profileColumn1}>
           <View style={styles.profileInfo}>
             <Image
               source={require("../../assets/images/sampleprofilepic.png")}
@@ -34,16 +37,17 @@ export default function TabOneScreen() {
               <Text style={styles.name}>Adline Castelino</Text>
             </View>
           </View>
-        </View>
-        <View style={styles.totalSpend}>
-          <View>
-            <Text style={styles.label}>Today's Spend</Text>
-            <Text style={styles.spend}>₹5000</Text>
+        
+          <View style={styles.totalSpend}>
+            <View>
+              <Text style={styles.label}>Today's Spend</Text>
+              <Text style={styles.spend}>₹5000</Text>
+            </View>
           </View>
         </View>
-        <View style={styles.profileColumn}>
+        <View style={styles.profileColumn2}>
           <View style={styles.financialSummary}>
-            <View>
+            <View style={styles.textContainer}>
               <Text style={styles.label}>You owe</Text>
               <Text style={styles.debit}>₹500</Text>
             </View>
@@ -57,10 +61,18 @@ export default function TabOneScreen() {
 
       {/* Quick Actions */}
       <View style={styles.actions}>
-        {["add", "swap-horizontal", "receipt", "wallet"].map((icon, index) => (
-          <TouchableOpacity key={index} style={styles.actionButton}>
-            <Ionicons name={icon} size={24} color="#000" />
-          </TouchableOpacity>
+        {[
+          { icon: "add", label: "Add" },
+          { icon: "swap-horizontal", label: "Transfer" },
+          { icon: "receipt", label: "Bills" },
+          { icon: "wallet", label: "Wallet" },
+        ].map((item, index) => (
+          <View key={index} style={styles.actionContainer}>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name={item.icon} size={30} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.actionText}>{item.label}</Text>
+          </View>
         ))}
       </View>
 
@@ -70,23 +82,37 @@ export default function TabOneScreen() {
         data={transactions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.transactionItem}>
-            <Ionicons
-              name={item.type === "expense" ? "arrow-up" : "arrow-down"}
-              size={20}
-              color={item.type === "expense" ? "red" : "green"}
-            />
-            <View style={styles.transactionDetails}>
-              <Text style={styles.transactionTitle}>Paytmqr28100743...</Text>
-              <Text style={styles.transactionTime}>{item.time}</Text>
-            </View>
-            <Text style={styles.transactionAmount}>{item.amount}</Text>
-          </View>
+          // <View style={styles.transactionItem}>
+          //   <Ionicons
+          //     name={item.type === "expense" ? "arrow-up" : "arrow-down"}
+          //     size={20}
+          //     color={item.type === "expense" ? "red" : "green"}
+          //   />
+          //   <View style={styles.transactionDetails}>
+          //     <Text style={styles.transactionTitle}>Paytmqr28100743...</Text>
+          //     <Text style={styles.transactionTime}>{item.time}</Text>
+          //   </View>
+          //   <Text style={styles.transactionAmount}>{item.amount}</Text>
+          //   <Divider/>
+          //   <Divider/>
+          // </View>
+          <TransactionCard 
+          title = {item.title}
+          type = {item.type}
+          amount={item.amount}
+          subtitle={item.time}
+          />
+          
         )}
+        ItemSeparatorComponent={() => (
+          <View style={{  height: 1, backgroundColor: 'black'}} />
+        )}
+        contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+
       />
 
       {/* Groups */}
-      <Text style={styles.sectionTitle}>Groups</Text>
+      <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
       <View style={styles.groupContainer}>
         {groups.map((group, index) => (
           <View key={index} style={styles.groupItem}>
@@ -94,34 +120,53 @@ export default function TabOneScreen() {
             <Text style={styles.groupName}>{group}</Text>
           </View>
         ))}
-        <TouchableOpacity style={styles.newGroup}>
-          <Ionicons name="add" size={24} color="#000" />
-        </TouchableOpacity>
+        <View style={styles.groupItem}>
+          <TouchableOpacity style={styles.newGroup}>
+            <Ionicons name="add" size={24} color="#000" />          
+          </TouchableOpacity>
+          <Text style={styles.groupName}>Add</Text>
+        </View>
       </View>
     </View>
+  </View>
   );
 }
 
 const styles = StyleSheet.create({
+  page:{
+    flex:1,
+    backgroundColor: "#ffffff"
+  },
   container: { 
-    flex: 1, 
-    padding: 20, 
-    backgroundColor: "#f8f9fa" 
+    justifyContent:"space-between",
+    padding: 20,      
   },
   profileCard: { 
-    // flexDirection: "row", 
-    justifyContent: "space-between", 
+    flexDirection: "row", 
+    justifyContent: "flex-start", 
+    height:180,
+    width:"100%",
     padding: 20, 
     borderRadius: 10, 
-    backgroundColor: "#2C3E50", 
+    backgroundColor: "#4A627A", 
     marginBottom: 20 
   },
 
   profileInfo: { 
     flexDirection: "row",  
   },
-  profileColumn: { 
-    flexDirection: "column", 
+  profileColumn1: { 
+    width:"50%",
+    justifyContent:"space-between",
+    // flexDirection: "row", 
+  },
+  profileColumn2:{
+    width:"50%",
+    justifyContent:"flex-end",
+    // flexDirection: "column", 
+  },
+  textContainer:{
+    marginBottom:10,
   },
   avatar: { 
     width: 50, 
@@ -139,14 +184,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold" 
   },
   financialSummary: { 
-    alignItems: "flex-end" 
+    alignSelf:"flex-end",
   },
   totalSpend: {
-    alignItems: "flex-end",
-    marginTop: 10,},
+    alignItems: "flex-start",
+  },
   label: { 
-    color: "#ccc", 
-    fontSize: 12 
+    color: "#ccc",
+    fontSize: 14
   },
   debit: { 
     color: "red", 
@@ -154,7 +199,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold" 
   },
   credit: { 
-    color: "green", 
+    color: "#7DDE92", 
     fontSize: 16, 
     fontWeight: "bold" 
   },
@@ -163,15 +208,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  actions: { 
-    flexDirection: "row", 
-    justifyContent: "space-between", 
-    marginBottom: 20 
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginBottom:30,
   },
-  actionButton: { 
-    backgroundColor: "#EAF2FF", 
-    padding: 15, 
-    borderRadius: 10 
+  actionContainer: {
+    alignItems: "center", // Centers the icon and text
+  },
+  actionButton: {
+    padding: 10,
+    backgroundColor: "#C8E6FF",
+    borderRadius: 50,
+  },
+  actionText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: "#000",
   },
   sectionTitle: { 
     fontSize: 18, 
@@ -182,7 +236,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     alignItems: "center", 
     padding: 15, 
-    backgroundColor: "#fff", 
+    backgroundColor: "#f8f9fa", 
     borderRadius: 10, 
     marginBottom: 10 
   },
@@ -203,18 +257,21 @@ const styles = StyleSheet.create({
   },
   groupContainer: { 
     flexDirection: "row", 
-    justifyContent: "space-between", 
+    justifyContent: "space-around", 
     marginTop: 10 
   },
   groupItem: { 
-    alignItems: "center" 
+    alignItems: "center",
   },
   groupLetter: { 
     fontSize: 20, 
     fontWeight: "bold", 
-    backgroundColor: "#D1E7FF", 
-    padding: 15, 
-    borderRadius: 50 
+    backgroundColor: "#D1E7FF",  
+    width:55,
+    height:55,
+    borderRadius: 50 ,
+    textAlign: "center",
+    textAlignVertical: "center",
   },
   groupName: { 
     fontSize: 12, 

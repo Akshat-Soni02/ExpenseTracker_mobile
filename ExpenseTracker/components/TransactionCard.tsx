@@ -1,26 +1,44 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import ImageIcon from "./ImageIcon"; // Adjust the import path as necessary
-
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Divider} from 'react-native-paper';
 interface TransactionCardProps {
   imageName?: string; // Name of the profile image
   title: string; // Title of the card
   subtitle?: string; // Optional subtitle
   amount: string; // Amount text
   optionText?: string; // Optional text above the amount
+  type?:string;
 }
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,type }) => {
   return (
-    <View style={styles.card}>
+    // <View style={styles.card}>
+    //   {imageName&&<ImageIcon size={50} />}
+    //   <View style={styles.textContainer}>
+    //     <Text style={styles.title}>{title}</Text>
+    //     {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+    //   </View>
+    //   <View style={styles.amountContainer}>
+    //     {optionText && <Text style={styles.optionText}>{optionText}</Text>}
+    //     <Text style={styles.amount}>{amount}</Text>
+    //   </View>
+    // </View>
+    <View style={styles.transactionItem}>
       {imageName&&<ImageIcon size={50} />}
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>{title}</Text>
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      {type&&<Ionicons
+        name={type === "expense" ? "arrow-up" : "arrow-down"}
+        size={20}
+        color={type === "expense" ? "red" : "green"}
+      />}
+      <View style={styles.transactionDetails}>
+        <Text style={styles.transactionTitle}>{title}</Text>
+        <Text style={styles.transactionSubtitle}>{subtitle}</Text>
       </View>
-      <View style={styles.amountContainer}>
-        {optionText && <Text style={styles.optionText}>{optionText}</Text>}
-        <Text style={styles.amount}>{amount}</Text>
+      <View style={styles.amountDetails}>
+        <Text style={styles.topAmountText}>Hii</Text>
+        <Text style={styles.transactionAmount}>{amount}</Text>
       </View>
     </View>
   );
@@ -40,8 +58,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 2, // For Android shadow
-    marginBottom: 16,
+    elevation: 2, 
   },
   textContainer: {
     flex: 1,
@@ -67,6 +84,37 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#355C7D",
+  },
+  transactionItem: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    padding: 15, 
+    backgroundColor: "#f8f9fa", 
+    borderRadius: 10, 
+    marginBottom: 2 
+  },
+  transactionDetails: { 
+    flex: 1,
+    marginLeft: 10 
+  },
+  amountDetails:{
+    flex:1,
+    alignItems:"flex-end"
+  },
+  transactionTitle: { 
+    fontSize: 16 
+  },
+  transactionSubtitle: { 
+    color: "#888", 
+    fontSize: 12 
+  },
+  transactionAmount: { 
+    fontSize: 16, 
+    fontWeight: "bold" 
+  },
+  topAmountText:{
+    color: "#888", 
+    fontSize: 12 
   },
 });
 
