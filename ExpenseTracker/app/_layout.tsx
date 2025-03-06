@@ -59,6 +59,8 @@ function RootLayoutNav() {
         <Stack.Screen name="otp" options={{ headerShown: false }}/>
         <Stack.Screen name="reset" options={{ headerShown: false }}/>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="addSplit" options={{headerShown:false}}/>
+        <Stack.Screen name="addTransaction" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

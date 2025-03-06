@@ -9,7 +9,8 @@ import CardContent from 'react-native-paper/lib/typescript/components/Card/CardC
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Divider} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
-
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Button } from 'react-native-paper';
 const transactions = [
   { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
   { id: "2",title:"Paytmqr28100743...", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
@@ -18,7 +19,7 @@ const transactions = [
 
 const groups = ["AnyGroupA", "AnyGroupB", "AnyGroupC"];
 
-export default function TabOneScreen() {
+export default function HomeScreen() {
   const router = useRouter();
 
   return (
@@ -27,7 +28,7 @@ export default function TabOneScreen() {
       {/* Profile Card */}
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
-          <View style={styles.profileInfo}>
+          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("/(tabs)")}>
             <Image
               source={require("../../assets/images/sampleprofilepic.png")}
               style={styles.avatar}
@@ -36,7 +37,7 @@ export default function TabOneScreen() {
               <Text style={styles.greeting}>Good afternoon</Text>
               <Text style={styles.name}>Adline Castelino</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         
           <View style={styles.totalSpend}>
             <View>
@@ -62,14 +63,16 @@ export default function TabOneScreen() {
       {/* Quick Actions */}
       <View style={styles.actions}>
         {[
-          { icon: "add", label: "Add" },
-          { icon: "swap-horizontal", label: "Transfer" },
+          { icon: "plus", label: "Record" },
           { icon: "receipt", label: "Bills" },
-          { icon: "wallet", label: "Wallet" },
+          { icon: "wallet", label: "Wallets" },
+          { icon: "piggy-bank", label: "Budgets" },
+          
         ].map((item, index) => (
           <View key={index} style={styles.actionContainer}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name={item.icon} size={30} color="#000" />
+            <TouchableOpacity style={styles.actionButton} onPress={()=>router.push("../addSplit")}>
+              <MaterialCommunityIcons name={item.icon} color="black" size={32} />
+              {/* <Ionicons name={item.icon} size={30} color="#000" /> */}
             </TouchableOpacity>
             <Text style={styles.actionText}>{item.label}</Text>
           </View>
@@ -77,7 +80,12 @@ export default function TabOneScreen() {
       </View>
 
       {/* Transactions */}
-      <Text style={styles.sectionTitle}>Transactions</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.sectionTitle}>Transactions</Text>
+        <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)")}>
+          View all
+        </Button>
+      </View>
       <FlatList
         data={transactions}
         keyExtractor={(item) => item.id}
@@ -99,7 +107,12 @@ export default function TabOneScreen() {
       />
 
       {/* Groups */}
-      <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
+      <View style={styles.titleContainer}>
+        <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
+        <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)")}>
+            View all
+        </Button>
+      </View>
       <View style={styles.groupContainer}>
         {groups.map((group, index) => (
           <View key={index} style={styles.groupItem}>
@@ -270,4 +283,11 @@ const styles = StyleSheet.create({
     borderRadius: 50, 
     alignItems: "center" 
   },
+  titleContainer:{
+    justifyContent:"space-between",
+    flexDirection:"row"
+  },
+  viewButton:{
+    alignSelf:"flex-end"
+  }, 
 });

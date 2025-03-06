@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import ImageIcon from "./ImageIcon"; // Adjust the import path as necessary
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Divider} from 'react-native-paper';
 interface TransactionCardProps {
   imageName?: string; // Name of the profile image
@@ -28,8 +28,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     // </View>
     <View style={styles.transactionItem}>
       {imageName&&<ImageIcon size={50} />}
-      {imageType&&<Ionicons
-        name={imageType === "expense" ? "arrow-up" : "arrow-down"}
+      {imageType&&<MaterialCommunityIcons
+        name={imageType === "expense" ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
         color={imageType === "expense" ? "red" : "green"}
       />}
