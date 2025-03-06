@@ -5,11 +5,23 @@ import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "../components/button/CustomButton";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { useSendOtpMutation } from "../store/userApi";
 
 
 export default function ForgotPasswordScreen() {
-  const [email, setEmail] = useState("");
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const {sendOtp , {isLoading}} = useSendOtpMutation();
+
+  const handleSubmit = async () => {
+    try {
+      const response = await sendOtp({email}).unwrap();
+      console.log("otp sent:", response);
+      router.push("/otp");
+    } catch (error) {
+      console.error("otp failed to send:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -36,7 +48,7 @@ export default function ForgotPasswordScreen() {
       />
 
         <View style = {styles.sendCodeView}>
-            <CustomButton onPress={() => router.push("/otp")} style={styles.sendCodeButton}>
+            <CustomButton onPress={() => handleSubmit()} style={styles.sendCodeButton}>
             Send code
         </CustomButton>
         </View>
@@ -51,7 +63,7 @@ export default function ForgotPasswordScreen() {
       </Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
     container: {

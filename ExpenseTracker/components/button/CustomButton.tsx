@@ -11,6 +11,7 @@ import {
 
 interface CustomButtonProps {
   children: React.ReactNode;
+  disabled: any;
   onPress?: (event: GestureResponderEvent) => void;
   style?: object;
   variant?: "filled" | "outline";
@@ -18,6 +19,7 @@ interface CustomButtonProps {
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   children,
+  disabled,
   onPress,
   style,
   variant = "filled",
@@ -32,6 +34,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   return (
     <View style={[styles.buttonWrapper, style]}>
       <ButtonComponent
+        disabled = {disabled}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
