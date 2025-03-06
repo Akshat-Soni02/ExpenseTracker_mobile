@@ -1,46 +1,98 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useForm, Controller } from "react-hook-form";
 import { globalStyles } from "../styles/globalStyles";
 import CustomButton from "../components/button/CustomButton";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import GoogleButton from "@/components/GoogleButton";
-
+import { useLoginUserMutation } from "@/store/userApi";
 
 export default function LoginScreen() {
-    const router = useRouter();
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginUser, { isLoading }] = useLoginUserMutation(); // RTK Query login mutation
+
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = async (data: { email: string; password: string }) => {
+    try {
+      const response = await loginUser(data).unwrap();
+      console.log("Login success:", response);
+      router.push("/(tabs)");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* Header */}
       <Text style={styles.header}>
         Hi, Welcome! <Text style={styles.wave}>👋</Text>
       </Text>
 
       {/* Email Input */}
-      <Text style={styles.label}>Email address</Text>
-      <TextInput style={styles.emailInput} placeholder="Your email" placeholderTextColor="#999" />
-
-      {/* Password Input */}
-      <Text style={styles.label}>Password</Text>
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
+      <View style={styles.formInput}>
+        <Text style={styles.label}>Email address</Text>
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            required: "Email is required",
+            pattern: { value: /\S+@\S+\.\S+/, message: "Invalid email format" }
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Your email"
+              placeholderTextColor="#999"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
         />
-        <TouchableOpacity style={styles.eyeIcon}>
-          <FontAwesome name="eye" size={20} color="#999" />
-        </TouchableOpacity>
+        {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
       </View>
 
-      {/* Forgot Password - Now properly aligned below password */}
-      <TouchableOpacity style={styles.forgotPasswordContainer}>
-        <Text style={styles.forgotPassword} onPress={() => router.push("/forget")}>Forgot password?</Text>
+      {/* Password Input */}
+      <View style={styles.formInput}>
+        <Text style={styles.label}>Password</Text>
+        <View style={styles.passwordContainer}>
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#999"
+                secureTextEntry={!showPassword}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+          <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
+            <FontAwesome name={showPassword ? "eye-slash" : "eye"} size={20} color="#999" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Forgot Password */}
+      <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => router.push("/forget")}>
+        <Text style={styles.forgotPassword}>Forgot password?</Text>
       </TouchableOpacity>
 
       {/* Log In Button */}
-      <CustomButton onPress={() => router.push("/(tabs)")}>Log in</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} disabled={isLoading}>
+        {isLoading ? <ActivityIndicator color="#fff" /> : "Log in"}
+      </CustomButton>
 
       {/* OR Section */}
       <View style={styles.orContainer}>
@@ -50,11 +102,12 @@ export default function LoginScreen() {
       </View>
 
       {/* Social Login Button (Google) */}
-      <GoogleButton/>
+      <GoogleButton />
 
       {/* Sign Up Link */}
       <Text style={styles.signupText}>
-        Don’t have an account? <Text style={styles.signupLink} onPress={() => router.push("/signup")}>Sign up</Text>
+        Don’t have an account?{" "}
+        <Text style={styles.signupLink} onPress={() => router.push("/signup")}>Sign up</Text>
       </Text>
     </View>
   );
@@ -62,9 +115,9 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ensures full-screen spread
-    justifyContent: "center", // Centers content vertically
-    alignItems: "center", // Centers content horizontally
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
@@ -84,16 +137,6 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginBottom: 5,
     color: "#333",
-  },
-  emailInput : {
-    width: "100%",
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    marginBottom: 30
   },
   input: {
     width: "100%",
@@ -115,7 +158,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     width: "100%",
-    alignItems: "flex-end", // Aligns "Forgot password?" to the right
+    alignItems: "flex-end",
     marginTop: 5,
     marginBottom: 35,
   },
@@ -141,21 +184,6 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
     color: "#777",
   },
-  googleButton: {
-    borderColor: "#DB4437", // Keeps border from outlined prop
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%", // Makes button full-width
-    height: 50,
-    marginBottom: 20,
-  },
-  googleText: {
-    fontSize: 16,
-    fontFamily: "Poppins_400Regular",
-    marginLeft: 8, // Space between icon and text
-    // color: "#DB4437",
-  },
   signupText: {
     fontSize: 14,
     fontFamily: "Poppins_400Regular",
@@ -164,5 +192,15 @@ const styles = StyleSheet.create({
   signupLink: {
     color: "#355C7D",
     fontWeight: "bold",
+  },
+  formInput: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 5,
+    fontFamily: "Poppins_400Regular",
   },
 });
