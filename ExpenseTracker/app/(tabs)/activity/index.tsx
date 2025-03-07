@@ -41,7 +41,7 @@ export default function ActivityScreen() {
                 {
                   value: 'transaction',
                   label: 'Transactions',
-                  onPress: ()=>router.push("/activity/activityTransaction"),
+                  onPress: ()=>router.push("../activity/activityTransaction"),
 
                   checkedColor:"red",
                   uncheckedColor:"black",
@@ -49,7 +49,7 @@ export default function ActivityScreen() {
                 { 
                   value: 'settlement', 
                   label: 'Settlements',
-                  onPress: ()=>router.push("/activity/activitySettlement"),
+                  onPress: ()=>router.push("../activity/activitySettlement"),
 
                   checkedColor:"red",
                   uncheckedColor:"black",

@@ -28,7 +28,7 @@ export default function HomeScreen() {
       {/* Profile Card */}
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
-          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("/(tabs)")}>
+          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../(tabs)")}>
             <Image
               source={require("../../assets/images/sampleprofilepic.png")}
               style={styles.avatar}
@@ -82,7 +82,7 @@ export default function HomeScreen() {
       {/* Transactions */}
       <View style={styles.titleContainer}>
         <Text style={styles.sectionTitle}>Transactions</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("../(tabs)")}>
           View all
         </Button>
       </View>
@@ -109,7 +109,7 @@ export default function HomeScreen() {
       {/* Groups */}
       <View style={styles.titleContainer}>
         <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("../(tabs)")}>
             View all
         </Button>
       </View>

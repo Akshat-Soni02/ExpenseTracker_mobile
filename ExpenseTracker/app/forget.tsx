@@ -11,13 +11,13 @@ import { useSendOtpMutation } from "../store/userApi";
 export default function ForgotPasswordScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const {sendOtp , {isLoading}} = useSendOtpMutation();
+  // const {sendOtp , {isLoading}} = useSendOtpMutation();
 
   const handleSubmit = async () => {
     try {
-      const response = await sendOtp({email}).unwrap();
-      console.log("otp sent:", response);
-      router.push("/otp");
+      // const response = await sendOtp({email}).unwrap();
+      // console.log("otp sent:", response);
+      // router.push("/otp");
     } catch (error) {
       console.error("otp failed to send:", error);
     }
@@ -48,16 +48,16 @@ export default function ForgotPasswordScreen() {
       />
 
         <View style = {styles.sendCodeView}>
-            <CustomButton onPress={() => handleSubmit()} style={styles.sendCodeButton}>
+            {/* <CustomButton onPress={() => handleSubmit()} style={styles.sendCodeButton}>
             Send code
-        </CustomButton>
+        </CustomButton> */}
         </View>
       
 
       {/* Remember Password */}
       <Text style={styles.rememberText}>
         Remember password?{" "}
-        <Text style={styles.loginLink} onPress={() => router.push("/login")}>
+        <Text style={styles.loginLink} onPress={() => router.push("../login")}>
           Log in
         </Text>
       </Text>
