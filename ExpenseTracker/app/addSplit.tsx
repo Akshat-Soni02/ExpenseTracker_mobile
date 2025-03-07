@@ -288,6 +288,17 @@
 //   ]);
 //   const [splitMethod, setSplitMethod] = useState<'equally' | 'custom'>('equally');
 
+  //   const [value, setValue] = React.useState('');
+  //   const [description, setDescription] = useState('');
+  //   const router = useRouter();
+  //   const toggleUserSelection = (name: string) => {
+  //       setSelectedUsers((prev) => {
+  //         const exists = prev.find((u) => u.name === name);
+  //         return exists
+  //           ? prev.filter((u) => u.name !== name) // Remove if already selected
+  //           : [...prev, { name, amount: '' }]; // Add with empty amount
+  //       });
+  //     };
 //     const [values, setValues] = React.useState('');
 //     const [description, setDescription] = useState('');
 //     const router = useRouter();
