@@ -39,7 +39,7 @@ export default function PeopleScreen() {
                 
               )}
               ItemSeparatorComponent={() => (
-                <View style={{  height: 1, backgroundColor: 'black'}} />
+                <View style={{  height: 15 , backgroundColor: 'white'}} />
               )}
               contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
 

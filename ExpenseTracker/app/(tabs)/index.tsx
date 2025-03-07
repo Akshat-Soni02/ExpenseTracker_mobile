@@ -11,6 +11,7 @@ import { Divider} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
+import { useGetUserDetectedTransactionsQuery } from '@/store/userApi';
 const transactions = [
   { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
   { id: "2",title:"Paytmqr28100743...", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
@@ -21,7 +22,7 @@ const groups = ["AnyGroupA", "AnyGroupB", "AnyGroupC"];
 
 export default function HomeScreen() {
   const router = useRouter();
-
+  const {dataDetected,isloadingDetected,errorDetected} = useGetUserDetectedTransactionsQuery();
   return (
   <View style={styles.page}>
     <View style={styles.container}>
@@ -63,14 +64,13 @@ export default function HomeScreen() {
       {/* Quick Actions */}
       <View style={styles.actions}>
         {[
-          { icon: "plus", label: "Record" },
-          { icon: "receipt", label: "Bills" },
-          { icon: "wallet", label: "Wallets" },
-          { icon: "piggy-bank", label: "Budgets" },
-          
+          { icon: "plus", label: "Record" ,route:"../addSplit"},
+          { icon: "receipt", label: "Bills", route:"/activity/pendingBills"},
+          { icon: "wallet", label: "Wallets",route:"/activity/wallets" },
+          { icon: "piggy-bank", label: "Budgets",route:"/activity/budgets" },          
         ].map((item, index) => (
           <View key={index} style={styles.actionContainer}>
-            <TouchableOpacity style={styles.actionButton} onPress={()=>router.push("../addSplit")}>
+            <TouchableOpacity style={styles.actionButton} onPress={()=>router.push(item.route)}>
               <MaterialCommunityIcons name={item.icon} color="black" size={32} />
               {/* <Ionicons name={item.icon} size={30} color="#000" /> */}
             </TouchableOpacity>
@@ -116,7 +116,7 @@ export default function HomeScreen() {
       <View style={styles.groupContainer}>
         {groups.map((group, index) => (
           <View key={index} style={styles.groupItem}>
-            <Text style={styles.groupLetter}>{group.charAt(0)}</Text>
+            <Text style={styles.groupLetter}>{group.charAt(9)}</Text>
             <Text style={styles.groupName}>{group}</Text>
           </View>
         ))}
