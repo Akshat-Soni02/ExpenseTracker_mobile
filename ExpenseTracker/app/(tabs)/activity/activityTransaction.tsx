@@ -8,20 +8,19 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons } from 'react-native-paper';
 import * as React from 'react';
+// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 
 const transactions = [
-  { id: "1", title:"Dinner",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-  { id: "2",title:"Party", imageType: "expense", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-  { id: "3", title:"Travel",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
+  { id: "1", title:"Food",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
+  { id: "2",title:"Salary", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
+  { id: "3", title:"Commute",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
 ];
-// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
-export default function ActivityScreen() {
+export default function ActivityTransactionScreen() {
   const router = useRouter();
-
   const [value, setValue] = React.useState('');
 
   return (
-        <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}>
           
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
@@ -35,14 +34,15 @@ export default function ActivityScreen() {
                 {
                   value: 'expense',
                   label: 'Expenses',
+                  onPress: ()=>router.push("/activity"),
+
                   checkedColor:"red",
                   uncheckedColor:"black",
                 },
                 {
                   value: 'transaction',
                   label: 'Transactions',
-                  onPress: ()=>router.push("/activity/activityTransaction"),
-
+                  
                   checkedColor:"red",
                   uncheckedColor:"black",
                 },
@@ -107,6 +107,7 @@ export default function ActivityScreen() {
         </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

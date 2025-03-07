@@ -1,25 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useForm, Controller } from "react-hook-form";
 import CustomButton from "../components/button/CustomButton";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useSendOtpMutation } from "../store/userApi";
-
+import { useSendOtpMutation } from "@/store/userApi";
+import { useState } from "react";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const {sendOtp , {isLoading}} = useSendOtpMutation();
+  const [sendOtp, { isLoading }] = useSendOtpMutation();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = async (data: any) => {
+    console.log("Button clicked, email:", data.email);
+    setErrorMessage("");
     try {
-      const response = await sendOtp({email}).unwrap();
-      console.log("otp sent:", response);
-      router.push("/otp");
+      const response = await sendOtp({ email: data.email }).unwrap();
+      console.log("OTP sent:", response);
+      router.push({ pathname: "/otp", params: { email: data.email } });
     } catch (error) {
-      console.error("otp failed to send:", error);
+      console.error("OTP failed to send:", error);
+      const err = error as { data?: { message?: string } };
+      if (err?.data?.message) {
+        setErrorMessage(err.data.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -28,7 +41,6 @@ export default function ForgotPasswordScreen() {
       {/* Back Button */}
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <FontAwesome name="arrow-left" size={20} color="black" />
-        {/* <FontAwesomeIcon icon={faArrowLeft} size={24} color="black" /> */}
       </TouchableOpacity>
 
       {/* Header */}
@@ -37,22 +49,43 @@ export default function ForgotPasswordScreen() {
         Don't worry! It happens. Please enter the email associated with your account.
       </Text>
 
-      {/* Email Input */}
+      {/* Email Input with Validation */}
       <Text style={styles.label}>Email address</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your email address"
-        placeholderTextColor="#999"
-        value={email}
-        onChangeText={setEmail}
+      <Controller
+        control={control}
+        name="email"
+        rules={{
+          required: "Email is required",
+          pattern: {
+            value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+            message: "Enter a valid email",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your email address"
+            placeholderTextColor="#999"
+            value={value}
+            onBlur={onBlur}
+            onChangeText={onChange}
+          />
+        )}
       />
-
-        <View style = {styles.sendCodeView}>
-            <CustomButton onPress={() => handleSubmit()} style={styles.sendCodeButton}>
-            Send code
+      {typeof errors.email?.message === "string" && (
+              <Text style={styles.error}>{errors.email.message}</Text>
+            )}
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {/* Submit Button */}
+      <View style={styles.sendCodeView}>
+        <CustomButton
+          onPress={handleSubmit(onSubmit)}
+          style={styles.sendCodeButton}
+          disabled={isLoading}
+        >
+          Send Code
         </CustomButton>
-        </View>
-      
+      </View>
 
       {/* Remember Password */}
       <Text style={styles.rememberText}>
@@ -63,68 +96,71 @@ export default function ForgotPasswordScreen() {
       </Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      paddingHorizontal: 20,
-      justifyContent: "flex-start",
-      paddingTop: 120,
-      backgroundColor: "#fff",
-    },
-    backButton: {
-      position: "absolute",
-      top: 50,
-      left: 20,
-    },
-    header: {
-      fontSize: 24,
-      fontWeight: "bold",
-      fontFamily: "Poppins_700Bold",
-      marginBottom: 10,
-    },
-    subtext: {
-      fontSize: 14,
-      fontFamily: "Poppins_400Regular",
-      color: "#666",
-      marginBottom: 30,
-    },
-    label: {
-      fontSize: 14,
-      fontFamily: "Poppins_400Regular",
-      color: "#333",
-      marginBottom: 5,
-    },
-    input: {
-      width: "100%",
-      height: 50,
-      borderWidth: 1,
-      borderColor: "#ccc",
-      borderRadius: 8,
-      paddingHorizontal: 15,
-      fontSize: 16,
-      marginBottom: 30,
-    },
-    sendCodeView: {
-        width: "100%",
-        marginTop: 10,
-        alignSelf: "center",
-    },
-    sendCodeButton: {
-    //   width: "100%", // Ensures button takes full width
-    //   marginTop: 10, // Adds spacing above button
-      alignSelf: "center"
-    },
-    rememberText: {
-      marginTop: 40,
-      fontSize: 14,
-      fontFamily: "Poppins_400Regular",
-      color: "#777",
-      textAlign: "center",
-    },
-    loginLink: {
-      color: "#355C7D",
-      fontWeight: "bold",
-    },
-  });  
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: "flex-start",
+    paddingTop: 120,
+    backgroundColor: "#fff",
+  },
+  backButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    fontFamily: "Poppins_700Bold",
+    marginBottom: 10,
+  },
+  subtext: {
+    fontSize: 14,
+    fontFamily: "Poppins_400Regular",
+    color: "#666",
+    marginBottom: 30,
+  },
+  label: {
+    fontSize: 14,
+    fontFamily: "Poppins_400Regular",
+    color: "#333",
+    marginBottom: 5,
+  },
+  input: {
+    width: "100%",
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  error: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  sendCodeView: {
+    width: "100%",
+    marginTop: 10,
+    alignSelf: "center",
+  },
+  sendCodeButton: {
+    alignSelf: "center",
+  },
+  rememberText: {
+    marginTop: 40,
+    fontSize: 14,
+    fontFamily: "Poppins_400Regular",
+    color: "#777",
+    textAlign: "center",
+  },
+  loginLink: {
+    color: "#355C7D",
+    fontWeight: "bold",
+  },
+});

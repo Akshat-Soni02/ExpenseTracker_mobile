@@ -15,7 +15,7 @@ const transactions = [
   { id: "3", title:"Travel",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
 ];
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
-export default function ActivityScreen() {
+export default function AddTransactionScreen() {
   const router = useRouter();
 
   const [value, setValue] = React.useState('');
@@ -33,28 +33,19 @@ export default function ActivityScreen() {
               onValueChange={setValue}
               buttons={[
                 {
-                  value: 'expense',
-                  label: 'Expenses',
+                  value: 'split',
+                  label: 'Split',
                   checkedColor:"red",
                   uncheckedColor:"black",
                 },
                 {
                   value: 'transaction',
                   label: 'Transactions',
-                  onPress: ()=>router.push("/activity/activityTransaction"),
+                  onPress: ()=>router.push("/"),
 
                   checkedColor:"red",
                   uncheckedColor:"black",
-                },
-                { 
-                  value: 'settlement', 
-                  label: 'Settlements',
-                  onPress: ()=>router.push("/activity/activitySettlement"),
-
-                  checkedColor:"red",
-                  uncheckedColor:"black",
-
-                },
+                }
               ]}
             />
           </View>

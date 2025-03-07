@@ -12,6 +12,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loginUser, { isLoading }] = useLoginUserMutation(); // RTK Query login mutation
+  const [errorMessage, setErrorMessage] = useState("");
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: { email: "", password: "" },
@@ -24,6 +25,12 @@ export default function LoginScreen() {
       router.push("/(tabs)");
     } catch (error) {
       console.error("Login failed:", error);
+      const err = error as { data?: { message?: string } };
+      if (err?.data?.message) {
+        setErrorMessage(err.data.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -89,6 +96,7 @@ export default function LoginScreen() {
         <Text style={styles.forgotPassword}>Forgot password?</Text>
       </TouchableOpacity>
 
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       {/* Log In Button */}
       <CustomButton onPress={handleSubmit(onSubmit)} disabled={isLoading}>
         {isLoading ? <ActivityIndicator color="#fff" /> : "Log in"}
@@ -151,6 +159,11 @@ const styles = StyleSheet.create({
     width: "100%",
     position: "relative",
   },
+  error: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 10,
+  },
   eyeIcon: {
     position: "absolute",
     right: 15,
@@ -185,6 +198,7 @@ const styles = StyleSheet.create({
     color: "#777",
   },
   signupText: {
+    marginTop: 5,
     fontSize: 14,
     fontFamily: "Poppins_400Regular",
     color: "#777",
