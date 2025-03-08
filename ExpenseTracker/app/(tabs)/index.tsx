@@ -63,21 +63,21 @@ export default function HomeScreen() {
 
       {/* Quick Actions */}
       <View style={styles.actions}>
-        {[
-          { icon: "plus", label: "Record" ,route:"../addSplit"},
-          { icon: "receipt", label: "Bills", route:"/activity/pendingBills"},
-          { icon: "wallet", label: "Wallets",route:"/activity/wallets" },
-          { icon: "piggy-bank", label: "Budgets",route:"/activity/budgets" },          
-        ].map((item, index) => (
-          <View key={index} style={styles.actionContainer}>
-            <TouchableOpacity style={styles.actionButton} onPress={()=>router.push(item.route)}>
-              <MaterialCommunityIcons name={item.icon} color="black" size={32} />
-              {/* <Ionicons name={item.icon} size={30} color="#000" /> */}
-            </TouchableOpacity>
-            <Text style={styles.actionText}>{item.label}</Text>
-          </View>
-        ))}
-      </View>
+  {[
+    { icon: "plus", label: "Record", route: "../addSplit" },
+    { icon: "receipt", label: "Bills", route: "../addTransaction" },
+    { icon: "wallet", label: "Wallets", route: "../wallets" },
+    { icon: "piggy-bank", label: "Budgets", route: "../budgets" },
+  ].map((item, index) => (
+    <View key={index} style={styles.actionContainer}>
+      <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
+        <MaterialCommunityIcons name={item.icon} color="black" size={32} />
+      </TouchableOpacity>
+      <Text style={styles.actionText}>{item.label}</Text>
+    </View>
+  ))}
+</View>
+
 
       {/* Transactions */}
       <View style={styles.titleContainer}>
