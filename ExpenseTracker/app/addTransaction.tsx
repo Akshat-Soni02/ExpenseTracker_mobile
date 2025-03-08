@@ -1,173 +1,171 @@
-import { StyleSheet, Image,ScrollView ,FlatList} from "react-native";
-import { Text, View } from "@/components/Themed";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
-import { globalStyles } from "@/styles/globalStyles";
-import TransactionCard from "@/components/TransactionCard";
-import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
-import { SegmentedButtons } from 'react-native-paper';
-import * as React from 'react';
+import AmountDescriptionInput from "@/components/AmountDescriptionInput";
+import NotesInput from "@/components/NotesInput";
+import WalletSelector from "@/components/WalletSelector";
+import PhotoSelector from "@/components/PhotoSelector";
+import CustomDateTimePicker from "@/components/CustomDateTimePicker";
+import CategorySelector from "@/components/CategorySelector";
 
-const transactions = [
-  { id: "1", title:"Dinner",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-  { id: "2",title:"Party", imageType: "expense", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-  { id: "3", title:"Travel",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-];
-// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 export default function AddTransactionScreen() {
+  const { control, handleSubmit, watch, setValue } = useForm({
+    defaultValues: {
+      amount: 0,
+      description: "",
+      transactionType: "expense",
+      paidBy: "You",
+      notes: "",
+      wallet: "",
+      category: "",
+      date: new Date(),
+      time: new Date(),
+      photo: null,
+    },
+  });
+
+  const users = [
+    { id: "1", name:  "user1"},
+    { id: "2", name:  "user2"},
+    { id: "3", name:  "user3"},
+    { id: "4", name:  "user4"}
+  ]
+
+  const wallets = [
+    { id: "1", name:  "wallet1"},
+    { id: "2", name:  "wallet2"},
+    { id: "3", name:  "wallet3"},
+    { id: "4", name:  "wallet4"}
+  ]
+
+  const [transactionType, setTransactionType] = useState("expense");
   const router = useRouter();
 
-  const [value, setValue] = React.useState('');
+  const onSubmit = (data: any) => {
+    console.log("Transaction Data:", { ...data, transactionType });
+    router.back();
+  };
 
   return (
-        <ScrollView style={styles.container}>
-          
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>      
-          <Text style={styles.headerText}>All Records</Text>
-          <View style={styles.navbar}>
-            <SegmentedButtons
-              value={value}
-              onValueChange={setValue}
-              buttons={[
-                {
-                  value: 'split',
-                  label: 'Split',
-                  checkedColor:"red",
-                  uncheckedColor:"black",
-                },
-                {
-                  value: 'transaction',
-                  label: 'Transactions',
-                  onPress: ()=>router.push("/"),
+    <ScrollView style={styles.container}>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <FontAwesome name="arrow-left" size={20} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.header}>Add Spend</Text>
+      </View>
 
-                  checkedColor:"red",
-                  uncheckedColor:"black",
-                }
-              ]}
-            />
-          </View>
-          {/* <View style={styles.navbar}>
-            <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
-          </View> */}
-          <Text style={styles.sectionTitle}>Today</Text>
-          <FlatList
-            data={transactions}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TransactionCard 
-              title = {item.title}
-              imageType = {item.imageType}
-              amount={item.amount}
-              subtitle={item.time}
-              transactionType={item.transactionType}
-              />
-              
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{  height: 1, backgroundColor: 'black'}} />
-            )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+      {/* Transaction Type Selector */}
+      <View style={styles.transactionTypeContainer}>
+        {["expense", "income"].map((type) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.transactionTypeButton,
+              transactionType === type && styles.selectedType,
+            ]}
+            onPress={() => {
+              setTransactionType(type);
+              setValue("transactionType", type);
+            }}
+          >
+            <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText]}>
+              {type === "expense" ? "Expense" : "Income"}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-          />
-          <Text style={[styles.sectionTitle,{paddingTop:20}]}>19 Feb</Text>
-          <FlatList
-            data={transactions}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TransactionCard 
-              title = {item.title}
-              imageType = {item.imageType}
-              amount={item.amount}
-              subtitle={item.time}
-              transactionType={item.transactionType}
-              />
-              
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{  height: 1, backgroundColor: 'black'}} />
-            )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+      <AmountDescriptionInput control={control} />
+      <NotesInput control={control} name="notes" />
+      
+      <View style={styles.walletPhotoContainer}>
+        <WalletSelector control={control} name="wallet" wallets={wallets}/>
+        <PhotoSelector control={control} />
+      </View>
 
-          />
+      <CategorySelector control={control} />
+      <View style={styles.dateTimeContainer}>
+        <CustomDateTimePicker control={control} name="date" label="Date" />
+        <CustomDateTimePicker control={control} name="time" label="Time" />
+      </View>
 
-        </ScrollView>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     backgroundColor: "#fff",
-    paddingTop: 0, // Add padding to the top to avoid overlap with status bar
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 50,
+    marginBottom: 20,
   },
   backButton: {
-    // position: "absolute",
-    left: 10,
-    top: 20, // Space above the back button
-    marginBottom: 20, // Space below the back button
+    padding: 10,
   },
-  headerText: {
-    position: "absolute",
-    top: 20, // Space above the header text
-    fontSize: 22,
-    right: 10,
+  header: {
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20, // Space below the header text
+    fontFamily: "Poppins_700Bold",
   },
-  navbar: {
-    // position: 'absolute',
-    // flexDirection: 'row',
-    // justifyContent: 'space-around',
-    // alignItems: 'center',
-    // height: 10,
-    marginBottom: 20, // Space below the navbar
-    backgroundColor: '#f8f8f8',
-    // borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    borderRadius: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    marginTop: 25, // Space above the navbar
-    shadowRadius: 2,
-    left : 2,
+  transactionTypeContainer: {
+    flexDirection: "row",
+    backgroundColor: "#f1f1f1",
+    borderRadius: 25,
+    padding: 5,
+    alignSelf: "center",
+    width: "80%",
+    justifyContent: "space-between",
+    marginBottom: 10
   },
-  navItem: {
+  transactionTypeButton: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingVertical: 10,
+    alignItems: "center",
+    borderRadius: 20,
   },
-  navText: {
-    color: 'black',
+  selectedType: {
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  transactionTypeText: {
     fontSize: 16,
-    fontWeight: '400',
+    color: "#888",
+    fontWeight: "500",
   },
-  todayText: {
-    // marginTop: 1 // Space above the "Today" text
-    marginLeft: 20,
-    color: "black",
-    fontSize: 20,
+  selectedText: {
     fontWeight: "bold",
-    // marginBottom: 0, // Space below the "Today" text
+    color: "#000",
   },
-  transactionsContainer: {
-    // marginTop: 10, // Space above the transactions
-    alignItems: "flex-start",
+  walletPhotoContainer: {
+    flexDirection: "row",
     width: "100%",
-    paddingVertical: 10, // Space above and below the transactions
+    height: 130,
+    justifyContent: "space-between",
   },
-
-  sectionTitle: { 
-    fontSize: 18, 
-    fontWeight: "bold", 
-    marginBottom: 10 
+  dateTimeContainer: {
+    flexDirection: "row",
+    width: "100%",
+    height: 100,
+    justifyContent: "space-between",
+  },
+  button: {
+    marginVertical: 15,
+    alignSelf: "center",
   },
 });

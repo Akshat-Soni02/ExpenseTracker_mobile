@@ -28,7 +28,7 @@ export default function HomeScreen() {
       {/* Profile Card */}
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
-          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("/(tabs)")}>
+          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../(tabs)")}>
             <Image
               source={require("../../assets/images/sampleprofilepic.png")}
               style={styles.avatar}
@@ -62,27 +62,26 @@ export default function HomeScreen() {
 
       {/* Quick Actions */}
       <View style={styles.actions}>
-        {[
-          { icon: "plus", label: "Record" },
-          { icon: "receipt", label: "Bills" },
-          { icon: "wallet", label: "Wallets" },
-          { icon: "piggy-bank", label: "Budgets" },
-          
-        ].map((item, index) => (
-          <View key={index} style={styles.actionContainer}>
-            <TouchableOpacity style={styles.actionButton} onPress={()=>router.push("../addSplit")}>
-              <MaterialCommunityIcons name={item.icon} color="black" size={32} />
-              {/* <Ionicons name={item.icon} size={30} color="#000" /> */}
-            </TouchableOpacity>
-            <Text style={styles.actionText}>{item.label}</Text>
-          </View>
-        ))}
-      </View>
+  {[
+    { icon: "plus", label: "Record", route: "../addSplit" },
+    { icon: "receipt", label: "Bills", route: "../addTransaction" },
+    { icon: "wallet", label: "Wallets", route: "../wallets" },
+    { icon: "piggy-bank", label: "Budgets", route: "../budgets" },
+  ].map((item, index) => (
+    <View key={index} style={styles.actionContainer}>
+      <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
+        <MaterialCommunityIcons name={item.icon} color="black" size={32} />
+      </TouchableOpacity>
+      <Text style={styles.actionText}>{item.label}</Text>
+    </View>
+  ))}
+</View>
+
 
       {/* Transactions */}
       <View style={styles.titleContainer}>
         <Text style={styles.sectionTitle}>Transactions</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("../(tabs)")}>
           View all
         </Button>
       </View>
@@ -109,7 +108,7 @@ export default function HomeScreen() {
       {/* Groups */}
       <View style={styles.titleContainer}>
         <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("../(tabs)")}>
             View all
         </Button>
       </View>

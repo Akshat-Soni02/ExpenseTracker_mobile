@@ -12,6 +12,7 @@ export default function ForgotPasswordScreen() {
   const [sendOtp, { isLoading }] = useSendOtpMutation();
   const [errorMessage, setErrorMessage] = useState("");
 
+
   const {
     control,
     handleSubmit,
@@ -90,7 +91,7 @@ export default function ForgotPasswordScreen() {
       {/* Remember Password */}
       <Text style={styles.rememberText}>
         Remember password?{" "}
-        <Text style={styles.loginLink} onPress={() => router.push("/login")}>
+        <Text style={styles.loginLink} onPress={() => router.push("../login")}>
           Log in
         </Text>
       </Text>

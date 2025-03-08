@@ -21,7 +21,6 @@ export default function ActivitySpendScreen() {
 
   return (
     <ScrollView style={styles.container}>
-          
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      
@@ -34,16 +33,14 @@ export default function ActivitySpendScreen() {
                 {
                   value: 'expense',
                   label: 'Expenses',
-                  onPress: ()=>router.push("/activity"),
-
+                  onPress: () => router.push("../activity"),
                   checkedColor:"red",
                   uncheckedColor:"black",
                 },
                 {
                   value: 'transaction',
                   label: 'Transactions',
-                  onPress: ()=>router.push("/activity/activitySettlement"),
-
+                  onPress: ()=>router.push("../activity/activitySettlement"),
                   checkedColor:"red",
                   uncheckedColor:"black",
                 },
