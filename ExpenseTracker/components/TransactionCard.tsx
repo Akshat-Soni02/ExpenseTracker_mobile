@@ -29,9 +29,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     <View style={styles.transactionItem}>
       {imageName&&<ImageIcon size={50} />}
       {imageType&&<MaterialCommunityIcons
-        name={imageType === "expense" ? "arrow-top-right" : "arrow-bottom-left"}
+        name={imageType === "debit" ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
-        color={imageType === "expense" ? "red" : "green"}
+        color={imageType === "debit" ? "red" : "green"}
       />}
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle}>{title}</Text>
