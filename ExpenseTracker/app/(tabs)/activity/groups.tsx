@@ -8,28 +8,28 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons,FAB } from 'react-native-paper';
 import * as React from 'react';
-import {useGetUserBudgetsQuery} from '@/store/userApi'; 
+import {useGetUserGroupsQuery} from '@/store/userApi'; 
 const transactions = [
   { id: "1", title:"General",imageType: undefined, amount: "₹60", time: "cash" ,transactionType: undefined},
   { id: "2",title:"Food", imageType: undefined, amount: "₹90", time: "Acc. 12314" ,transactionType: undefined},
   { id: "3", title:"Travel",imageType: undefined, amount: "₹80", time: "Acc. 65786" ,transactionType: undefined},
 ];
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
-export default function BudgetsScreen() {
+export default function GroupsScreen() {
   const router = useRouter();
 
   const [value, setValue] = React.useState('');
-const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGetUserBudgetsQuery({});
-  if (isLoadingBudget) {
+const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUserGroupsQuery({});
+  if (isLoadingGroup) {
       return <Text>Loading...</Text>;
     }
     
-    if (errorBudget) {
-      return <Text>Error: {errorBudget?.message || JSON.stringify(errorBudget)}</Text>;
+    if (errorGroup) {
+      return <Text>Error: {errorGroup?.message || JSON.stringify(errorGroup)}</Text>;
     }
-  const budgets = dataBudget.data;
-  console.log(budgets);
-  const numberOfBudgets = budgets.length; 
+  const groups = dataGroup.data;
+  console.log(groups);
+  const numberOfGroups = groups.length; 
   return (
     <View style={styles.screen}>
         <ScrollView style={styles.container}>
@@ -37,23 +37,24 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      
-          <Text style={styles.headerText}>All Budgets</Text>
+          <Text style={styles.headerText}>All Groups</Text>
           
           {/* <View style={styles.navbar}>
             <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
             <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
             <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
           </View> */}
-          {numberOfBudgets>0?(<FlatList
-            data={budgets}
+          {numberOfGroups>0?(<FlatList
+            data={groups}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TransactionCard 
-              title = {item.budget_title}
+              title = {item.group_title}
               imageType = {undefined}
-              amount={`₹${item.amount}`}
-              subtitle={item.period}
+              amount={`₹${item.initial_budget}`}
+              subtitle={`Settle Up: ${item.settle_up_date.split("T")[0]}`}
               transactionType={undefined}
+              optionText={"inital budget"}
               />
               
             )}
@@ -68,7 +69,7 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
           
         </ScrollView>
         <FAB
-            label="Add Bill"
+            label="Add Group"
             style={styles.fab}
             onPress={() => router.push("../bills")}
         />

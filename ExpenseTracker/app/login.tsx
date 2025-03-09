@@ -7,7 +7,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import GoogleButton from "@/components/GoogleButton";
 import { useLoginUserMutation } from "@/store/userApi";
-
+import { UseDispatch } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function LoginScreen() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +23,13 @@ export default function LoginScreen() {
     try {
       const response = await loginUser(data).unwrap();
       console.log("Login success:", response);
+      // dispatch(setCredentials({ token: response.token, user: response.user }));
+      console.log(response.userData);
+      await AsyncStorage.setItem("authToken", response.token);
+      await AsyncStorage.setItem("user", JSON.stringify(response.userData));
+      const storedToken = await AsyncStorage.getItem("authToken");
+    console.log("Stored Token in AsyncStorage:", storedToken);
+
       router.push("/(tabs)");
     } catch (error) {
       console.error("Login failed:", error);
@@ -31,6 +39,9 @@ export default function LoginScreen() {
       } else {
         setErrorMessage("Something went wrong. Please try again.");
       }
+    }
+    finally{
+
     }
   };
 

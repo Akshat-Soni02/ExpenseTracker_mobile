@@ -11,18 +11,62 @@ import { Divider} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
-import { useGetUserDetectedTransactionsQuery } from '@/store/userApi';
+import { useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery } from '@/store/userApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
+import { useState } from 'react';
 const transactions = [
   { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
   { id: "2",title:"Paytmqr28100743...", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
   { id: "3", title:"Paytmqr28100743...",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
 ];
 
-const groups = ["AnyGroupA", "AnyGroupB", "AnyGroupC"];
+// const groups = [{id:"1",group_title:"AnyGroupA"}, {id:"2",group_title:"AnyGroupB"}, {id:"3",group_title:"AnyGroupC"}];
 
 export default function HomeScreen() {
   const router = useRouter();
-  const {dataDetected,isloadingDetected,errorDetected} = useGetUserDetectedTransactionsQuery();
+
+  const [user, setUser] = useState();
+  const [loading, setLoading] = useState(true);
+
+  const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery({});
+  const {data:dataDetected,isLoading:isLoadingDetected,error:errorDetected} = useGetUserDetectedTransactionsQuery({});
+  
+
+  const {data:dataGroup,isLoading:isLoadingGroup,error:errorGroup} = useGetUserGroupsQuery({});
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const storedUser = await AsyncStorage.getItem("user");
+  //       console.log("ASFDASDFASDFASDFASDF-------",storedUser);
+  //       if (storedUser) {
+  //         const parsedUser = JSON.parse(storedUser); // Parse the JSON object
+  //         console.log("ppppppp------",parsedUser);
+  //         setUser(parsedUser); // Set the user object
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchUser();
+  // }, []);
+
+  if (isLoadingDetected || isLoadingGroup || isLoadingUser) {
+    return <Text>Loading...</Text>;
+  }
+  
+  if (errorDetected || errorGroup || errorUser) {
+    return <Text>Error: {errorDetected?.message || JSON.stringify(errorDetected) || errorGroup?.message || JSON.stringify(errorGroup)}</Text>;
+  }
+  console.log("Hereeeeeeeee      ",dataUser);
+  const groups = dataGroup.data;
+  const numberofGroups = groups.length;
+  console.log(dataDetected.data.slice(0,3).length);
+  const numberOfTransactions = dataDetected.data.length;
+  console.log(numberOfTransactions);
   return (
   <View style={styles.page}>
     <View style={styles.container}>
@@ -36,7 +80,7 @@ export default function HomeScreen() {
             />
             <View>
               <Text style={styles.greeting}>Good afternoon</Text>
-              <Text style={styles.name}>Adline Castelino</Text>
+              <Text style={styles.name}>{dataUser.data.name}</Text>
             </View>
           </TouchableOpacity>
         
@@ -65,9 +109,9 @@ export default function HomeScreen() {
       <View style={styles.actions}>
   {[
     { icon: "plus", label: "Record", route: "../addSplit" },
-    { icon: "receipt", label: "Bills", route: "../addTransaction" },
-    { icon: "wallet", label: "Wallets", route: "../wallets" },
-    { icon: "piggy-bank", label: "Budgets", route: "../budgets" },
+    { icon: "receipt", label: "Bills", route: "/activity/completedBills" },
+    { icon: "wallet", label: "Wallets", route: "/activity/wallets" },
+    { icon: "piggy-bank", label: "Budgets", route: "/activity/budgets" },
   ].map((item, index) => (
     <View key={index} style={styles.actionContainer}>
       <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
@@ -82,42 +126,44 @@ export default function HomeScreen() {
       {/* Transactions */}
       <View style={styles.titleContainer}>
         <Text style={styles.sectionTitle}>Transactions</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("../(tabs)")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("/activity/detectedTransactions")}>
           View all
         </Button>
       </View>
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.id}
+      {numberOfTransactions>0 ? (<FlatList
+        data={dataDetected.data.slice(0,3)}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <TransactionCard 
-          title = {item.title}
-          imageType = {item.imageType}
-          amount={item.amount}
-          subtitle={item.time}
-          transactionType={item.transactionType}
+          title = {item.description}
+          imageType = {item.transaction_type}
+          amount={`₹${item.amount}`}
+          subtitle={item.created_at_date_time}
+          transactionType={item.transaction_type}
           />
           
         )}
         ItemSeparatorComponent={() => (
-          <View style={{  height: 1, backgroundColor: 'black'}} />
+          <View style={{  height: 2, backgroundColor: 'black'}} />
         )}
         contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
 
-      />
+      />) :
+      <Text style={styles.noTransactionsText}>No Transactions for Today</Text>}
+      
 
       {/* Groups */}
       <View style={styles.titleContainer}>
         <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("../(tabs)")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("/activity/groups")}>
             View all
         </Button>
       </View>
       <View style={styles.groupContainer}>
-        {groups.map((group, index) => (
+        {groups.map((group:any, index:any) => (
           <View key={index} style={styles.groupItem}>
-            <Text style={styles.groupLetter}>{group.charAt(9)}</Text>
-            <Text style={styles.groupName}>{group}</Text>
+            <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
+            <Text style={styles.groupName}>{group.group_title}</Text>
           </View>
         ))}
         <View style={styles.groupItem}>
@@ -257,14 +303,15 @@ const styles = StyleSheet.create({
   },
   groupContainer: { 
     flexDirection: "row", 
-    justifyContent: "space-around", 
-    marginTop: 10 
+    justifyContent: "flex-start", 
+    marginTop: 10 ,
   },
   groupItem: { 
     alignItems: "center",
+    marginRight:40,
   },
   groupLetter: { 
-    fontSize: 20, 
+    fontSize: 25, 
     fontWeight: "bold", 
     backgroundColor: "#D1E7FF",  
     width:55,
@@ -290,4 +337,13 @@ const styles = StyleSheet.create({
   viewButton:{
     alignSelf:"flex-end"
   }, 
+  noTransactionsText: {
+    height: 100, // Set a fixed height to match the expected space
+    justifyContent: 'center', // Center the text vertically
+    alignItems: 'center', // Center the text horizontally
+    textAlign: 'center', // Center the text
+    fontSize: 16, // Adjust font size as needed
+    color: 'gray', // Change color to indicate no transactions
+    padding: 16, // Add some padding for better spacing
+},
 });

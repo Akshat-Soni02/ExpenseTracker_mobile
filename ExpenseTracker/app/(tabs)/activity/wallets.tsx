@@ -8,7 +8,7 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons,FAB } from 'react-native-paper';
 import * as React from 'react';
-
+import {useGetUserWalletsQuery} from '@/store/userApi'; 
 const transactions = [
   { id: "1", title:"Cash",imageType: undefined, amount: "₹60", time: "cash" ,transactionType: undefined},
   { id: "2",title:"Kotak", imageType: undefined, amount: "₹90", time: "Acc. 12314" ,transactionType: undefined},
@@ -19,7 +19,17 @@ export default function WalletsScreen() {
   const router = useRouter();
 
   const [value, setValue] = React.useState('');
-
+  const {data: dataWallet, isLoading: isLoadingWallet, error: errorWallet} = useGetUserWalletsQuery({});
+  if (isLoadingWallet) {
+      return <Text>Loading...</Text>;
+    }
+    
+    if (errorWallet) {
+      return <Text>Error: {errorWallet?.message || JSON.stringify(errorWallet)}</Text>;
+    }
+  const wallets = dataWallet.data;
+  console.log(wallets);
+  const numberOfWallets = wallets.length; 
   return (
     <View style={styles.screen}>
         <ScrollView style={styles.container}>
@@ -34,16 +44,16 @@ export default function WalletsScreen() {
             <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
             <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
           </View> */}
-          <FlatList
-            data={transactions}
-            keyExtractor={(item) => item.id}
+          {numberOfWallets>0 ?(<FlatList
+            data={wallets}
+            keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TransactionCard 
-              title = {item.title}
-              imageType = {item.imageType}
-              amount={item.amount}
-              subtitle={item.time}
-              transactionType={item.transactionType}
+              title = {item.wallet_title}
+              imageType = {undefined}
+              amount={`₹${item.amount}`}
+              subtitle={`Lower Limit:${item.lower_limit}`}
+              transactionType={undefined}
               />
               
             )}
@@ -52,7 +62,10 @@ export default function WalletsScreen() {
             )}
             contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
 
-          />
+          />)
+          :
+          <Text style= {styles.noWalletsText}>No Wallets Found</Text>
+          }
           
         </ScrollView>
         <FAB
@@ -145,5 +158,14 @@ const styles = StyleSheet.create({
     backgroundColor:"#f8f9fa",
     right: 0,
     bottom: 0,
+},
+noWalletsText: {
+  height: 100, // Set a fixed height to match the expected space
+  justifyContent: 'center', // Center the text vertically
+  alignItems: 'center', // Center the text horizontally
+  textAlign: 'center', // Center the text
+  fontSize: 16, // Adjust font size as needed
+  color: 'gray', // Change color to indicate no transactions
+  padding: 16, // Add some padding for better spacing
 },
 });
