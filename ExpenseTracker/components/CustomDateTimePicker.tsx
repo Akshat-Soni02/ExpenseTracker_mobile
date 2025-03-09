@@ -7,6 +7,8 @@ interface CustomDateTimePickerProps {
   control: Control<any>;
   name: string;
   label: string;
+  useDefaultToday?: boolean;
+  heading: string;
 }
 
 const formatDate = (dateString: string | null, label: string) => {
@@ -20,30 +22,32 @@ const formatDate = (dateString: string | null, label: string) => {
   }
 };
 
-const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({ control, name, label }) => {
+const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({ control, name, label, useDefaultToday, heading }) => {
   const [showPicker, setShowPicker] = useState(false);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label}>{heading}</Text>
       <Controller
         control={control}
         name={name}
-        defaultValue={null}
+        defaultValue={useDefaultToday ? new Date().toISOString() : null}
         render={({ field: { onChange, value } }) => (
           <>
             <TouchableOpacity style={styles.button} onPress={() => setShowPicker(true)}>
-              <Text style= {styles.btnText}>{formatDate(value, label)}</Text>
+              <Text style={styles.btnText}>{formatDate(value, label)}</Text>
             </TouchableOpacity>
             {showPicker && (
               <DateTimePicker
-                value={value ? new Date(value) : new Date()}
+                value={value ? new Date(value) : new Date()} // Prevent DateTimePicker from setting default
                 mode={label === "Time" ? "time" : "date"}
                 display="default"
                 onChange={(event, selectedDate) => {
                   setShowPicker(false);
                   if (selectedDate) {
                     onChange(selectedDate.toISOString());
+                  } else if (!useDefaultToday) {
+                    onChange(null); // Ensure field stays null if no selection
                   }
                 }}
               />
@@ -64,10 +68,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 10,
     width: "50%",
+    height: "100%"
   },
   label: { fontSize: 16, fontWeight: "bold", alignSelf: "center" },
   button: { padding: 10, borderRadius: 5, alignSelf: "center" },
-  btnText: {fontSize: 18}
+  btnText: { fontSize: 18 },
 });
 
 export default CustomDateTimePicker;

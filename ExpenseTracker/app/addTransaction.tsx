@@ -12,12 +12,11 @@ import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
 
 export default function AddTransactionScreen() {
-  const { control, handleSubmit, watch, setValue } = useForm({
+  const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
       amount: 0,
       description: "",
       transactionType: "expense",
-      paidBy: "You",
       notes: "",
       wallet: "",
       category: "",
@@ -44,9 +43,22 @@ export default function AddTransactionScreen() {
   const [transactionType, setTransactionType] = useState("expense");
   const router = useRouter();
 
-  const onSubmit = (data: any) => {
+//   {transaction_type, description, wallet_id, media, transaction_category, notes,amount, created_at_date_time}
+  const onTransactionSubmit = (data: any) => {
+    const selectedDate = new Date(data.date);
+    const selectedTime = new Date(data.time);
+
+    const created_at_date_time = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        selectedTime.getHours(),
+        selectedTime.getMinutes(),
+        selectedTime.getSeconds()
+    );
     console.log("Transaction Data:", { ...data, transactionType });
-    router.back();
+    reset();
+    router.replace("/(tabs)");
   };
 
   return (
@@ -79,7 +91,7 @@ export default function AddTransactionScreen() {
         ))}
       </View>
 
-      <AmountDescriptionInput control={control} />
+      <AmountDescriptionInput control={control} label="Description"/>
       <NotesInput control={control} name="notes" />
       
       <View style={styles.walletPhotoContainer}>
@@ -89,11 +101,11 @@ export default function AddTransactionScreen() {
 
       <CategorySelector control={control} />
       <View style={styles.dateTimeContainer}>
-        <CustomDateTimePicker control={control} name="date" label="Date" />
-        <CustomDateTimePicker control={control} name="time" label="Time" />
+        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date"/>
+        <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
 
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );
 }

@@ -279,10 +279,12 @@ interface Props {
   control: Control<any>;
   amount: number;
   setValue: (name: string, value: any) => void;
+  title?: string;
+  IncludePaidBy?: boolean;
 }
 
 
-const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount }) => {
+const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, IncludePaidBy }) => {
   const [selectedUsers, setSelectedUsers] = useState([staticUsers[0]]);
   const [splitAmounts, setSplitAmounts] = useState<Record<string, string>>({});
   const [modalVisible, setModalVisible] = useState(false);
@@ -304,7 +306,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount }) => {
 
       // Update form state
       const updatedArray = selectedUsers.map((user) => ({
-        name: user.name,
+        user_id: user.id,
         amount: newSplits[user.id],
       }));
 
@@ -324,7 +326,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount }) => {
 
     // Update react-hook-form state
     const updatedArray = newSelectedUsers.map((u) => ({
-      name: u.name,
+      user_id: u.id,
       amount: splitAmounts[u.id] || "0",
     }));
     setValue("splitWith", updatedArray);
@@ -332,7 +334,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Split with</Text>
+      {title ? (<Text style={styles.title}>{title}</Text>):(<Text style={styles.title}>Split with</Text>)}
 
       {/* Selected Users */}
       <View style={styles.selectedUsersContainer}>
@@ -374,13 +376,15 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount }) => {
         <Text style={styles.addButtonText}>Add People</Text>
       </TouchableOpacity>
 
-      {/* Paid By Selection */}
-      <View style={styles.paidByContainer}>
+      {IncludePaidBy && (
+        <View style={styles.paidByContainer}>
         <Text style={styles.paidByText}>Paid by</Text>
         <TouchableOpacity style={styles.paidByButton} onPress={() => setPaidByModalVisible(true)}>
           <Text style={styles.paidByButtonText}>{paidBy.name}</Text>
         </TouchableOpacity>
-      </View>
+      </View>)
+      }
+      
 
       {/* People Selection Modal */}
       <Modal animationType="slide" transparent={false} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
@@ -408,12 +412,12 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount }) => {
         <View style={styles.fullScreenModal}>
           <Text style={styles.modalTitle}>Select Payer</Text>
           <FlatList
-            data={staticUsers}
+            data={selectedUsers}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => {
               const isSelected = paidBy.id === item.id;
               return (
-                <TouchableOpacity onPress={() => { setPaidBy(item); setPaidByModalVisible(false); }} style={[styles.modalItem, isSelected && styles.selectedItem]}>
+                <TouchableOpacity onPress={() => { setPaidBy(item); setValue("paidBy", item); setPaidByModalVisible(false); }} style={[styles.modalItem, isSelected && styles.selectedItem]}>
                   <Text style={[styles.modalItemText]}>{item.name}</Text>
                   {isSelected && <Ionicons name="checkmark" size={20} color="black" />}
                 </TouchableOpacity>
