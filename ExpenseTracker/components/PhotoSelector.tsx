@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Controller, Control } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
 
 
 interface Props {
@@ -10,6 +11,20 @@ interface Props {
   }
 
   const PhotoSelector: React.FC<Props> = ({ control }) => {
+    const [uploadedFile, setUploadedFile] = useState("");
+
+    const getMediaPath = async (imageUri: string) => {
+      try {
+        const fileUri = imageUri.replace("file://", "");
+        console.log("Valid file path:", fileUri);
+        return fileUri;
+      } catch (error) {
+        console.error("Error processing file path:", error);
+      }
+    };
+    
+
+
   return (
     <View style={styles.container}>
       <Controller
@@ -26,7 +41,8 @@ interface Props {
                 onPress={async () => {
                   let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [4, 3], quality: 1 });
                   if (!result.canceled) {
-                    onChange(result.assets[0].uri);
+                    onChange(getMediaPath(result.assets[0].uri));
+                    setUploadedFile(result.assets[0].uri);
                   }
                 }}
               >
@@ -41,11 +57,12 @@ interface Props {
               onPress={async () => {
                 let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [4, 3], quality: 1 });
                 if (!result.canceled) {
-                  onChange(result.assets[0].uri);
+                  onChange(getMediaPath(result.assets[0].uri));
+                  setUploadedFile(result.assets[0].uri);
                 }
               }}
             >
-              {value && <Image source={{ uri: value }} style={styles.image} />}
+              {value && <Image source={{ uri: uploadedFile }} style={styles.image} />}
               {/* <Text>Select Photo</Text> */}
             </TouchableOpacity>
             <TouchableOpacity style={styles.removeButton} onPress={() => onChange(null)}>

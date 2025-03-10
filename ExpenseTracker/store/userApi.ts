@@ -86,7 +86,16 @@ export const userApi = api.injectEndpoints({
       providesTags: ["expense"],
     }),
 
-    getUserWallets: builder.query({
+    getUserSettlements: builder.query({
+      query: ({ group_id }) => {
+        const params = new URLSearchParams();
+        if (group_id) params.append("group_id", group_id);
+        return `/users/settlements?${params.toString()}`;
+      },
+      providesTags: ["settlement"],
+    }),
+
+    getUserWallets: builder.query<void, void>({
       query: () => `/users/wallets`,
       providesTags: ["wallet"],
     }),
@@ -115,7 +124,7 @@ export const userApi = api.injectEndpoints({
       providesTags: ["detectedTransaction"],
     }),
 
-    getUserFriends: builder.query({
+    getUserFriends: builder.query<void,void>({
       query: () => `/users/friends`,
       providesTags: ["user"],
     }),

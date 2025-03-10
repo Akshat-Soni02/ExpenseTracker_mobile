@@ -109,9 +109,9 @@ export default function HomeScreen() {
       <View style={styles.actions}>
   {[
     { icon: "plus", label: "Record", route: "../addSplit" },
-    { icon: "receipt", label: "Bills", route: "/activity/completedBills" },
-    { icon: "wallet", label: "Wallets", route: "/activity/wallets" },
-    { icon: "piggy-bank", label: "Budgets", route: "/activity/budgets" },
+    { icon: "receipt", label: "Bills", route: "../addTransaction" },
+    { icon: "wallet", label: "Wallets", route: "../createGroup" },
+    { icon: "piggy-bank", label: "Budgets", route: "../createBill" },
   ].map((item, index) => (
     <View key={index} style={styles.actionContainer}>
       <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
@@ -126,7 +126,7 @@ export default function HomeScreen() {
       {/* Transactions */}
       <View style={styles.titleContainer}>
         <Text style={styles.sectionTitle}>Transactions</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("/activity/detectedTransactions")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("../createWallet")}>
           View all
         </Button>
       </View>

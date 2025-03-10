@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, FlatList, StyleSheet } from "react-native";
 import { Controller } from "react-hook-form";
+import { useGetUserWalletsQuery } from "@/store/userApi";
 
 interface WalletSelectorProps {
   control: any;
   name: string;
-  wallets: { id: string; name: string }[];
 }
 
-const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name, wallets }) => {
+const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const { data, isLoading, error } = useGetUserWalletsQuery();
 
   return (
     <Controller
@@ -19,25 +20,28 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name, wallets 
         <View style={styles.container}>
           <Text style={styles.label}>Select Wallet</Text>
           
-          <View style={styles.selectionContainer}>
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text style={styles.tap}>{value?.name || "Tap to select"}</Text>
-            </TouchableOpacity>
-
-            {/* Show Remove button if a wallet is selected */}
-            {value && (
-              <TouchableOpacity onPress={() => onChange(null)} style={styles.removeButton}>
-                <Text style={styles.removeText}>✕</Text>
+          {!isLoading && (
+              <View style={styles.selectionContainer}>
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <Text style={styles.tap}>{value?.wallet_title || "Tap to select"}</Text>
               </TouchableOpacity>
-            )}
-          </View>
+  
+              {/* Show Remove button if a wallet is selected */}
+              {value && (
+                <TouchableOpacity onPress={() => onChange(null)} style={styles.removeButton}>
+                  <Text style={styles.removeText}>✕</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+          
 
           <Modal visible={modalVisible} transparent animationType="slide">
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <FlatList
-                  data={wallets}
-                  keyExtractor={(item) => item.id}
+                  data={data?.data}
+                  keyExtractor={(item) => item._id}
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       style={styles.modalItem}
@@ -46,7 +50,8 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name, wallets 
                         setModalVisible(false);
                       }}
                     >
-                      <Text style={styles.modalText}>{item.name}</Text>
+                      <Text style={styles.modalText}>{item.wallet_title}</Text>
+                      <Text style={styles.modalText}>₹{item.amount}</Text>
                     </TouchableOpacity>
                   )}
                 />
@@ -127,6 +132,8 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     paddingHorizontal: 10,
     borderRadius: 5,
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   modalText: {
     color: "#000",
