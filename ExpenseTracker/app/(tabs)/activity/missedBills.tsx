@@ -8,6 +8,8 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons,FAB } from 'react-native-paper';
 import * as React from 'react';
+import {useGetUserBillsQuery} from '@/store/userApi';
+import { format } from "date-fns";
 
 const transactions = [
   { id: "1", title:"Dinner",imageType: undefined, amount: "₹60", time: "due date: 6pm, 20Feb" ,transactionType: undefined},
@@ -19,6 +21,17 @@ export default function MissedBillsScreen() {
   const router = useRouter();
 
   const [value, setValue] = React.useState('');
+  const {data: dataMissedBills, isLoading: isLoadingMissedBills, error: errorMissedBills} = useGetUserBillsQuery({ status: "missed" });
+    if (isLoadingMissedBills) {
+        return <Text>Loading...</Text>;
+    }
+      
+    if (errorMissedBills) {
+        return <Text>Error: {errorMissedBills?.message || JSON.stringify(errorMissedBills)}</Text>;
+    }
+    
+    const missedBills = dataMissedBills.data;
+    const numberOfMissedBills = missedBills.length;
 
   return (
     <View style={styles.screen}>
@@ -60,21 +73,17 @@ export default function MissedBillsScreen() {
               ]}
             />
           </View>
-          {/* <View style={styles.navbar}>
-            <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
-          </View> */}
-          <FlatList
-            data={transactions}
-            keyExtractor={(item) => item.id}
+
+          {numberOfMissedBills>0?(<FlatList
+            data={missedBills}
+            keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TransactionCard 
-              title = {item.title}
-              imageType = {item.imageType}
-              amount={item.amount}
-              subtitle={item.time}
-              transactionType={item.transactionType}
+              title = {item.bill_title}
+              imageType = {undefined}
+              amount={`₹${item.amount}`}
+              subtitle={`Due date: ${format(new Date(item.due_date_time), "MMMM dd, yyyy")}`}
+              transactionType={undefined}
               />
               
             )}
@@ -83,7 +92,9 @@ export default function MissedBillsScreen() {
             )}
             contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
 
-          />
+          />):
+            <Text style={styles.noMissedBillsText}>No Missed Bills!</Text>
+          }
           
         </ScrollView>
         <FAB
@@ -176,5 +187,15 @@ const styles = StyleSheet.create({
     backgroundColor:"#f8f9fa",
     right: 0,
     bottom: 0,
+},
+
+noMissedBillsText: {
+  height: 100, // Set a fixed height to match the expected space
+  justifyContent: 'center', // Center the text vertically
+  alignItems: 'center', // Center the text horizontally
+  textAlign: 'center', // Center the text
+  fontSize: 16, // Adjust font size as needed
+  color: 'gray', // Change color to indicate no transactions
+  padding: 16, // Add some padding for better spacing
 },
 });

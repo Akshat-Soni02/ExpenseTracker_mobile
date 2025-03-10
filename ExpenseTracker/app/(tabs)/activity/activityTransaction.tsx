@@ -6,8 +6,11 @@ import { globalStyles } from "@/styles/globalStyles";
 import TransactionCard from "@/components/TransactionCard";
 import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import { SegmentedButtons } from 'react-native-paper';
+import { SegmentedButtons ,FAB} from 'react-native-paper';
 import * as React from 'react';
+import {useGetUserPersonalTransactionsQuery} from '@/store/userApi';
+import { format, parseISO ,isToday} from 'date-fns'; // Import date-fns functions
+
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 
 const transactions = [
@@ -15,17 +18,47 @@ const transactions = [
   { id: "2",title:"Salary", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
   { id: "3", title:"Commute",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
 ];
+
+const groupTransactionsByDate = (transactions: any) => {
+  const grouped: { [key: string]: any} = {};
+
+  transactions.forEach((transaction:any) => {
+    console.log(transaction);
+    const date = transaction.created_at_date_time.split('T')[0]; // Get the date part (YYYY-MM-DD)
+    console.log(date);
+    if (!grouped[date]) {
+      grouped[date] = [];
+    }
+    grouped[date].push(transaction);
+  });
+
+  return grouped;
+};
+
 export default function ActivityTransactionScreen() {
   const router = useRouter();
   const [value, setValue] = React.useState('');
+  const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery({});
+    if (isLoadingPersonalTransaction) {
+        return <Text>Loading...</Text>;
+    }
+      
+    if (errorPersonalTransaction) {
+        return <Text>Error: {errorPersonalTransaction?.message || JSON.stringify(errorPersonalTransaction)}</Text>;
+    }
+    const personalTransactions = dataPersonalTransaction.data;
+    const numberOfPersonalTransactions = personalTransactions.length;
 
+    const groupedTransactions = groupTransactionsByDate(personalTransactions);
+    const dates = Object.keys(groupedTransactions);
   return (
+    <View style={styles.screen}>
     <ScrollView style={styles.container}>
           
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      
-          <Text style={styles.headerText}>All Records</Text>
+          <Text style={styles.headerText}>All Transactions</Text>
           <View style={styles.navbar}>
             <SegmentedButtons
               value={value}
@@ -58,58 +91,50 @@ export default function ActivityTransactionScreen() {
               ]}
             />
           </View>
-          {/* <View style={styles.navbar}>
-            <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
-          </View> */}
-          <Text style={styles.sectionTitle}>Today</Text>
-          <FlatList
-            data={transactions}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TransactionCard 
-              title = {item.title}
-              imageType = {item.imageType}
-              amount={item.amount}
-              subtitle={item.time}
-              transactionType={item.transactionType}
-              />
-              
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{  height: 1, backgroundColor: 'black'}} />
-            )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
-
-          />
-          <Text style={[styles.sectionTitle,{paddingTop:20}]}>19 Feb</Text>
-          <FlatList
-            data={transactions}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TransactionCard 
-              title = {item.title}
-              imageType = {item.imageType}
-              amount={item.amount}
-              subtitle={item.time}
-              transactionType={item.transactionType}
-              />
-              
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{  height: 1, backgroundColor: 'black'}} />
-            )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
-
-          />
+          {numberOfPersonalTransactions>0?(<View >
+              {dates.map(date => (
+                <View key={date} style={{backgroundColor:"white"}}>
+                  <Text style={styles.sectionTitle}>
+                      {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')} {/* Check if today */}
+                  </Text>
+                  <FlatList
+                    data={groupedTransactions[date]}
+                    keyExtractor={(item) => item._id} // Use _id as the key
+                    renderItem={({ item }) => (
+                      <TransactionCard 
+                        title={item.description} // Adjust based on your data structure
+                        imageType={item.transactionType} // Adjust based on your data structure
+                        amount={`₹${item.total_amount}`} // Adjust based on your data structure
+                        subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')} // Format the time as needed
+                        transactionType={item.transactionType} // Example logic for transaction type
+                      />
+                    )}
+                    ItemSeparatorComponent={() => (
+                      <View style={{ height: 10 , backgroundColor: 'white' }} />
+                    )}
+                    contentContainerStyle={{ paddingBottom: 0 }} // Ensure no extra padding
+                  />
+                </View>
+              ))}
+            </View>):
+             <Text style= {styles.noPersonalTransactionsText}>No Personal Transactions Found</Text>
+            }
 
         </ScrollView>
+        <FAB
+        label="Add Personal Transaction"
+        style={styles.fab}
+        onPress={() => router.push("../bills")}
+    />
+    </View>
   );
 }
 
 
 const styles = StyleSheet.create({
+  screen:{
+    flex:1
+},
   container: {
     flex: 1,
     paddingHorizontal: 10,
@@ -180,4 +205,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold", 
     marginBottom: 10 
   },
+  fab: {
+    position: "absolute",
+    margin: 16,
+    backgroundColor:"#f8f9fa",
+    right: 0,
+    bottom: 0,
+},
+noPersonalTransactionsText: {
+  height: 100, // Set a fixed height to match the expected space
+  justifyContent: 'center', // Center the text vertically
+  alignItems: 'center', // Center the text horizontally
+  textAlign: 'center', // Center the text
+  fontSize: 16, // Adjust font size as needed
+  color: 'gray', // Change color to indicate no transactions
+  padding: 16, // Add some padding for better spacing
+},
 });
