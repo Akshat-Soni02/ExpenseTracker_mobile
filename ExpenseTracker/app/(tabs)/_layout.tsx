@@ -80,8 +80,8 @@
 
 
 import React from 'react';
-import { Pressable, View ,StyleSheet} from 'react-native';
-import { Link, Tabs } from 'expo-router';
+import { Pressable, View ,StyleSheet,TouchableOpacity} from 'react-native';
+import { Link, Tabs,useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '@/constants/Colors';
@@ -91,7 +91,8 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 // function TabBarIcon({ name, color }: { name: React.ComponentProps<typeof MaterialCommunityIcons>['name']; color: string }) {
 //   return <MaterialCommunityIcons name={name} size={28} color={color} />;
 // }
-function TabBarIcon({ name, color, focused }: { name: React.ComponentProps<typeof MaterialCommunityIcons>['name']; color: string; focused: boolean }) {
+function TabBarIcon({ name, color, focused ,route}: { name: React.ComponentProps<typeof MaterialCommunityIcons>['name']; color: string; focused: boolean ;route:string}) {
+  const router = useRouter();
   return (
     // <View
     //   style={{
@@ -103,15 +104,16 @@ function TabBarIcon({ name, color, focused }: { name: React.ComponentProps<typeo
     //   }}>
     //   <MaterialCommunityIcons name={name} size={30} color={focused ? 'white' : color} />
     // </View>
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+    <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center'}} onPress={() => router.push(route)}>
       <MaterialCommunityIcons name={name} size={30} color={focused ? '#3A5AFF' : '#000'} />
-    </View>
+    </TouchableOpacity>
   );
 }
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const themeColor = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
 
   return (
     <Tabs
@@ -138,7 +140,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color,focused }) => <TabBarIcon name="home-outline" color={color} focused={focused} />,
+          tabBarIcon: ({ color,focused }) => <TabBarIcon name="home-outline" color={color} focused={focused} route="/(tabs)"/>,
 
         }}
       />
@@ -146,21 +148,22 @@ export default function TabLayout() {
         name="activity"
         options={{
           title: 'Activity',
-          tabBarIcon: ({ color,focused }) => <TabBarIcon name="history" color={color} focused={focused}/>,
+          tabBarIcon: ({ color,focused }) => <TabBarIcon name="history" color={color} focused={focused} route="/(tabs)/activity"/>,
         }}
+        
       />
       <Tabs.Screen
         name="people"
         options={{
           title: 'People',
-          tabBarIcon: ({ color ,focused}) => <TabBarIcon name="account" color={color} focused={focused}/>,
+          tabBarIcon: ({ color ,focused}) => <TabBarIcon name="account" color={color} focused={focused} route="/(tabs)/people"/>,
         }}
       />
       <Tabs.Screen
         name="insights"
         options={{
           title: 'Insights',
-          tabBarIcon: ({ color,focused }) => <TabBarIcon name="google-analytics" color={color} focused={focused}/>,
+          tabBarIcon: ({ color,focused }) => <TabBarIcon name="google-analytics" color={color} focused={focused} route="/(tabs)/insights"/>,
         }}
       />
     </Tabs>

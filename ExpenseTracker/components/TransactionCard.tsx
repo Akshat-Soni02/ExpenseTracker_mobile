@@ -29,23 +29,23 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     <View style={styles.transactionItem}>
       {imageName&&<ImageIcon size={50} />}
       {imageType&&<MaterialCommunityIcons
-        name={imageType === "expense" ? "arrow-top-right" : "arrow-bottom-left"}
+        name={imageType === "debit" ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
-        color={imageType === "expense" ? "red" : "green"}
+        color={imageType === "debit" ? "red" : "green"}
       />}
       <View style={styles.transactionDetails}>
-        <Text style={styles.transactionTitle}>{title}</Text>
-        <Text style={styles.transactionSubtitle}>{subtitle}</Text>
+        <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
+        <Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle}</Text>
       </View>
       <View style={styles.amountDetails}>
-        <Text style={styles.topAmountText}>{optionText}</Text>
+        {optionText&&<Text style={styles.topAmountText}>{optionText}</Text>}
         <Text
           style={[
             styles.transactionAmount,
             { 
-              color: transactionType === "income" 
+              color: transactionType === "credit" 
                 ? "green" 
-                : transactionType === "expense" 
+                : transactionType === "debit" 
                 ? "red" 
                 : "black" // Default color if transactionType is undefined
             }

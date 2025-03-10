@@ -18,9 +18,10 @@ const staticUsers = [
 interface Props {
   control: Control<any>;
   des? : string;
+  update? : boolean;
 }
 
-const AddPeopleInput: React.FC<Props> = ({ control, des }) => {
+const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
@@ -52,7 +53,7 @@ const AddPeopleInput: React.FC<Props> = ({ control, des }) => {
                 </View>
               ))}
             </View>
-
+            
             {/* Add People Button */}
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 {des ? (<Text style={styles.addButtonText}>{des}</Text>) : (<Text style={styles.addButtonText}>Add People</Text>)}

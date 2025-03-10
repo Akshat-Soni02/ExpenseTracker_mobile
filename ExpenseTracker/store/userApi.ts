@@ -95,7 +95,7 @@ export const userApi = api.injectEndpoints({
       providesTags: ["settlement"],
     }),
 
-    getUserWallets: builder.query({
+    getUserWallets: builder.query<void, void>({
       query: () => `/users/wallets`,
       providesTags: ["wallet"],
     }),
@@ -124,7 +124,7 @@ export const userApi = api.injectEndpoints({
       providesTags: ["detectedTransaction"],
     }),
 
-    getUserFriends: builder.query({
+    getUserFriends: builder.query<void,void>({
       query: () => `/users/friends`,
       providesTags: ["user"],
     }),

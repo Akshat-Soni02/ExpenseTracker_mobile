@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
@@ -11,17 +11,14 @@ import WalletSelector from "@/components/WalletSelector";
 import PhotoSelector from "@/components/PhotoSelector";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
-import { useCreateExpenseMutation } from "@/store/expenseApi";
 
-export default function AddExpenseScreen() {
-  const [createExpense, {isLoading}] = useCreateExpenseMutation();
-  const [errorMessage, setErrorMessage] = useState("");
+export default function UpdateExpenseScreen() {
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
-      amount: null,
+      amount: 0,
       description: "",
-      splitWith: null,
-      paidBy: null,
+      splitWith: [{ user_id: "1", amount: 0 }],
+      paidBy: { id: "1", name: "You" },
       notes: "",
       wallet: "",
       category: "",
@@ -30,6 +27,20 @@ export default function AddExpenseScreen() {
       photo: null,
     },
   });
+
+  const users = [
+    { id: "1", name:  "user1"},
+    { id: "2", name:  "user2"},
+    { id: "3", name:  "user3"},
+    { id: "4", name:  "user4"}
+  ]
+
+  const wallets = [
+    { id: "1", name:  "wallet1"},
+    { id: "2", name:  "wallet2"},
+    { id: "3", name:  "wallet3"},
+    { id: "4", name:  "wallet4"}
+  ]
   
   const router = useRouter();
   const amount = watch("amount");
@@ -39,65 +50,39 @@ export default function AddExpenseScreen() {
 
 
   // description,
-  // lenders,
-  // borrowers,
-  // wallet_id,
-  // total_amount,
-  // expense_category,
-  // notes,
-  // group_id,
-  // created_at_date_time,
-const onSubmit = async (data: any) => {
+  //  lenders,
+  //     borrowers,
+  //     wallet_id,
+  //     total_amount,
+  //     expense_category,
+  //     notes,
+  //     group_id,
+  //     created_at_date_time,
+const onSubmit = (data: any) => {
+  const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
+  console.log("split:", totalSplit, "amount:", amount);
 
-  try {
-    const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
-    console.log("split:", totalSplit, "amount:", amount);
-
-    if (Math.abs(totalSplit - amount) > TOLERANCE) {
-      alert("Total split amount must match the entered amount");
-      return;
-    }
-
-    const selectedDate = new Date(data.date);
-    const selectedTime = new Date(data.time);
-
-    const created_at_date_time = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate(),
-      selectedTime.getHours(),
-      selectedTime.getMinutes(),
-      selectedTime.getSeconds()
-    );
-
-    
-    console.log(created_at_date_time);
-    const filteredSplit = data.splitWith.filter((user) => user.user_id != data.paidBy.user_id);
-    console.log("Expense Data:", data);
-    const response = await createExpense({
-      description: data.Description,
-      lenders: [data.paidBy],
-      borrowers: filteredSplit,
-      wallet_id: data?.wallet,
-      total_amount: data.amount,
-      expense_category: data?.category,
-      notes: data?.notes,
-      group_id: data?.group_id,
-      created_at_date_time,
-      filePath: data?.photo?._j
-    }).unwrap();
-    console.log("adding new expense response:", response);
-    reset();
-    router.replace("/(tabs)");
-  } catch (error) {
-    console.error("new expense failed to create:", error);
-    const err = error as { data?: { message?: string } };
-    if (err?.data?.message) {
-      setErrorMessage(err.data.message);
-    } else {
-      setErrorMessage("Something went wrong. Please try again.");
-    }
+  if (Math.abs(totalSplit - amount) > TOLERANCE) {
+    alert("Total split amount must match the entered amount");
+    return;
   }
+
+  const selectedDate = new Date(data.date);
+  const selectedTime = new Date(data.time);
+
+  const created_at_date_time = new Date(
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
+    selectedDate.getDate(),
+    selectedTime.getHours(),
+    selectedTime.getMinutes(),
+    selectedTime.getSeconds()
+  );
+
+  console.log("Expense Data:", data);
+  console.log(created_at_date_time);
+  reset();
+  router.replace("/(tabs)");
 };
 
 
@@ -108,7 +93,7 @@ const onSubmit = async (data: any) => {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Split</Text>
+        <Text style={styles.header}>Edit Split</Text>
       </View>
 
       <AmountDescriptionInput control={control} label="Description"/>
@@ -116,7 +101,7 @@ const onSubmit = async (data: any) => {
       <NotesInput control={control} name="notes" />
 
       <View style={styles.walletPhotoContainer}>
-        <WalletSelector control={control} name="wallet"/>
+        <WalletSelector control={control} name="wallet" wallets={wallets}/>
         <PhotoSelector control={control} />
       </View>
 
@@ -127,7 +112,6 @@ const onSubmit = async (data: any) => {
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
       
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );
@@ -172,9 +156,4 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     alignSelf: "center",
   },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 10,
-  }
 });

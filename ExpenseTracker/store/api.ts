@@ -8,6 +8,7 @@ const api = createApi({
     credentials: 'include',
     prepareHeaders: async (headers) => {
       const authToken = await AsyncStorage.getItem("authToken");
+      console.log("Hlllllll",authToken);
       if (authToken) {
         headers.set("Authorization", `Bearer ${authToken}`);
       }
