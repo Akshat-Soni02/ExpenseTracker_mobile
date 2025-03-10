@@ -4,6 +4,7 @@ import {
     statusCodes,
   } from '@react-native-google-signin/google-signin';
 import { View, Button, Text } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // WebBrowser.maybeCompleteAuthSession();
 
@@ -16,10 +17,11 @@ const GoogleButton = () => {
 
       const handleGoogleSignOut = async () => {
         try {
-          await GoogleSignin.signOut(); // Logs the user out
-          console.log("User signed out successfully");
+          await AsyncStorage.removeItem("authToken");
+          await GoogleSignin.signOut();
+          console.log("Logged out successfully");
         } catch (error) {
-          console.log("Error signing out:", error);
+          console.error("Logout Error:", error);
         }
       };
 
@@ -56,7 +58,7 @@ const GoogleButton = () => {
           }}
 
         />
-        <Button title="Sign Out" onPress={handleGoogleSignOut} />
+        {/* <Button title="Sign Out" onPress={handleGoogleSignOut} /> */}
         </View>
     );
 };

@@ -8,6 +8,17 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
+  topRight:{
+    position: "absolute",
+    top: 50,
+    right:20,
+    fontSize: 20,
+  },
+  backButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+  },
   title: {
     fontSize: 30,
     fontWeight: "bold",
