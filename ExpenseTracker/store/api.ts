@@ -15,7 +15,7 @@ const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ['user', 'group', 'expense', 'wallet', "settlement", "bill", "budget", "detectedTransaction", "personalTransaction"],
+  tagTypes: ['authToken','user', 'group', 'expense', 'wallet', "settlement", "bill", "budget", "detectedTransaction", "personalTransaction"],
   endpoints: () => ({}),
 });
 

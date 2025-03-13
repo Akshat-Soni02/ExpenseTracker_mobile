@@ -48,13 +48,16 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
             data={budgets}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => router.push({ pathname: "../../viewBudget", params: { id: item._id } })}>
               <TransactionCard 
               title = {item.budget_title}
               imageType = {undefined}
               amount={`₹${item.amount}`}
-              subtitle={item.period}
+              subtitle={`Current Spend: ₹${item.current_spend}`}
+              optionText={item.period}
               transactionType={undefined}
               />
+              </TouchableOpacity>
               
             )}
             ItemSeparatorComponent={() => (
@@ -68,9 +71,9 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
           
         </ScrollView>
         <FAB
-            label="Add Bill"
+            label="Add Budget"
             style={styles.fab}
-            onPress={() => router.push("../bills")}
+            onPress={() => router.push("../../createBudget")}
         />
     </View>
   );

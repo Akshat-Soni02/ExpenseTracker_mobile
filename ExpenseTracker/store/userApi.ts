@@ -64,6 +64,7 @@ export const userApi = api.injectEndpoints({
         method: "GET",
       }),
       invalidatesTags: [
+        "authToken",
         "user",
         "group",
         "expense",
@@ -143,7 +144,7 @@ export const userApi = api.injectEndpoints({
     }),
 
     updateUserDetails: builder.mutation({
-      query: ({ body }) => ({
+      query: ( body ) => ({
         url: `/users/profile-details`,
         method: "PUT",
         body,

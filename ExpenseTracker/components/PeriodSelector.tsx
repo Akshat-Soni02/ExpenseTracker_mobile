@@ -3,40 +3,35 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList } from "react
 import { Control, Controller } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
 
-const categories = ["Food", "Transport", "Shopping", "Bills", "Entertainment","General"];
+const periods = ["Daily","Weekly","Monthly","Quarterly","Annually"];
 
 interface Props {
   control: Control<any>;
 }
 
-const CategorySelector: React.FC<Props> = ({ control }) => {
+const PeriodSelector: React.FC<Props> = ({ control }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Category</Text>
+      <Text style={styles.label}>Period</Text>
       <Controller
         control={control}
-        name="category"
-        defaultValue=""
+        name="period"
+        defaultValue="monthly"
         render={({ field: { onChange, value } }) => (
           <>
             <View style={styles.selectionContainer}>
               <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
-                <Text>{value || "Select Category"}</Text>
+                <Text>{value || "Select Period"}</Text>
               </TouchableOpacity>
-              {value !== "" && (
-                <TouchableOpacity onPress={() => onChange("")} style={styles.clearButton}>
-                  <Ionicons name="close-circle" size={20} color="black" />
-                </TouchableOpacity>
-              )}
             </View>
 
             <Modal visible={modalVisible} transparent animationType="fade">
               <View style={styles.overlay}>
                 <View style={styles.modalContainer}>
                   <FlatList
-                    data={categories}
+                    data={periods}
                     keyExtractor={(item) => item}
                     renderItem={({ item }) => (
                       <TouchableOpacity
@@ -109,4 +104,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CategorySelector;
+export default PeriodSelector;

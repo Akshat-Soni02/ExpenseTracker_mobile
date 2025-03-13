@@ -59,7 +59,7 @@ export default function HomeScreen() {
   }
   
   if (errorDetected || errorGroup || errorUser) {
-    return <Text>Error: {errorDetected?.message || JSON.stringify(errorDetected) || errorGroup?.message || JSON.stringify(errorGroup)}</Text>;
+    return <Text>Error: {errorDetected?.message || JSON.stringify(errorDetected) || errorGroup?.message || JSON.stringify(errorGroup) || errorUser?.message || JSON.stringify(errorUser)}</Text>;
   }
   console.log("Hereeeeeeeee      ",dataUser);
   const groups = dataGroup.data;
@@ -73,7 +73,7 @@ export default function HomeScreen() {
       {/* Profile Card */}
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
-          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../(tabs)")}>
+          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../viewProfile")}>
             <Image
               source={require("../../assets/images/sampleprofilepic.png")}
               style={styles.avatar}
@@ -111,7 +111,7 @@ export default function HomeScreen() {
     { icon: "plus", label: "Record", route: "../addSplit" },
     { icon: "receipt", label: "Bills", route: "../addTransaction" },
     { icon: "wallet", label: "Wallets", route: "../createGroup" },
-    { icon: "piggy-bank", label: "Budgets", route: "../createBill" },
+    { icon: "piggy-bank", label: "Budgets", route: "/activity/budgets" },
   ].map((item, index) => (
     <View key={index} style={styles.actionContainer}>
       <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
