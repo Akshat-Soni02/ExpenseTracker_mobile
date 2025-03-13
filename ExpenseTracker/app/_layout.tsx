@@ -66,6 +66,7 @@ function RootLayoutNav() {
         <Stack.Screen name="createGroup" options={{headerShown:false}}/>
         <Stack.Screen name="createBill" options={{headerShown:false}}/>
         <Stack.Screen name="createWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="viewPeople" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

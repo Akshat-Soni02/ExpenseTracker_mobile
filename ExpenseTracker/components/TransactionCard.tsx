@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import ImageIcon from "./ImageIcon"; // Adjust the import path as necessary
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Divider} from 'react-native-paper';
@@ -11,9 +11,10 @@ interface TransactionCardProps {
   optionText?: string; // Optional text above the amount
   imageType?:string;
   transactionType?:string;
+  pressFunction?:any;
 }
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction }) => {
   return (
     // <View style={styles.card}>
     //   {imageName&&<ImageIcon size={50} />}
@@ -26,7 +27,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     //     <Text style={styles.amount}>{amount}</Text>
     //   </View>
     // </View>
-    <View style={styles.transactionItem}>
+    <TouchableOpacity onPress={pressFunction}>
+    <View style={styles.transactionItem} >
       {imageName&&<ImageIcon size={50} />}
       {imageType&&<MaterialCommunityIcons
         name={imageType === "debit" ? "arrow-top-right" : "arrow-bottom-left"}
@@ -55,6 +57,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
         </Text>
       </View>
     </View>
+    </TouchableOpacity>
   );
 };
 

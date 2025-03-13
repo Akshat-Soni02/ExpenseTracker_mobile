@@ -8,7 +8,7 @@ export const expenseApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["expense", "group"],
+      invalidatesTags: ["expense", "group", "wallet"],
     }),
 
     // Get expenses for a user based on a period (e.g., daily, weekly, monthly)
@@ -38,14 +38,14 @@ export const expenseApi = api.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["expense", "group"],
+      invalidatesTags: ["expense", "group", "wallet"],
     }),
     deleteExpense: builder.mutation({
       query: (id) => ({
         url: `/expenses/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["expense", "group"],
+      invalidatesTags: ["expense", "group", "wallet"],
     }),
   }),
 });

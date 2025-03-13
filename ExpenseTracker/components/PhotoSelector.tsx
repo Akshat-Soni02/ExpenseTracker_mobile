@@ -1,29 +1,38 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Controller, Control } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system";
-
 
 interface Props {
-    control: Control<any>;
-  }
+  control: Control<any>;
+}
 
-  const PhotoSelector: React.FC<Props> = ({ control }) => {
-    const [uploadedFile, setUploadedFile] = useState("");
+const PhotoSelector: React.FC<Props> = ({ control }) => {
+  const [loading, setLoading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState("");
 
-    const getMediaPath = async (imageUri: string) => {
-      try {
-        const fileUri = imageUri.replace("file://", "");
-        console.log("Valid file path:", fileUri);
-        return fileUri;
-      } catch (error) {
-        console.error("Error processing file path:", error);
+  const pickImage = async (onChange: (uri: string) => void) => {
+    setLoading(true);
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const imageUri = result.assets[0].uri;
+        onChange(imageUri);
+        setUploadedFile(imageUri);
       }
-    };
-    
-
+    } catch (error) {
+      console.error("Error picking image:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -34,45 +43,24 @@ interface Props {
         render={({ field: { onChange, value } }) => (
           <>
             {!value ? (
-              <>
-              <Text style={styles.label}>Add Photo</Text>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={async () => {
-                  let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [4, 3], quality: 1 });
-                  if (!result.canceled) {
-                    onChange(getMediaPath(result.assets[0].uri));
-                    setUploadedFile(result.assets[0].uri);
-                  }
-                }}
-              >
-                {/* {value && <Image source={{ uri: value }} style={styles.image} />} */}
-                <Text>Select Photo</Text>
+              <TouchableOpacity style={styles.selectContainer} onPress={() => pickImage(onChange)}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#555" />
+                ) : (
+                  <>
+                    <Ionicons name="image-outline" size={22} color="#555" />
+                    <Text style={styles.selectText}>Photo</Text>
+                  </>
+                )}
               </TouchableOpacity>
-              </>
             ) : (
-              <>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={async () => {
-                let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [4, 3], quality: 1 });
-                if (!result.canceled) {
-                  onChange(getMediaPath(result.assets[0].uri));
-                  setUploadedFile(result.assets[0].uri);
-                }
-              }}
-            >
-              {value && <Image source={{ uri: uploadedFile }} style={styles.image} />}
-              {/* <Text>Select Photo</Text> */}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.removeButton} onPress={() => onChange(null)}>
-                {/* <Text style={styles.removeText}>✕</Text> */}
-                <Ionicons name="close-circle" size={20} color="black" />
-            </TouchableOpacity>
-          </>
+              <View style={styles.imageContainer}>
+                <Image source={{ uri: uploadedFile }} style={styles.image} />
+                <TouchableOpacity style={styles.removeButton} onPress={() => onChange(null)}>
+                  <Ionicons name="close-circle" size={18} color="black" />
+                </TouchableOpacity>
+              </View>
             )}
-            
-            {/* {value && <Image source={{ uri: value }} style={styles.image} />} */}
           </>
         )}
       />
@@ -81,36 +69,56 @@ interface Props {
 };
 
 const styles = StyleSheet.create({
+  // container: {
+  //   width: "50%",
+  //   alignItems: "center",
+  // },
   container: {
+    width: "50%",
+    height: "100%",
     borderWidth: 2,
     borderRadius: 15,
     backgroundColor: "rgba(200, 230, 255, 0.4)",
     borderColor: "rgba(255, 255, 255, 0.2)",
-    paddingInline: 10,
-    width: "50%",
-    height: "100%",
+    padding: 10,
     justifyContent: "center",
   },
-  // container: { marginBottom: 20 },
-  label: { fontSize: 16, fontWeight: "bold" },
-  button: { borderWidth: 0, paddingVertical: 5, borderRadius: 5},
-  image: { width: 100, height: 100, marginTop: 10 },
+  innerContainer: {
+    alignItems: "center",
+  },
+  selectContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: "rgba(150, 150, 150, 0.4)",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    width: "100%",
+  },
+  selectText: {
+    fontSize: 14,
+    marginLeft: 6,
+    color: "#555",
+  },
+  imageContainer: {
+    position: "relative",
+    alignItems: "center",
+  },
+  image: {
+    width: 130,
+    height: 110,
+    borderRadius: 6,
+  },
   removeButton: {
-        position: "absolute",
-        top: 5,
-        right: 5,
-        // backgroundColor: "rgba(255, 0, 0, 0.7)",
-        // borderRadius: 12,
-        // width: 24,
-        // height: 24,
-        justifyContent: "center",
-        alignItems: "center",
-      },
-      removeText: {
-        color: "white",
-        fontSize: 16,
-        fontWeight: "bold",
-      },
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 10,
+    padding: 2,
+  },
 });
 
 export default PhotoSelector;

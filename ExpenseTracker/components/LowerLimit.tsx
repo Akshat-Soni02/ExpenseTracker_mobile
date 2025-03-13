@@ -13,15 +13,19 @@ const LowerLimit: React.FC<Props> = ({ control }) => {
       <Controller
         control={control}
         name="lowerLimit"
-        defaultValue="0"
+        defaultValue=""
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
-            placeholder="Enter lower limit"
-            placeholderTextColor="#A0AEC0"
-            value={String(value)}
-            onChangeText={onChange}
+            placeholder="Enter amount"
+            placeholderTextColor="#6B7280"
+            value={value}
+            onChangeText={(text) => {
+              const numericValue = text.replace(/[^0-9]/g, ""); // Restrict to numbers only
+              onChange(numericValue);
+            }}
             keyboardType="numeric"
+            returnKeyType="done"
             accessibilityLabel="Lower limit input"
             accessibilityHint="Enter the lower limit amount"
           />
@@ -37,31 +41,35 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0.2)",
     backgroundColor: "rgba(200, 230, 255, 0.4)",
     borderRadius: 15,
-    padding: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     width: "100%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    overflow: "hidden",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
     fontFamily: "Poppins_700Bold",
-    color: "#000",
-    marginRight: 10,
+    color: "#1F2937",
+    marginRight: 12,
   },
   input: {
     fontSize: 18,
     textAlign: "right",
-    flex: 1,
+    width: "50%",
+    // flex: 1,
     fontFamily: "Poppins_400Regular",
-    color: "#000",
-    paddingRight: 3
+    color: "#111827",
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: "#9CA3AF",
   },
 });

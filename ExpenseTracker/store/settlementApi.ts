@@ -8,7 +8,7 @@ export const settlementApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["settlement"],
+      invalidatesTags: ["settlement", "group", "wallet"],
     }),
 
     getSettlement: builder.query({
@@ -24,7 +24,7 @@ export const settlementApi = api.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { id }) => [
         { type: "settlement", id },
-        "settlement",
+        "settlement", "group", "wallet"
       ],
     }),
 
@@ -35,7 +35,7 @@ export const settlementApi = api.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, id) => [
         { type: "settlement", id },
-        "settlement",
+        "settlement", "group", "wallet"
       ],
     }),
   }),
