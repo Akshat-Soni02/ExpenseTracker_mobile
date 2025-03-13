@@ -23,7 +23,7 @@ export default function AddExpenseScreen() {
       splitWith: null,
       paidBy: null,
       notes: "",
-      wallet: "",
+      wallet: null,
       category: "",
       date: new Date(),
       time: new Date(),
@@ -78,7 +78,7 @@ const onSubmit = async (data: any) => {
       description: data.Description,
       lenders: [data.paidBy],
       borrowers: filteredSplit,
-      wallet_id: data?.wallet,
+      wallet_id: data?.wallet?._id,
       total_amount: data.amount,
       expense_category: data?.category,
       notes: data?.notes,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 20
   },
   backButton: {

@@ -155,7 +155,7 @@ export default function HomeScreen() {
       {/* Groups */}
       <View style={styles.titleContainer}>
         <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("/activity/groups")}>
+        <Button style={styles.viewButton} onPress={()=>router.push("/viewPeople")}>
             View all
         </Button>
       </View>

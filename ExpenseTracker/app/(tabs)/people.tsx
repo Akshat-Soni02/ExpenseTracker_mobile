@@ -26,6 +26,7 @@ export default function PeopleScreen() {
   const people = dataPeople.data;
   console.log(people);
   const numberOfPeople = people.length;
+
   return (
         <ScrollView style={styles.container}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -35,9 +36,10 @@ export default function PeopleScreen() {
           <View style={styles.transactionsContainer}>
           {numberOfPeople>0?(<FlatList
               data={people}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
-                <TransactionCard 
+                <TransactionCard
+                pressFunction = {() => router.push({ pathname: "/viewPeople", params: {id: item._id, amount: item.amount} })}
                 imageName={item.profile_photo}
                 title = {item.name}
                 amount={`₹${item.amount}`}

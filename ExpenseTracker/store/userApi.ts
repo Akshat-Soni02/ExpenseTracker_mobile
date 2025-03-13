@@ -53,11 +53,13 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
-    getUser: builder.query({
+    getUser: builder.query<void, void>({
       query: () => `/users/me`,
       providesTags: ["user"],
     }),
-
+    getUserById: builder.query({
+      query: (id) => `/users/${id}`,
+    }),
     logoutUser: builder.mutation<void, void>({
       query: () => ({
         url: `/users/logout`,
@@ -171,6 +173,7 @@ export const {
   useVerifyOtpMutation,
   useResetPasswordMutation,
   useGetUserQuery,
+  useGetUserByIdQuery,
   useLogoutUserMutation,
   useGetUserGroupsQuery,
   useGetUserExpensesQuery,

@@ -10,7 +10,7 @@ interface WalletSelectorProps {
 
 const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const { data, isLoading, error } = useGetUserWalletsQuery();
+  const { data, isLoading } = useGetUserWalletsQuery();
 
   return (
     <Controller
@@ -21,22 +21,21 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name }) => {
           <Text style={styles.label}>Select Wallet</Text>
           
           {!isLoading && (
-              <View style={styles.selectionContainer}>
-              <TouchableOpacity onPress={() => setModalVisible(true)}>
-                <Text style={styles.tap}>{value?.wallet_title || "Tap to select"}</Text>
-              </TouchableOpacity>
-  
-              {/* Show Remove button if a wallet is selected */}
+            <TouchableOpacity
+              style={styles.selectionContainer}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.tap}>{value?.wallet_title || "Tap to select"}</Text>
+
               {value && (
                 <TouchableOpacity onPress={() => onChange(null)} style={styles.removeButton}>
                   <Text style={styles.removeText}>✕</Text>
                 </TouchableOpacity>
               )}
-            </View>
+            </TouchableOpacity>
           )}
-          
 
-          <Modal visible={modalVisible} transparent animationType="slide">
+          <Modal visible={modalVisible} transparent animationType="fade">
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <FlatList
@@ -51,12 +50,12 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name }) => {
                       }}
                     >
                       <Text style={styles.modalText}>{item.wallet_title}</Text>
-                      <Text style={styles.modalText}>₹{item.amount}</Text>
+                      <Text style={styles.modalAmount}>₹{item.amount}</Text>
                     </TouchableOpacity>
                   )}
                 />
-                <TouchableOpacity onPress={() => setModalVisible(false)}>
-                  <Text style={styles.cancel}>Cancel</Text>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.cancelText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -68,76 +67,82 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name }) => {
 };
 
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "black",
-    marginBottom: 7,
-    // alignSelf: "center",
-  },
-  tap: {
-    color: "rgb(37, 38, 38)",
-    // fontSize: 18,
-  },
   container: {
     borderWidth: 2,
     borderRadius: 15,
     backgroundColor: "rgba(200, 230, 255, 0.4)",
     borderColor: "rgba(255, 255, 255, 0.2)",
-    paddingInline: 10,
-    paddingTop: 10,
+    padding: 12,
     width: "50%",
-    height: "100%",
-    // justifyContent: "center",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 6,
   },
   selectionContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingVertical: 8,
+  },
+  tap: {
+    color: "#252626",
+    fontSize: 15,
   },
   removeButton: {
-    marginLeft: 10,
-    // backgroundColor: "rgba(255, 0, 0, 0.2)",
-    // paddingHorizontal: 5,
-    // paddingVertical: 1,
-    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   removeText: {
-    color: "black",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#333",
   },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
   },
   modalContent: {
     backgroundColor: "#fff",
-    marginHorizontal: 30,
-    borderRadius: 8,
+    borderRadius: 10,
     padding: 20,
-  },
-  cancel: {
-    fontSize: 20,
-    color: "rgba(0, 0, 0, 0.77)",
-    fontWeight: "500",
-    alignSelf: "center",
-    marginTop: 5,
+    width: "80%",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalItem: {
-    paddingVertical: 15,
-    width: "100%",
-    backgroundColor: "rgba(200, 230, 255, 0.1)",
-    marginVertical: 2,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    paddingVertical: 12,
     flexDirection: "row",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   modalText: {
+    fontSize: 17,
     color: "#000",
-    fontSize: 18,
+  },
+  modalAmount: {
+    fontSize: 16,
+    color: "#555",
+  },
+  cancelButton: {
+    marginTop: 15,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: "rgba(200, 230, 255, 0.4)",
+    alignItems: "center",
+  },
+  cancelText: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "500",
   },
 });
 

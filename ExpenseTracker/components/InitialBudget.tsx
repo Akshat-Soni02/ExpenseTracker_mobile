@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Controller, Control } from "react-hook-form";
 
@@ -13,17 +13,21 @@ const InitialBudget: React.FC<Props> = ({ control }) => {
       <Controller
         control={control}
         name="initialBudget"
-        defaultValue="0"
+        defaultValue=""
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
-            placeholder="Enter initial budget"
-            placeholderTextColor="#A0AEC0"
-            value={String(value)}
-            onChangeText={onChange}
+            placeholder="Enter amount"
+            placeholderTextColor="#6B7280"
+            value={value}
+            onChangeText={(text) => {
+              const numericValue = text.replace(/[^0-9]/g, ""); // Restrict to numbers only
+              onChange(numericValue);
+            }}
             keyboardType="numeric"
+            returnKeyType="done"
             accessibilityLabel="Initial budget input"
-            accessibilityHint="Enter the initial budget amount"
+            accessibilityHint="Enter the estimated budget amount"
           />
         )}
       />
@@ -39,28 +43,30 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.2)",
     backgroundColor: "rgba(200, 230, 255, 0.4)",
     borderRadius: 15,
-    padding: 10,
-    // alignItems: "center",
-    height: "100%",
-    width: "50%",
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    minWidth: "50%",
+    alignSelf: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    overflow: "hidden",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
     fontFamily: "Poppins_700Bold",
-    color: "#000",
-    marginBottom: 5,
-    alignSelf: "center"
+    color: "#1F2937",
+    marginBottom: 8,
+    textAlign: "center",
   },
   input: {
     fontSize: 16,
     textAlign: "center",
     fontFamily: "Poppins_400Regular",
-    color: "#000",
+    color: "#111827",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#9CA3AF",
   },
 });

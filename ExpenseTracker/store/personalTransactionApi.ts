@@ -8,7 +8,7 @@ export const personalTransactionApi = api.injectEndpoints({
           method: "POST",
           body,
         }),
-        invalidatesTags: ["personalTransaction"],
+        invalidatesTags: ["personalTransaction", "wallet"],
       }),
   
       getUserPeriodTransactions: builder.query({
@@ -29,7 +29,7 @@ export const personalTransactionApi = api.injectEndpoints({
         }),
         invalidatesTags: (_result, _error, { id }) => [
           { type: "personalTransaction", id },
-          "personalTransaction",
+          "personalTransaction", "wallet"
         ],
       }),
   
@@ -40,7 +40,7 @@ export const personalTransactionApi = api.injectEndpoints({
         }),
         invalidatesTags: (_result, _error, id) => [
           { type: "personalTransaction", id },
-          "personalTransaction",
+          "personalTransaction", "wallet"
         ],
       }),
     }),

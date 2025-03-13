@@ -10,8 +10,11 @@ import InitialBudget from "@/components/InitialBudget";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import AmountDescriptionInput from "@/components/AmountDescriptionInput";
 import LowerLimit from "@/components/LowerLimit";
+import { useCreateWalletMutation } from "@/store/walletApi";
 
 export default function CreateWalletScreen() {
+  const [createWallet, {isLoading}] = useCreateWalletMutation();
+  const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       amount: 0,
@@ -24,10 +27,26 @@ export default function CreateWalletScreen() {
 
 // amount, wallet_title, lower_limit
 
-  const onWalletSubmit = (data: any) => {
-    console.log("Wallet Data:", data);
-    reset();
-    router.replace("/(tabs)");
+  const onWalletSubmit = async (data: any) => {
+    try {
+      console.log("Wallet Data:", data);
+      const response = await createWallet({
+        amount: data.amount,
+        lower_limit: data.lowerLimit,
+        wallet_title: data.Name
+      }).unwrap();
+      console.log("New wallet response: ", response);
+      reset();
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("new wallet failed to create:", error);
+        const err = error as { data?: { message?: string } };
+        if (err?.data?.message) {
+          setErrorMessage(err.data.message);
+        } else {
+          setErrorMessage("Something went wrong. Please try again.");
+        }
+    }
   };
 
   return (
@@ -46,6 +65,7 @@ export default function CreateWalletScreen() {
       <LowerLimit control={control}/>
 
       {/* Save Button */}
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <CustomButton onPress={handleSubmit(onWalletSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );
@@ -61,7 +81,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 20,
   },
   backButton: {
@@ -82,4 +102,9 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     alignSelf: "center",
   },
+  error: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 5,
+  }
 });

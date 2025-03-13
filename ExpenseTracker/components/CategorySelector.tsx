@@ -21,16 +21,16 @@ const CategorySelector: React.FC<Props> = ({ control }) => {
         defaultValue=""
         render={({ field: { onChange, value } }) => (
           <>
-            <View style={styles.selectionContainer}>
-              <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
-                <Text>{value || "Select Category"}</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.selectionContainer} onPress={() => setModalVisible(true)}>
+              <Text style={[styles.buttonText, value ? styles.selectedText : styles.placeholderText]}>
+                {value || "Select Category"}
+              </Text>
               {value !== "" && (
                 <TouchableOpacity onPress={() => onChange("")} style={styles.clearButton}>
-                  <Ionicons name="close-circle" size={20} color="black" />
+                  <Ionicons name="close-circle" size={18} color="black" />
                 </TouchableOpacity>
               )}
-            </View>
+            </TouchableOpacity>
 
             <Modal visible={modalVisible} transparent animationType="fade">
               <View style={styles.overlay}>
@@ -40,13 +40,15 @@ const CategorySelector: React.FC<Props> = ({ control }) => {
                     keyExtractor={(item) => item}
                     renderItem={({ item }) => (
                       <TouchableOpacity
-                        style={styles.modalItem}
+                        style={[styles.modalItem, value === item && styles.selectedItem]}
                         onPress={() => {
                           onChange(item);
                           setModalVisible(false);
                         }}
                       >
-                        <Text>{item}</Text>
+                        <Text style={[styles.modalText, value === item && styles.selectedModalText]}>
+                          {item}
+                        </Text>
                       </TouchableOpacity>
                     )}
                   />
@@ -71,22 +73,43 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.2)",
     padding: 10,
   },
-  label: { fontSize: 16, fontWeight: "bold" },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 6,
+  },
   selectionContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    borderWidth: 1.5,
+    borderColor: "rgba(150, 150, 150, 0.4)",
   },
-  button: { paddingVertical: 10, fontSize: 18 },
+  buttonText: {
+    fontSize: 16,
+    flex: 1,
+  },
+  placeholderText: {
+    color: "#888",
+  },
+  selectedText: {
+    color: "#333",
+    fontWeight: "600",
+  },
   clearButton: {
     marginLeft: 10,
   },
   modalContainer: {
     backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 20,
+    borderRadius: 12,
+    paddingVertical: 16,
     width: "80%",
-    alignItems: "flex-start", // Align text to start
+    alignItems: "center",
+    maxHeight: "50%",
   },
   overlay: {
     flex: 1,
@@ -95,12 +118,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalItem: {
-    padding: 10,
-    width: "100%", // Ensure it takes full width
+    paddingVertical: 12,
+    width: "100%",
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  selectedItem: {
+    backgroundColor: "rgba(0, 150, 255, 0.1)",
+  },
+  selectedModalText: {
+    fontWeight: "bold",
+    color: "#007BFF",
   },
   cancelButton: {
-    marginTop: 20,
+    marginTop: 10,
     alignSelf: "center",
+    paddingVertical: 10,
   },
   cancelText: {
     color: "black",

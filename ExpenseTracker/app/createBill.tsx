@@ -12,8 +12,11 @@ import AmountDescriptionInput from "@/components/AmountDescriptionInput";
 import CategorySelector from "@/components/CategorySelector";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import SplitWithSelector from "@/components/SplitWithSelector";
+import { useCreateBillMutation } from "@/store/billApi";
 
 export default function CreateBillScreen() {
+  const [createBill, {isLoading}] = useCreateBillMutation();
+  const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       amount: 0,
@@ -30,21 +33,41 @@ export default function CreateBillScreen() {
   const router = useRouter();
 
 //   bill_title, amount, bill_category, due_date_time, recurring, members
-  const onBillSubmit = (data: any) => {
-    const selectedDate = new Date(data.date);
-    const selectedTime = new Date(data.time);
+  const onBillSubmit = async (data: any) => {
+    try {
+      const selectedDate = new Date(data.date);
+      const selectedTime = new Date(data.time);
 
-    const due_date_time = new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        selectedDate.getDate(),
-        selectedTime.getHours(),
-        selectedTime.getMinutes(),
-        selectedTime.getSeconds()
-    );
-    console.log("Bill Data:", data);
-    reset();
-    router.replace("/(tabs)");
+      const due_date_time = new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth(),
+          selectedDate.getDate(),
+          selectedTime.getHours(),
+          selectedTime.getMinutes(),
+          selectedTime.getSeconds()
+      );
+      console.log("Bill Data:", data);
+      const response = await createBill({
+        bill_title: data.title,
+        amount: data.amount,
+        bill_category: data.category,
+        due_date_time,
+        recurring: data.recurring,
+        members: data.splitWith
+      }).unwrap();
+      console.log("New Bill create response: ", response);
+      reset();
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("new bill failed to create:", error);
+      const err = error as { data?: { message?: string } };
+      if (err?.data?.message) {
+        setErrorMessage(err.data.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
+    }
+    
   };
 
   return (
@@ -72,6 +95,7 @@ export default function CreateBillScreen() {
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
       {/* Save Button */}
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <CustomButton onPress={handleSubmit(onBillSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );
@@ -87,7 +111,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 20,
   },
   backButton: {
