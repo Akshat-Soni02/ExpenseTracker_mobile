@@ -47,13 +47,18 @@ export default function CreateBillScreen() {
           selectedTime.getSeconds()
       );
       console.log("Bill Data:", data);
+      let members = [];
+      data?.splitWith.forEach((split) => {
+        members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
+      });
+
       const response = await createBill({
-        bill_title: data.title,
-        amount: data.amount,
-        bill_category: data.category,
+        bill_title: data?.Title,
+        amount: data?.amount,
+        bill_category: data?.category,
         due_date_time,
-        recurring: data.recurring,
-        members: data.splitWith
+        recurring: data?.recurring,
+        members
       }).unwrap();
       console.log("New Bill create response: ", response);
       reset();

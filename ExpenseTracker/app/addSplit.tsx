@@ -75,63 +75,86 @@ export default function AddExpenseScreen() {
   // notes,
   // group_id,
   // created_at_date_time,
-const onSubmit = async (data: any) => {
+  const onSubmit = async (data: any) => {
+    try {
+      console.log("submittinggg");
+      const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
+  
+      if (Math.abs(totalSplit - amount) > TOLERANCE) {
+        alert("Total split amount must match the entered amount");
+        return;
+      }
 
-  try {
-    const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
-    console.log("split:", totalSplit, "amount:", amount);
+      console.log("here");
+  
+      // Constructing the datetime properly
+      const selectedDate = new Date(data.date);
+      const selectedTime = new Date(data.time);
+      const created_at_date_time = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        selectedTime.getHours(),
+        selectedTime.getMinutes(),
+        selectedTime.getSeconds()
+      );
 
-    if (Math.abs(totalSplit - amount) > TOLERANCE) {
-      alert("Total split amount must match the entered amount");
-      return;
+      console.log("now here");
+      console.log("Expense Data:", data);
+      console.log(data.paidBy);
+      console.log(data.splitWith);
+  
+      let amt = 0;
+      data.splitWith.forEach((user) => {
+        if (user.user_id === data.paidBy.user_id) amt = user.amount;
+      });
+      const filteredSplit = data.splitWith.filter((user) => user.user_id !== data.paidBy.user_id);
+      const selectedImage = data?.photo;
+
+      console.log("here as well")
+  
+      console.log("selectedImage: ", selectedImage);
+  
+      const formData = new FormData();
+      formData.append("description", data.Description);
+      formData.append("lenders", JSON.stringify([{ ...data.paidBy, amount: data.amount - amt }]));
+      formData.append("borrowers", JSON.stringify(filteredSplit.map((user) => ({ ...user, amount: Number(user.amount) }))));
+
+      if (data?.wallet?._id) {
+        formData.append("wallet_id", data.wallet._id);
+      }
+      formData.append("total_amount", String(data.amount));
+      if (data?.category) {
+        formData.append("expense_category", data.category);
+      }
+      if (data?.notes) {
+        formData.append("notes", data.notes);
+      }
+      if (data?.group_id) {
+        formData.append("group_id", data.group_id);
+      }
+      if (selectedImage) {
+        const fileExtension = selectedImage.split(".").pop();
+        const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
+  
+        formData.append("media", {
+          uri: selectedImage,
+          type: mimeType,
+          name: `split-media.${fileExtension}`,
+        } as any);
+      }
+      const response = await createExpense(formData).unwrap();
+      console.log("adding new expense response:", response);
+      reset();
+      router.replace({ pathname: "/viewExpense", params: { id:response?.data?._id} });
+    } catch (error) {
+      console.error("new expense failed to create:", error);
+      const err = error as { data?: { message?: string } };
+      setErrorMessage(err?.data?.message || "Something went wrong. Please try again.");
     }
-
-    const selectedDate = new Date(data.date);
-    const selectedTime = new Date(data.time);
-
-    const created_at_date_time = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate(),
-      selectedTime.getHours(),
-      selectedTime.getMinutes(),
-      selectedTime.getSeconds()
-    );
-
-    
-    console.log(created_at_date_time);
-    let amt = 0;
-    data.splitWith.forEach((user) => {
-      if(user.user_id === data.paidBy.user_id) amt = user.amount;
-    });
-    const filteredSplit = data.splitWith.filter((user) => user.user_id != data.paidBy.user_id);
-    console.log("Expense Data:", data);
-    const response = await createExpense({
-      description: data.Description,
-      lenders: [{...data.paidBy, amount: data.amount - amt}],
-      borrowers: filteredSplit,
-      wallet_id: data?.wallet?._id,
-      total_amount: detectedAmount,
-      expense_category: data?.category,
-      notes: data?.notes,
-      group_id: data?.group_id,
-      created_at_date_time,
-      filePath: data?.photo?._j
-    }).unwrap();
-    console.log("adding new expense response:", response);
-    await deleteTransaction(detectedId).unwrap();
-    reset();
-    router.replace("/(tabs)");
-  } catch (error) {
-    console.error("new expense failed to create:", error);
-    const err = error as { data?: { message?: string } };
-    if (err?.data?.message) {
-      setErrorMessage(err.data.message);
-    } else {
-      setErrorMessage("Something went wrong. Please try again.");
-    }
-  }
-};
+  };  
+  
+  
 
 
   return (

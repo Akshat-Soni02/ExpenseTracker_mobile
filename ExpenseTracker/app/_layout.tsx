@@ -88,6 +88,8 @@ function RootLayoutNav() {
         <Stack.Screen name="viewExpense" options={{headerShown:false}}/>
         <Stack.Screen name="viewTransaction" options={{headerShown:false}}/>
         <Stack.Screen name="viewGroup" options={{headerShown:false}}/>
+        <Stack.Screen name="viewWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="viewBill" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

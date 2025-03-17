@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
@@ -23,6 +23,7 @@ const ExpenseDetailScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const expense = data?.data;
+  console.log(expense);
 
   useEffect(() => {
     if (id) {
@@ -135,6 +136,12 @@ const ExpenseDetailScreen = () => {
           </Text>
         ))}
       </View>
+
+      {expense.media && (
+        <View style={styles.mediaContainer}>
+          <Image source={{ uri: expense.media.url }} style={styles.previewImage} />
+      </View>
+      )}
     </View>
   );
 };
@@ -146,6 +153,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F9FAFB",
     padding: 20,
+  },
+  mediaContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: 200,
+    height: 200,
+    marginTop: 10,
+    borderRadius: 8,
   },
   header: {
     flexDirection: "row",
