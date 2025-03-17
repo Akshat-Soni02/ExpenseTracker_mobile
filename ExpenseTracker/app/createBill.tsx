@@ -57,7 +57,7 @@ export default function CreateBillScreen() {
       }).unwrap();
       console.log("New Bill create response: ", response);
       reset();
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/activity/pendingBills");
     } catch (error) {
       console.error("new bill failed to create:", error);
       const err = error as { data?: { message?: string } };

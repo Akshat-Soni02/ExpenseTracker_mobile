@@ -155,15 +155,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="people"
         options={{
-          title: 'People',
+          title: 'Friends',
           tabBarIcon: ({ color ,focused}) => <TabBarIcon name="account" color={color} focused={focused} route="/(tabs)/people"/>,
         }}
       />
       <Tabs.Screen
-        name="insights"
+        name="wallets"
         options={{
-          title: 'Insights',
-          tabBarIcon: ({ color,focused }) => <TabBarIcon name="google-analytics" color={color} focused={focused} route="/(tabs)/insights"/>,
+          title: 'Wallets',
+          tabBarIcon: ({ color,focused }) => <TabBarIcon name="wallet" color={color} focused={focused} route="/(tabs)/wallets"/>,
         }}
       />
     </Tabs>

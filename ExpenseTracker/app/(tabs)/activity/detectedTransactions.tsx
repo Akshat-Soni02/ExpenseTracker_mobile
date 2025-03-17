@@ -1,4 +1,4 @@
-import { StyleSheet, Image,ScrollView ,FlatList} from "react-native";
+import { StyleSheet, Image,ScrollView ,FlatList,Pressable} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
@@ -6,8 +6,10 @@ import { globalStyles } from "@/styles/globalStyles";
 import TransactionCard from "@/components/TransactionCard";
 import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import { SegmentedButtons,FAB } from 'react-native-paper';
+import { SegmentedButtons,FAB,Modal,Portal } from 'react-native-paper';
 import * as React from 'react';
+import { Provider as PaperProvider } from 'react-native-paper';
+
 import {useGetUserDetectedTransactionsQuery} from '@/store/userApi'; 
 const transactions = [
   { id: "1", title:"Cash",imageType: undefined, amount: "₹60", time: "cash" ,transactionType: undefined},
@@ -15,9 +17,11 @@ const transactions = [
   { id: "3", title:"ICICI",imageType: undefined, amount: "₹80", time: "Acc. 65786" ,transactionType: undefined},
 ];
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
-export default function WalletsScreen() {
+export default function DetectedTransactionsScreen() {
   const router = useRouter();
-
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedTransaction, setSelectedTransaction] = React.useState(null);
+  
   const [value, setValue] = React.useState('');
   const {data: dataDetected, isLoading: isLoadingDetected, error: errorDetected} = useGetUserDetectedTransactionsQuery({});
   if (isLoadingDetected) {
@@ -30,8 +34,27 @@ export default function WalletsScreen() {
   const detectedTransactions = dataDetected.data;
   console.log(detectedTransactions);
   const numberOfDetectedTransactions = detectedTransactions.length; 
+
+  const openModal = (transaction:any) => {
+    console.log("Transaction clicked:", transaction);
+    setSelectedTransaction(transaction);
+    setModalVisible(true);
+  };
+  
+  const handleSelection = (option:any) => {
+    if (option === "view") {
+      console.log("View");
+      // router.push(`/transaction/${selectedTransaction._id}`);
+    } else if (option === "edit") {
+      // router.push(`/edit-transaction/${selectedTransaction._id}`);
+      console.log("Edit");
+    }
+    setModalVisible(false);
+  };
   return (
+    <PaperProvider>
     <View style={styles.screen}>
+      
         <ScrollView style={styles.container}>
           
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -46,16 +69,21 @@ export default function WalletsScreen() {
           </View> */}
           {numberOfDetectedTransactions>0 ?(<FlatList
             data={detectedTransactions}
+            keyboardShouldPersistTaps="handled"
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
+              // <Pressable onPress={() => openModal(item)}>
+
                 <TransactionCard 
+                pressFunction = {() => openModal(item)}
+
                 title = {item.description}
                 imageType = {item.transaction_type}
                 amount={`₹${item.amount}`}
                 subtitle={item.created_at_date_time}
                 transactionType={item.transaction_type}
                 />
-              
+              // </Pressable>
             )}
             ItemSeparatorComponent={() => (
               <View style={{  height: 15, backgroundColor: 'white'}} />
@@ -68,7 +96,26 @@ export default function WalletsScreen() {
           }
           
         </ScrollView>
+        <Portal>
+          <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
+            <Text style={styles.modalText}>Choose an action</Text>
+            
+            <Pressable style={styles.button} onPress={() => handleSelection("view")}>
+              <Text style={styles.buttonText}>View Details</Text>
+            </Pressable>
+
+            <Pressable style={styles.button} onPress={() => handleSelection("edit")}>
+              <Text style={styles.buttonText}>Edit Transaction</Text>
+            </Pressable>
+
+            <Pressable style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </Pressable>
+          </Modal>
+        </Portal>
+
     </View>
+    </PaperProvider>
   );
 }
 
@@ -162,5 +209,50 @@ noWalletsText: {
   fontSize: 16, // Adjust font size as needed
   color: 'gray', // Change color to indicate no transactions
   padding: 16, // Add some padding for better spacing
+},
+modalView: {
+  position: "absolute",
+  top: "50%", // Position in the middle of the screen
+  left: "50%", // Position in the middle horizontally
+  transform: [{ translateX: -150 }, { translateY: -100 }], // Shift back by half width/height
+  width: 300, // Fixed width to avoid stretching
+  backgroundColor: "white",
+  padding: 25,
+  borderRadius: 15,
+  alignItems: "center",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.3,
+  shadowRadius: 5,
+  elevation: 6,
+},
+modalContainer: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.4)", // Dark overlay for better focus
+},
+
+modalText: {
+  fontSize: 20,
+  fontWeight: "bold",
+  marginBottom: 15,
+  textAlign: "center",
+},
+button: {
+  width: "100%",
+  padding: 14,
+  marginVertical: 8,
+  backgroundColor: "#007bff",
+  borderRadius: 10,
+  alignItems: "center",
+},
+cancelButton: {
+  backgroundColor: "#d9534f", // Red for cancel to indicate action
+},
+buttonText: {
+  color: "white",
+  fontSize: 16,
+  fontWeight: "600",
 },
 });

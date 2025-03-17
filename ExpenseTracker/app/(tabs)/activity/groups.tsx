@@ -52,7 +52,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
               title = {item.group_title}
               imageType = {undefined}
               amount={`₹${item.initial_budget}`}
-              subtitle={`Settle Up: ${item.settle_up_date.split("T")[0]}`}
+              subtitle={`Settle Up: ${item.settle_up_date?.split("T")[0]}`}
               transactionType={undefined}
               optionText={"inital budget"}
               />
@@ -71,7 +71,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
         <FAB
             label="Add Group"
             style={styles.fab}
-            onPress={() => router.push("../bills")}
+            onPress={() => router.push("../../createGroup")}
         />
     </View>
   );

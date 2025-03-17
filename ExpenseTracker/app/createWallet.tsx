@@ -37,7 +37,7 @@ export default function CreateWalletScreen() {
       }).unwrap();
       console.log("New wallet response: ", response);
       reset();
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/wallets");
     } catch (error) {
       console.error("new wallet failed to create:", error);
         const err = error as { data?: { message?: string } };

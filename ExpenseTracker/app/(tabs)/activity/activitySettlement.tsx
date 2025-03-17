@@ -103,7 +103,7 @@ export default function ActivitySpendScreen() {
                       <TransactionCard 
                         title={item.description} // Adjust based on your data structure
                         imageType={item.transactionType} // Adjust based on your data structure
-                        amount={`₹${item.total_amount}`} // Adjust based on your data structure
+                        amount={`₹${item.amount}`} // Adjust based on your data structure
                         subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')} // Format the time as needed
                         transactionType={item.transactionType} // Example logic for transaction type
                       />
@@ -120,11 +120,6 @@ export default function ActivitySpendScreen() {
             }
 
         </ScrollView>
-        <FAB
-                label="Add Settlement"
-                style={styles.fab}
-                onPress={() => router.push("../bills")}
-            />
       </View>
   );
 }

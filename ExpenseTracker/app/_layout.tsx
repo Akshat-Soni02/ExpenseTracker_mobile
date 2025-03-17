@@ -81,6 +81,10 @@ function RootLayoutNav() {
         <Stack.Screen name="createBill" options={{headerShown:false}}/>
         <Stack.Screen name="createWallet" options={{headerShown:false}}/>
         <Stack.Screen name="viewPeople" options={{headerShown:false}}/>
+        <Stack.Screen name="createSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="createBudget" options={{headerShown:false}}/>
+        <Stack.Screen name="viewBudget" options={{headerShown:false}}/>
+        <Stack.Screen name="viewProfile" options={{headerShown:false}}/>
         <Stack.Screen name="viewExpense" options={{headerShown:false}}/>
         <Stack.Screen name="viewTransaction" options={{headerShown:false}}/>
         <Stack.Screen name="viewGroup" options={{headerShown:false}}/>

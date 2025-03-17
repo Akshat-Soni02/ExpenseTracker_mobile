@@ -7,6 +7,7 @@ import TransactionCard from "@/components/TransactionCard";
 import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import {useGetUserFriendsQuery} from '@/store/userApi';
+import { FAB } from "react-native-paper";
 const people = [
   { id: "1", title:"Akshat",imageName:"Akshat", amount: "₹60", time: "3 unsettled splits" ,optionText:"You Owe",transactionType:"income"},
   { id: "2",title:"Atharva",imageName:"Atharva",amount: "₹90", time: "2 unsettled splits" ,optionText:"You are Due",transactionType:"expense"},
@@ -28,6 +29,7 @@ export default function PeopleScreen() {
   const numberOfPeople = people.length;
 
   return (
+    <View style={[{flex:1}]}>
         <ScrollView style={styles.container}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
@@ -59,6 +61,12 @@ export default function PeopleScreen() {
             }
           </View>
         </ScrollView>
+        <FAB
+                    label="Add Friends"
+                    style={styles.fab}
+                    onPress={() => router.push("/(tabs)")}
+        />
+        </View>
   );
 }
 
@@ -98,5 +106,11 @@ const styles = StyleSheet.create({
     fontSize: 16, // Adjust font size as needed
     color: 'gray', // Change color to indicate no transactions
     padding: 16, // Add some padding for better spacing
-  },
+  },fab: {
+    position: "absolute",
+    margin: 16,
+    backgroundColor:"#f8f9fa",
+    right: 0,
+    bottom: 0,
+},
 });
