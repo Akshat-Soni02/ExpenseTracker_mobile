@@ -69,9 +69,9 @@ export default function WalletsScreen() {
           
         </ScrollView>
         <FAB
-            label="Add Bill"
+            label="Add Wallet"
             style={styles.fab}
-            onPress={() => router.push("../bills")}
+            onPress={() => router.push("../createWallet")}
         />
     </View>
   );

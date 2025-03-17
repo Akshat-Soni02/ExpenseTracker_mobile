@@ -120,11 +120,6 @@ export default function ActivitySpendScreen() {
             }
 
         </ScrollView>
-        <FAB
-                label="Add Settlement"
-                style={styles.fab}
-                onPress={() => router.push("../../createSettlement")}
-            />
       </View>
   );
 }

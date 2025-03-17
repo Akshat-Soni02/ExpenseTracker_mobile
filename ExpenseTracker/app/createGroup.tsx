@@ -40,7 +40,7 @@ export default function CreateGroupScreen() {
       }).unwrap();
       console.log("New group response: ", response);
       reset();
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/activity/groups");
     } catch (error) {
       console.error("new group failed to create:", error);
         const err = error as { data?: { message?: string } };

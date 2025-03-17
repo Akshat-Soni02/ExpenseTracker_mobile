@@ -132,14 +132,16 @@ interface Props {
   control: Control<any>;
   label: string;
   update?: boolean;
+  isAmountFrozen?: boolean; // New prop to freeze amount input
+
 }
 
-const AmountDescriptionInput: React.FC<Props> = ({ control, label, update }) => {
+const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmountFrozen = false }) => {
   return (
     <View style={styles.container}>
       {/* Amount Section */}
       <Text style={styles.label}>Amount</Text>
-      <View style={styles.amountWrapper}>
+      <View style={[styles.amountWrapper, isAmountFrozen && styles.disabledInputWrapper]}>
         <Text style={styles.currency}>₹</Text>
         <Controller
           control={control}
@@ -150,22 +152,21 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update }) => 
 
             return (
               <TextInput
-                style={styles.amountInput}
-                keyboardType="numeric"
+              style={[styles.amountInput, isAmountFrozen && styles.disabledText]}
+              keyboardType="numeric"
                 value={displayValue}
                 placeholder="0"
                 onChangeText={(text) => {
-                  if (text === "") {
-                    onChange("");
-                    return;
-                  }
+                  if (text === "" || isAmountFrozen) return;
                   const numericValue = parseFloat(text);
                   if (!isNaN(numericValue)) {
                     onChange(numericValue);
                   }
                 }}
+                editable={!isAmountFrozen} // Freezing the input
+                selectTextOnFocus={!isAmountFrozen} // Prevent selection if frozen
                 accessibilityLabel="Amount input"
-                accessibilityHint="Enter the amount in rupees"
+                accessibilityHint={isAmountFrozen ? "Amount is locked" : "Enter the amount in rupees"}
               />
             );
           }}
@@ -263,5 +264,11 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: "#A0AEC0",
     fontStyle: "italic",
+  },
+  disabledInputWrapper: {
+    backgroundColor: "#E0E0E0", // Light gray background when disabled
+  },
+  disabledText: {
+    color: "#A0AEC0", // Gray text when disabled
   },
 });

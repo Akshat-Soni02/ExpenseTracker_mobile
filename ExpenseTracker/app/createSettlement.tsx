@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { useRouter } from "expo-router";
+import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/AmountDescriptionInput";
@@ -12,21 +12,22 @@ import PhotoSelector from "@/components/PhotoSelector";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
-
-export default function AddScreen() {
-  const [createExpense, {isLoading}] = useCreateExpenseMutation();
+import {useCreateSettlementMutation} from '@/store/settlementApi';
+export default function AddSettlementScreen() {
+  let {fetched_amount,receiver_id,name} = useLocalSearchParams();
+  let status = "receiver";
+  if(fetched_amount<0){
+    fetched_amount=fetched_amount*-1;
+    status = "sent";
+  }
+  console.log(fetched_amount);
+  const [createSettlement, {isLoading}] = useCreateSettlementMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
-      amount: null,
+      amount:fetched_amount,
       description: "",
-      splitWith: null,
-      paidBy: null,
-      notes: "",
       wallet: "",
-      category: "",
-      date: new Date(),
-      time: new Date(),
       photo: null,
     },
   });
@@ -50,47 +51,32 @@ export default function AddScreen() {
 const onSubmit = async (data: any) => {
 
   try {
-    const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
-    console.log("split:", totalSplit, "amount:", amount);
+    if(status=="sent"){
+      
+      const response = await createSettlement({
+          settlement_description: data.Description,
+          payer_wallet_id: data?.wallet,
+          receiver_id:receiver_id,
+          amount: fetched_amount,
+          status:status,
+        // filePath: data?.photo?._j
 
-    if (Math.abs(totalSplit - amount) > TOLERANCE) {
-      alert("Total split amount must match the entered amount");
-      return;
+      }).unwrap();
     }
-
-    const selectedDate = new Date(data.date);
-    const selectedTime = new Date(data.time);
-
-    const created_at_date_time = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate(),
-      selectedTime.getHours(),
-      selectedTime.getMinutes(),
-      selectedTime.getSeconds()
-    );
-
-    
-    console.log(created_at_date_time);
-    const filteredSplit = data.splitWith.filter((user) => user.user_id != data.paidBy.user_id);
-    console.log("Expense Data:", data);
-    const response = await createExpense({
-      description: data.Description,
-      lenders: [data.paidBy],
-      borrowers: filteredSplit,
-      wallet_id: data?.wallet,
-      total_amount: data.amount,
-      expense_category: data?.category,
-      notes: data?.notes,
-      group_id: data?.group_id,
-      created_at_date_time,
-      filePath: data?.photo?._j
-    }).unwrap();
-    console.log("adding new expense response:", response);
+    else{
+      const response = await createSettlement({
+          settlement_description: data.Description,
+          receiver_wallet_id: data?.wallet,
+          payer_id:receiver_id,
+          amount: fetched_amount,
+          status:status,
+          // filePath: data?.photo?._j
+      }).unwrap();
+    }
     reset();
-    router.replace("/(tabs)");
+    router.replace("/(tabs)/people");
   } catch (error) {
-    console.error("new expense failed to create:", error);
+    console.error("new settlement failed to create:", error);
     const err = error as { data?: { message?: string } };
     if (err?.data?.message) {
       setErrorMessage(err.data.message);
@@ -99,37 +85,31 @@ const onSubmit = async (data: any) => {
     }
   }
 };
-
-
-  return (
+  
+return (
+  <View style={[{flex:1}]}>
     <ScrollView style={styles.container}>
 
         <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Split</Text>
+        {status==="sent"?<Text style={styles.header}>You owe {name}</Text>:<Text style={styles.header}>{name} owes you</Text>}
       </View>
 
-      <AmountDescriptionInput control={control} label="Description"/>
+      <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>
       {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
-      <NotesInput control={control} name="notes" />
-
+      
       <View style={styles.walletPhotoContainer}>
         <WalletSelector control={control} name="wallet"/>
         <PhotoSelector control={control} />
       </View>
-
-      <CategorySelector control={control} />
-
-      <View style={styles.dateTimeContainer}>
-        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date"/>
-        <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
-      </View>
       
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
+    
+          <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Settle</CustomButton>
+          </View>
   );
 }
 

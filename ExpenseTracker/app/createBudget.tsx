@@ -46,7 +46,7 @@ const onSubmit = async (data: any) => {
   try {
 
     
-    console.log("Budget Data:", data.Description);
+    console.log("Budget Data:", data);
     const response = await createBudget({
       budget_title: data.Description,
       amount: data.amount,
@@ -79,10 +79,21 @@ const onSubmit = async (data: any) => {
       </View>
 
       <AmountDescriptionInput control={control} label="Description"/>
+      {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
+      {/* <NotesInput control={control} name="notes" /> */}
+
+      {/* <View style={styles.walletPhotoContainer}> */}
+        {/* <WalletSelector control={control} name="wallet"/> */}
+        {/* <PhotoSelector control={control} /> */}
+      {/* </View> */}
 
       <CategorySelector control={control} />
       <PeriodSelector control={control}/>
-
+      {/* <View style={styles.dateTimeContainer}>
+        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date"/>
+        <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
+      </View> */}
+      
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>

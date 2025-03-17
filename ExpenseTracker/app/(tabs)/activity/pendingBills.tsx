@@ -99,7 +99,7 @@ export default function BillsScreen() {
         <FAB
             label="Add Bill"
             style={styles.fab}
-            onPress={() => router.push("../bills")}
+            onPress={() => router.push("../../createBill")}
         />
     </View>
   );

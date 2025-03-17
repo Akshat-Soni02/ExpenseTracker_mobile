@@ -46,7 +46,7 @@ const ViewPeopleScreen = () => {
           <TouchableOpacity style={styles.remindButton}>
             <Text style={styles.buttonText}>Remind</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settleButton}>
+          <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/createSettlement", params: { fetched_amount:amount,receiver_id : id,name: data.data.name } })}>
             <Text style={styles.buttonText}>Settle Up</Text>
           </TouchableOpacity>
         </View>
