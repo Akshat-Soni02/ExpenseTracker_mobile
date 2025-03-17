@@ -4,7 +4,7 @@ export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
     registerUser: builder.mutation({
       query: (body) => ({
-        url: `/users/new`,
+        url: `/user/new`,
         method: "POST",
         body,
       }),
@@ -53,11 +53,13 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
-    getUser: builder.query({
+    getUser: builder.query<void, void>({
       query: () => `/users/me`,
       providesTags: ["user"],
     }),
-
+    getUserById: builder.query({
+      query: (id) => `/users/${id}`,
+    }),
     logoutUser: builder.mutation<void, void>({
       query: () => ({
         url: `/users/logout`,
@@ -170,6 +172,8 @@ export const {
   useVerifyOtpMutation,
   useResetPasswordMutation,
   useGetUserQuery,
+  useGetUserByIdQuery,
+  useLazyGetUserByIdQuery,
   useLogoutUserMutation,
   useGetUserGroupsQuery,
   useGetUserExpensesQuery,

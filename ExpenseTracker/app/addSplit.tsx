@@ -23,7 +23,7 @@ export default function AddExpenseScreen() {
       splitWith: null,
       paidBy: null,
       notes: "",
-      wallet: "",
+      wallet: null,
       category: "",
       date: new Date(),
       time: new Date(),
@@ -72,13 +72,17 @@ const onSubmit = async (data: any) => {
 
     
     console.log(created_at_date_time);
+    let amt = 0;
+    data.splitWith.forEach((user) => {
+      if(user.user_id === data.paidBy.user_id) amt = user.amount;
+    });
     const filteredSplit = data.splitWith.filter((user) => user.user_id != data.paidBy.user_id);
     console.log("Expense Data:", data);
     const response = await createExpense({
       description: data.Description,
-      lenders: [data.paidBy],
+      lenders: [{...data.paidBy, amount: data.amount - amt}],
       borrowers: filteredSplit,
-      wallet_id: data?.wallet,
+      wallet_id: data?.wallet?._id,
       total_amount: data.amount,
       expense_category: data?.category,
       notes: data?.notes,
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 20
   },
   backButton: {

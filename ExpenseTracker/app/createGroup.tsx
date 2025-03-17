@@ -8,8 +8,11 @@ import TitleInput from "@/components/TitleInput";
 import AddPeopleInput from "@/components/AddPeopleInput";
 import InitialBudget from "@/components/InitialBudget";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
+import { useCreateGroupMutation } from "@/store/groupApi";
 
 export default function CreateGroupScreen() {
+  const [createGroup, {isLoading}] = useCreateGroupMutation();
+  const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       title: "",
@@ -26,11 +29,28 @@ export default function CreateGroupScreen() {
 //     initial_budget,
 //     settle_up_date,
 
-  const onGroupSubmit = (data: any) => {
-    console.log("Group Data:", data);
-    reset();
-    router.replace("/(tabs)");
-  };
+  const onGroupSubmit = async (data: any) => {
+    try {
+      console.log("Group Data:", data);
+      const response = await createGroup({
+        group_title: data.title,
+        memberIds: data.selectedUsers,
+        initial_budget: data?.initialBudget,
+        settle_up_date: data.settleUpDate
+      }).unwrap();
+      console.log("New group response: ", response);
+      reset();
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("new group failed to create:", error);
+        const err = error as { data?: { message?: string } };
+        if (err?.data?.message) {
+          setErrorMessage(err.data.message);
+        } else {
+          setErrorMessage("Something went wrong. Please try again.");
+        }
+      }
+    };
 
   return (
     <ScrollView style={styles.container}>
@@ -38,7 +58,7 @@ export default function CreateGroupScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>Create Group</Text>
+        <Text style={styles.header}>New Group</Text>
       </View>
 
       {/* Group Title */}
@@ -54,6 +74,7 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Save Button */}
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <CustomButton onPress={handleSubmit(onGroupSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );
@@ -69,7 +90,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 20,
   },
   backButton: {
@@ -90,4 +111,9 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     alignSelf: "center",
   },
+  error: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 10,
+  }
 });
