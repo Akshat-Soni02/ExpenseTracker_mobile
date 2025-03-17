@@ -15,10 +15,21 @@ export const detectedTransactionApi = api.injectEndpoints({
       query: (id) => `/detected-transactions/${id}`,
       providesTags: (_result, _error, id) => [{ type: "detectedTransaction", id }],
     }),
+    deleteDetectedTransaction: builder.mutation({
+      query: (id) => ({
+        url: `/budgets/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "detectedTransaction", id },
+        "detectedTransaction",
+      ],
+    }),
   }),
 });
 
 export const {
   useCreateDetectedTransactionMutation,
   useGetDetectedTransactionQuery,
+  useDeleteDetectedTransactionMutation,
 } = detectedTransactionApi;

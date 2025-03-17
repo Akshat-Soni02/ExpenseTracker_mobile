@@ -31,9 +31,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     <View style={styles.transactionItem} >
       {imageName&&<ImageIcon size={50} />}
       {imageType&&<MaterialCommunityIcons
-        name={imageType === "debit" ? "arrow-top-right" : "arrow-bottom-left"}
+        name={imageType === "credit" ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
-        color={imageType === "debit" ? "red" : "green"}
+        color={imageType === "credit" ? "red" : "green"}
       />}
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
@@ -45,9 +45,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
           style={[
             styles.transactionAmount,
             { 
-              color: transactionType === "credit" 
+              color: transactionType === "debit" 
                 ? "green" 
-                : transactionType === "debit" 
+                : transactionType === "credit" 
                 ? "red" 
                 : "black" // Default color if transactionType is undefined
             }

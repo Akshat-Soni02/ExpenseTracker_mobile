@@ -12,15 +12,41 @@ import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
 import { useCreatePersonalTransactionMutation } from "@/store/personalTransactionApi";
 import { useGetUserWalletsQuery } from "@/store/userApi";
-
+import { useLocalSearchParams } from "expo-router";
+import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
+import { useEffect } from "react";
 export default function AddTransactionScreen() {
-  const [createPersonalTransaction, {isLoading}] = useCreatePersonalTransactionMutation();
+  let {detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
+  console.log("Amount",detectedId);
+
+  const date_time = new Date(detectedCreated_at_date_time);
+  const parsedDate = new Date(date_time);
+  const dateOnly = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+  const timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
+  
+  console.log("date_time",date_time);
+  
+  const [createPersonalTransaction, {isLoading:isLoadingPersonal}] = useCreatePersonalTransactionMutation();
+  const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
+  
   const { refetch } = useGetUserWalletsQuery();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, watch, setValue, reset } = useForm({
-    defaultValues: {
+    defaultValues: detectedId
+    ?{
+      amount: detectedAmount,
+      Description: detectedDescription,
+      transactionType: detectedTransaction_type,
+      notes: detectedNotes,
+      wallet: "",
+      category: "",
+      date: dateOnly,
+      time: timeOnly,
+      photo: null,
+    }
+    :{
       amount: 0,
-      description: "",
+      Description: "",
       transactionType: "expense",
       notes: "",
       wallet: "",
@@ -34,6 +60,19 @@ export default function AddTransactionScreen() {
 
   const [transactionType, setTransactionType] = useState("expense");
   const router = useRouter();
+  useEffect(() => {
+    if (detectedId) {
+      if(detectedTransaction_type==="credit"){
+        setTransactionType("expense");
+        setValue("transactionType", "expense");
+      }
+      else{
+        setTransactionType("income");
+        setValue("transactionType", "income");
+      }
+      
+    }
+  }, [detectedId, setValue]);
 
 //   {transaction_type, description, wallet_id, media, transaction_category, notes,amount, created_at_date_time}
   const onTransactionSubmit = async (data: any) => {
@@ -57,10 +96,11 @@ export default function AddTransactionScreen() {
         media: data?.photo,
         transaction_category: data?.category,
         notes: data?.notes,
-        amount: data.amount,
+        amount: detectedAmount,
         created_at_date_time
       }).unwrap();
       console.log("New personal transaction response: ", response);
+      await deleteTransaction(detectedId).unwrap();
       await refetch();
       reset();
       router.replace("/(tabs)");
@@ -92,20 +132,27 @@ export default function AddTransactionScreen() {
             style={[
               styles.transactionTypeButton,
               transactionType === type && styles.selectedType,
+              detectedId && styles.disabledType,
+
             ]}
             onPress={() => {
-              setTransactionType(type);
-              setValue("transactionType", type);
+              if (!detectedId) { // Prevent state change when frozen
+                setTransactionType(type);
+                setValue("transactionType", type);
+              }
             }}
+            disabled={detectedId!==undefined} 
+
           >
-            <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText]}>
+            <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText, detectedId && styles.disabledText, // Change text color if frozen
+]}>
               {type === "expense" ? "Expense" : "Income"}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <AmountDescriptionInput control={control} label="Description"/>
+      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>):<AmountDescriptionInput control={control} label="Description"/>}
       <NotesInput control={control} name="notes" />
       
       <View style={styles.walletPhotoContainer}>
@@ -199,5 +246,11 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginBottom: 5,
-  }
+  },
+  disabledType: {
+    opacity: 0.8, // Make it look disabled
+  },
+  disabledText: {
+    color: "#black", // Greyed-out text
+  },
 });

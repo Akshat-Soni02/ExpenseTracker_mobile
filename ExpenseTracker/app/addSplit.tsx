@@ -12,24 +12,52 @@ import PhotoSelector from "@/components/PhotoSelector";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
-
+import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
+import { useLocalSearchParams } from "expo-router";
 export default function AddExpenseScreen() {
-  const [createExpense, {isLoading}] = useCreateExpenseMutation();
+  let {detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
+  const date_time = new Date(detectedCreated_at_date_time);
+  const parsedDate = new Date(date_time);
+  const dateOnly = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+  const timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
+
+
+  console.log("date_time",date_time);
+  // const time = new Date(date_time.toISOString().split("T")[0]);
+  // console.log("ADSADAD",time);
+  const [createExpense, {isLoading:isLoadingExpense}] = useCreateExpenseMutation();
+  const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
+
   const [errorMessage, setErrorMessage] = useState("");
+  
   const { control, handleSubmit, watch, setValue, reset } = useForm({
-    defaultValues: {
-      amount: null,
-      description: "",
-      splitWith: null,
-      paidBy: null,
-      notes: "",
-      wallet: null,
-      category: "",
-      date: new Date(),
-      time: new Date(),
-      photo: null,
-    },
+    defaultValues: detectedId
+      ? {
+          amount: detectedAmount,
+          Description: detectedDescription,
+          splitWith: null,
+          paidBy: null,
+          notes: detectedNotes,
+          wallet: null,
+          category: "",
+          date:dateOnly,
+          time:timeOnly,
+          photo: null,
+        }
+      : {
+          amount: null,
+          Description: "",
+          splitWith: null,
+          paidBy: null,
+          notes: "",
+          wallet: null,
+          category: "",
+          date: new Date(),
+          time: new Date(),
+          photo: null,
+        },
   });
+  
   
   const router = useRouter();
   const amount = watch("amount");
@@ -83,7 +111,7 @@ const onSubmit = async (data: any) => {
       lenders: [{...data.paidBy, amount: data.amount - amt}],
       borrowers: filteredSplit,
       wallet_id: data?.wallet?._id,
-      total_amount: data.amount,
+      total_amount: detectedAmount,
       expense_category: data?.category,
       notes: data?.notes,
       group_id: data?.group_id,
@@ -91,6 +119,7 @@ const onSubmit = async (data: any) => {
       filePath: data?.photo?._j
     }).unwrap();
     console.log("adding new expense response:", response);
+    await deleteTransaction(detectedId).unwrap();
     reset();
     router.replace("/(tabs)");
   } catch (error) {
@@ -115,7 +144,7 @@ const onSubmit = async (data: any) => {
         <Text style={styles.header}>New Split</Text>
       </View>
 
-      <AmountDescriptionInput control={control} label="Description"/>
+      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>):<AmountDescriptionInput control={control} label="Description"/>}
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/>
       <NotesInput control={control} name="notes" />
 
