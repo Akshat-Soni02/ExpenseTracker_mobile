@@ -51,12 +51,12 @@ export const groupApi = api.injectEndpoints({
     }),
 
     getGroupHistory: builder.query({
-      query: ({ group_id }) => `/groups/history/${group_id}`,
+      query: (group_id) => `/groups/history/${group_id}`,
       providesTags: ["group"],
     }),
 
     getGroup: builder.query({
-      query: ({ group_id }) => `/groups/${group_id}`,
+      query: (id) => `/groups/${id}`,
       providesTags: ["group"],
     }),
 

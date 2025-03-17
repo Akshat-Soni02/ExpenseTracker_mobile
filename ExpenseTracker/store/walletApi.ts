@@ -47,6 +47,7 @@ export const walletApi = api.injectEndpoints({
 export const {
   useCreateWalletMutation,
   useGetWalletQuery,
+  useLazyGetWalletQuery,
   useTransferWalletAmountMutation,
   useUpdateWalletMutation,
   useDeleteWalletMutation,
