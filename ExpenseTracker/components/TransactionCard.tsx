@@ -7,14 +7,16 @@ interface TransactionCardProps {
   imageName?: string; // Name of the profile image
   title: string; // Title of the card
   subtitle?: string; // Optional subtitle
-  amount: string; // Amount text
+  amount?: string; // Amount text
   optionText?: string; // Optional text above the amount
   imageType?:string;
   transactionType?:string;
   pressFunction?:any;
+  cardStyle?: object;
+  amountStyle?: object;
 }
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction, cardStyle, amountStyle }) => {
   return (
     // <View style={styles.card}>
     //   {imageName&&<ImageIcon size={50} />}
@@ -28,7 +30,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     //   </View>
     // </View>
     <TouchableOpacity onPress={pressFunction}>
-    <View style={styles.transactionItem} >
+    <View style={[styles.transactionItem, cardStyle]} >
       {imageName&&<ImageIcon size={50} />}
       {imageType&&<MaterialCommunityIcons
         name={imageType === "debit" ? "arrow-top-right" : "arrow-bottom-left"}
@@ -37,13 +39,14 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
       />}
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
-        <Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle}</Text>
+        {subtitle && (<Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle}</Text>)}
       </View>
       <View style={styles.amountDetails}>
         {optionText&&<Text style={styles.topAmountText}>{optionText}</Text>}
         <Text
           style={[
             styles.transactionAmount,
+            amountStyle,
             { 
               color: transactionType === "credit" 
                 ? "green" 

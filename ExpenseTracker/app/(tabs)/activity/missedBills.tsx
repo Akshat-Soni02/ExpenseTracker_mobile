@@ -78,7 +78,8 @@ export default function MissedBillsScreen() {
             data={missedBills}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <TransactionCard 
+              <TransactionCard
+              pressFunction = {() => router.push({ pathname: "../../viewBill", params: { id:item._id} })}
               title = {item.bill_title}
               imageType = {undefined}
               amount={`₹${item.amount}`}

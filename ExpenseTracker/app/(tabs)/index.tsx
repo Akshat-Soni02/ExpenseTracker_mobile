@@ -170,7 +170,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         ))}
         <View style={styles.groupItem}>
-          <TouchableOpacity style={styles.newGroup}>
+          <TouchableOpacity style={styles.newGroup} onPress={() => router.push("../createGroup")}>
             <Ionicons name="add" size={24} color="#000" />          
           </TouchableOpacity>
           <Text style={styles.groupName}>Add</Text>

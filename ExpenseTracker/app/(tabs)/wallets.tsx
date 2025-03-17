@@ -48,7 +48,8 @@ export default function WalletsScreen() {
             data={wallets}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <TransactionCard 
+              <TransactionCard
+              pressFunction={() => router.push({ pathname: "../../viewWallet", params: { id:item._id} })}
               title = {item.wallet_title}
               imageType = {undefined}
               amount={`₹${item.amount}`}

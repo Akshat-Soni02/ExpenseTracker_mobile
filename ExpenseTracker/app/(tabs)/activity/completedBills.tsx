@@ -21,7 +21,7 @@ export default function CompletedBillsScreen() {
   const router = useRouter();
 
   const [value, setValue] = React.useState('');
-  const {data: dataCompletedBills, isLoading: isLoadingCompletedBills, error: errorCompletedBills} = useGetUserBillsQuery({ status: "completed" });
+  const {data: dataCompletedBills, isLoading: isLoadingCompletedBills, error: errorCompletedBills} = useGetUserBillsQuery({ status: "paid" });
   if (isLoadingCompletedBills) {
       return <Text>Loading...</Text>;
   }
@@ -77,7 +77,8 @@ export default function CompletedBillsScreen() {
             data={completedBills}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <TransactionCard 
+              <TransactionCard
+              pressFunction = {() => router.push({ pathname: "../../viewBill", params: { id:item._id} })}
               title = {item.bill_title}
               imageType = {undefined}
               amount={`₹${item.amount}`}

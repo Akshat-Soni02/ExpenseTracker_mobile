@@ -14,6 +14,7 @@ interface CustomButtonProps {
   disabled?: any;
   onPress?: (event: GestureResponderEvent) => void;
   style?: object;
+  innerStyle?: object;
   variant?: "filled" | "outline";
 }
 
@@ -23,6 +24,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   onPress,
   style,
   variant = "filled",
+  innerStyle
 }) => {
   const [pressed, setPressed] = useState(false);
 
@@ -49,9 +51,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
             styles.button,
             variant === "outline" ? styles.outlineButton : styles.filledButton,
             pressed && styles.buttonPressed,
+            innerStyle
           ]}
         >
-          <Text style={[styles.text, variant === "outline" && styles.outlineText]}>
+          <Text style={[styles.text, variant === "outline" && styles.outlineText, innerStyle]}>
             {children}
           </Text>
         </View>
@@ -86,8 +89,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: "Poppins_400Regular",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "semibold",
     color: "#fff",
   },
   outlineText: {
