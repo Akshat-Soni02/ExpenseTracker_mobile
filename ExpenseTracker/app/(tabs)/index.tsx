@@ -155,7 +155,7 @@ export default function HomeScreen() {
       {/* Groups */}
       <View style={styles.titleContainer}>
         <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
-        <Button style={styles.viewButton} onPress={()=>router.push("/viewPeople")}>
+        <Button style={styles.viewButton} onPress={()=>router.push({ pathname: "/viewGroup", params: {id: "67bf63feea7a71f9c73d58df"} })}>
             View all
         </Button>
       </View>

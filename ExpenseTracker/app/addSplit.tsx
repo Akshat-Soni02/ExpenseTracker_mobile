@@ -72,11 +72,15 @@ const onSubmit = async (data: any) => {
 
     
     console.log(created_at_date_time);
+    let amt = 0;
+    data.splitWith.forEach((user) => {
+      if(user.user_id === data.paidBy.user_id) amt = user.amount;
+    });
     const filteredSplit = data.splitWith.filter((user) => user.user_id != data.paidBy.user_id);
     console.log("Expense Data:", data);
     const response = await createExpense({
       description: data.Description,
-      lenders: [data.paidBy],
+      lenders: [{...data.paidBy, amount: data.amount - amt}],
       borrowers: filteredSplit,
       wallet_id: data?.wallet?._id,
       total_amount: data.amount,

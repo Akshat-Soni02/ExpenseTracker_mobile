@@ -8,6 +8,18 @@ import 'react-native-reanimated';
 import { Provider } from 'react-redux';
 import store from '@/store/store';
 import { useColorScheme } from '@/components/useColorScheme';
+import { PaperProvider, MD3LightTheme } from "react-native-paper";
+
+const paperLightTheme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: "#6200ee",
+    background: "#FFFFFF",
+    surface: "#FFFFFF",
+    text: "#000000",
+  },
+};
 
 export {
   ErrorBoundary,
@@ -41,7 +53,9 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <RootLayoutNav />
+      <PaperProvider theme={paperLightTheme}>
+        <RootLayoutNav />
+      </PaperProvider>
     </Provider>
   );
 }
@@ -67,6 +81,9 @@ function RootLayoutNav() {
         <Stack.Screen name="createBill" options={{headerShown:false}}/>
         <Stack.Screen name="createWallet" options={{headerShown:false}}/>
         <Stack.Screen name="viewPeople" options={{headerShown:false}}/>
+        <Stack.Screen name="viewExpense" options={{headerShown:false}}/>
+        <Stack.Screen name="viewTransaction" options={{headerShown:false}}/>
+        <Stack.Screen name="viewGroup" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
