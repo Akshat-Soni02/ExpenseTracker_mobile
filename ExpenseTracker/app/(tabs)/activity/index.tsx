@@ -103,6 +103,8 @@ export default function ActivityScreen() {
                     keyExtractor={(item) => item._id} // Use _id as the key
                     renderItem={({ item }) => (
                       <TransactionCard 
+                        pressFunction = {() => router.push({ pathname: "../../viewExpense", params: { id:item._id} })}
+
                         title={item.description} // Adjust based on your data structure
                         imageType={item.transactionType} // Adjust based on your data structure
                         amount={`₹${item.total_amount}`} // Adjust based on your data structure

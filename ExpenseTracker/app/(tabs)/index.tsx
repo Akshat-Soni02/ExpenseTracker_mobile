@@ -109,8 +109,9 @@ export default function HomeScreen() {
       <View style={styles.actions}>
   {[
     { icon: "plus", label: "New Split", route: "../addSplit" },
-    { icon: "receipt", label: "Bills", route: "../activity/pendingBills" },
     { icon: "plus", label: "New Spend", route: "../addTransaction" },
+    { icon: "receipt", label: "Bills", route: "../activity/pendingBills" },
+
     { icon: "piggy-bank", label: "Budgets", route: "/activity/budgets" },
   ].map((item, index) => (
     <View key={index} style={styles.actionContainer}>
@@ -161,10 +162,12 @@ export default function HomeScreen() {
       </View>
       <View style={styles.groupContainer}>
         {groups.map((group:any, index:any) => (
+          <TouchableOpacity onPress={() => router.push({ pathname: "../../viewGroup", params: { id:group._id} })}>
           <View key={index} style={styles.groupItem}>
             <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
             <Text style={styles.groupName}>{group.group_title}</Text>
           </View>
+          </TouchableOpacity>
         ))}
         <View style={styles.groupItem}>
           <TouchableOpacity style={styles.newGroup}>

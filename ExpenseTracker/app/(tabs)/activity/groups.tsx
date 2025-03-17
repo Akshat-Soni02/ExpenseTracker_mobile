@@ -49,6 +49,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TransactionCard 
+              pressFunction = {() => router.push({ pathname: "../../viewGroup", params: { id:item._id} })}
               title = {item.group_title}
               imageType = {undefined}
               amount={`₹${item.initial_budget}`}
