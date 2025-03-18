@@ -104,7 +104,7 @@ const ExpenseDetailScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => console.log("Edit Expense")} title="Edit" />
+          <Menu.Item onPress={() => router.push({ pathname: "/editExpense", params: {id:id} })} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => console.log("Delete Expense")} title="Delete" />
         </Menu>
