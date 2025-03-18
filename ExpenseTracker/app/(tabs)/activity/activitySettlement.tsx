@@ -100,7 +100,8 @@ export default function ActivitySpendScreen() {
                     data={groupedTransactions[date]}
                     keyExtractor={(item) => item._id} // Use _id as the key
                     renderItem={({ item }) => (
-                      <TransactionCard 
+                      <TransactionCard
+                        pressFunction={() => router.push({ pathname: "../../viewSettlement", params: { id:item._id} })}
                         title={item.description} // Adjust based on your data structure
                         imageType={item.transactionType} // Adjust based on your data structure
                         amount={`₹${item.amount}`} // Adjust based on your data structure

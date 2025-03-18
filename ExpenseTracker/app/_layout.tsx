@@ -90,6 +90,7 @@ function RootLayoutNav() {
         <Stack.Screen name="viewGroup" options={{headerShown:false}}/>
         <Stack.Screen name="viewWallet" options={{headerShown:false}}/>
         <Stack.Screen name="viewBill" options={{headerShown:false}}/>
+        <Stack.Screen name="viewSettlement" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
