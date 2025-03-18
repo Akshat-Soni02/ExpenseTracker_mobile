@@ -11,7 +11,7 @@ import { Divider} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
-import { useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery } from '@/store/userApi';
+import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery } from '@/store/userApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useState } from 'react';
@@ -29,8 +29,10 @@ export default function HomeScreen() {
   const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
 
-  const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery({});
+  const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery();
+  const {data: exchangeData, isLoading, error} = useGetUserCurrentExchangeStatusQuery();
   const {data:dataDetected,isLoading:isLoadingDetected,error:errorDetected} = useGetUserDetectedTransactionsQuery({});
+  console.log("exchangeData: ",exchangeData);
   
 
   const {data:dataGroup,isLoading:isLoadingGroup,error:errorGroup} = useGetUserGroupsQuery({});
@@ -74,10 +76,10 @@ export default function HomeScreen() {
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
           <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../viewProfile")}>
-            <Image
+            {dataUser.data.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.avatar} />) : ( <Image
               source={require("../../assets/images/sampleprofilepic.png")}
               style={styles.avatar}
-            />
+            />)}
             <View>
               <Text style={styles.greeting}>Good afternoon</Text>
               <Text style={styles.name}>{dataUser.data.name}</Text>
@@ -95,11 +97,11 @@ export default function HomeScreen() {
           <View style={styles.financialSummary}>
             <View style={styles.textContainer}>
               <Text style={styles.label}>You owe</Text>
-              <Text style={styles.debit}>₹500</Text>
+              <Text style={styles.debit}>₹{exchangeData.data.borrowedAmount}</Text>
             </View>
             <View>
               <Text style={styles.label}>You lended</Text>
-              <Text style={styles.credit}>₹1000</Text>
+              <Text style={styles.credit}>₹{exchangeData.data.lendedAmount}</Text>
             </View>
           </View>
         </View>

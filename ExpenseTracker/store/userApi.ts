@@ -132,7 +132,7 @@ export const userApi = api.injectEndpoints({
       providesTags: ["user"],
     }),
 
-    getUserCurrentExchangeStatus: builder.query({
+    getUserCurrentExchangeStatus: builder.query<void, void>({
       query: () => `/users/current-exchange-status`,
       providesTags: ["user"],
     }),
