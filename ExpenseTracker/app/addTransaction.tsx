@@ -115,7 +115,7 @@ export default function AddTransactionScreen() {
     }
   };
 
-  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  if(isLoadingPersonal) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>

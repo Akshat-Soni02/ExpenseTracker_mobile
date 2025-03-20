@@ -187,7 +187,6 @@ export const {
   useLogoutUserMutation,
   useGetUserGroupsQuery,
   useGetUserExpensesQuery,
-  useGetUserSettlementsQuery,
   useGetUserBudgetsQuery,
   useGetUserBillsQuery,
   useGetUserWalletsQuery,

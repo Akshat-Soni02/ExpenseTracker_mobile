@@ -17,11 +17,15 @@ import { useLocalSearchParams } from "expo-router";
 import { useGetExpenseQuery } from "@/store/expenseApi";
 import { useLazyGetUserByIdQuery,useGetUserByIdQuery } from "@/store/userApi";
 import { useLazyGetWalletQuery,useGetWalletQuery } from "@/store/walletApi";
+import _ from "lodash";
+
 export default function EditExpenseScreen() {
 
     let {id,paidByName} = useLocalSearchParams();
- 
+    console.log("ID",id);
     const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
+    console.log("ID",id);
+
     const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
     const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
     const [borrowerNames, setBorrowerNames] = useState<Record<string, string>>({});
@@ -64,7 +68,8 @@ export default function EditExpenseScreen() {
         },
   });
   
-  
+  console.log("ID",id);
+
   const router = useRouter();
   const amount = watch("amount");
   const splitWith = watch("splitWith");
@@ -83,6 +88,8 @@ export default function EditExpenseScreen() {
   // created_at_date_time,
   const onSubmit = async (data: any) => {
     try {
+      console.log("ID",id);
+
       console.log("submittinggg");
       const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
       console.log("SplitWith",data.splitWith);
@@ -114,6 +121,7 @@ export default function EditExpenseScreen() {
       data.splitWith.forEach((user) => {
         if (user.user_id === data.paidBy.user_id) amt = user.amount;
       });
+      console.log("dataSplitWith",data.splitWith);
       const filteredSplit = data.splitWith.filter((user) => user.user_id !== data.paidBy.user_id);
       const selectedImage = data?.photo;
 
@@ -125,6 +133,29 @@ export default function EditExpenseScreen() {
       if(data.Description!==expense.description){
         formData.append("description", data.Description);
       }
+      console.log("FilteredSplit",filteredSplit);
+      const lendersData = [{ ...data.paidBy, amount: data.amount - amt }];
+      const borrowersData = filteredSplit.map((user) => ({ ...user, amount: Number(user.amount) }));
+      const simplifiedLenders = lendersData.map(({ user_id, amount }) => ({ user_id, amount }));
+      const simplifiedBorrowers = borrowersData.map(({ user_id, amount }) => ({ user_id, amount }));
+
+      const prevLenders = expense.lenders.map(({ user_id, amount }) => ({ user_id, amount }));
+      const prevBorrowers = expense.borrowers.map(({ user_id, amount }) => ({ user_id, amount }));
+
+      
+      if (!_.isEqual(simplifiedLenders, prevLenders)) {
+        console.log("LendersData",simplifiedLenders);
+        console.log("expenseLenders",prevLenders);
+        console.log("Changed Lenders");
+        formData.append("lenders", JSON.stringify(lendersData));
+    }
+    
+    if (!_.isEqual(simplifiedBorrowers, prevBorrowers)) {
+      console.log("BorrowersData",simplifiedBorrowers);
+      console.log("expenseBorrowers",prevBorrowers);
+      console.log("Changed Borrowers");
+        formData.append("borrowers", JSON.stringify(borrowersData));
+    }
       // formData.append("lenders", JSON.stringify([{ ...data.paidBy, amount: data.amount - amt }]));
       // formData.append("borrowers", JSON.stringify(filteredSplit.map((user) => ({ ...user, amount: Number(user.amount) }))));
 
@@ -158,9 +189,9 @@ export default function EditExpenseScreen() {
       //   } as any);
       // }
 
-
-      
-      const response = await updateExpense(formData).unwrap();
+      console.log("FormData:",formData);
+      console.log("ExpenseID",id);
+      const response = await updateExpense({expense_id:id,body:formData}).unwrap();
       console.log("updating expense response:", response);
       router.back();
     } catch (error) {
