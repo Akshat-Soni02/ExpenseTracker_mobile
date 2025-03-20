@@ -11,7 +11,7 @@ import {
 
 interface CustomButtonProps {
   children: React.ReactNode;
-  disabled?: any;
+  disabled?: boolean;
   onPress?: (event: GestureResponderEvent) => void;
   style?: object;
   innerStyle?: object;

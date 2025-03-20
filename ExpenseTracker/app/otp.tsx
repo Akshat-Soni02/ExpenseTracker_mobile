@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, TextInputKeyPressEventData } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, TextInputKeyPressEventData, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomButton from "../components/button/CustomButton";
 import { FontAwesome } from "@expo/vector-icons";
@@ -109,7 +109,7 @@ export default function OTPVerificationScreen() {
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       {/* Verify Button */}
       <CustomButton onPress={handleOtpSubmit} style={styles.verifyButton} disabled={isLoading}>
-        Verify
+        {isLoading ? <ActivityIndicator color="#fff" /> : "Verify"}
       </CustomButton>
 
       {/* Resend Timer */}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "../components/button/CustomButton";
 import { useRouter } from "expo-router";
@@ -145,7 +145,7 @@ export default function SignUpScreen() {
 
       {/* Sign Up Button */}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.signUpButton}>
-        {isLoading ? "Signing Up..." : "Sign up"}
+        {isLoading ? <ActivityIndicator color="#fff" /> : "Sign up"}
       </CustomButton>
 
       </View>

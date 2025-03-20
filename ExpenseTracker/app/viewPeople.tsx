@@ -8,13 +8,7 @@ const ViewPeopleScreen = () => {
     const {id, amount} = useLocalSearchParams();
   const { data, isLoading } = useGetUserByIdQuery(id);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#10B981" />
-      </View>
-    );
-  }
+  if (isLoading)return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (!data || !data.data) {
     console.log(id);

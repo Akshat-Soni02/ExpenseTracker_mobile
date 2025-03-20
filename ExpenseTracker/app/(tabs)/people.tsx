@@ -1,4 +1,4 @@
-import { StyleSheet, Image,ScrollView,FlatList } from "react-native";
+import { StyleSheet, Image,ScrollView,FlatList, ActivityIndicator } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
@@ -18,7 +18,7 @@ export default function PeopleScreen() {
   const router = useRouter();
   const {data: dataPeople, isLoading: isLoadingPeople, error: errorPeople} = useGetUserFriendsQuery({});
   if (isLoadingPeople) {
-      return <Text>Loading...</Text>;
+      return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     }
     
     if (errorPeople) {
@@ -30,11 +30,11 @@ export default function PeopleScreen() {
 
   return (
     <View style={[{flex:1}]}>
-        <ScrollView style={styles.container}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>      
-          <Text style={styles.headerText}>People</Text>
+        <ScrollView style={styles.container}>   
+          <View style = {styles.header}>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style={styles.backButton}/>
+            <Text style={styles.headerText}>Friends</Text>
+          </View>
           <View style={styles.transactionsContainer}>
           {numberOfPeople>0?(<FlatList
               data={people}
@@ -46,15 +46,15 @@ export default function PeopleScreen() {
                 title = {item.name}
                 amount={`₹${item.amount}`}
                 subtitle={undefined}
-                optionText={item.type === "credit" ? "You are due" : item.type === "debit" ? "You owe" : undefined}
+                optionText={item.type === "credit" ? "You lend" : item.type === "debit" ? "You owe" : undefined}
                 transactionType={item.type}
                 />
                 
               )}
               ItemSeparatorComponent={() => (
-                <View style={{  height: 15 , backgroundColor: 'white'}} />
+                <View style={{  height: 5 , backgroundColor: 'white'}} />
               )}
-              contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+              contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
 
             />):
             <Text style = {styles.noPeopleText}>No People Found</Text>
@@ -64,7 +64,7 @@ export default function PeopleScreen() {
         <FAB
                     label="Add Friends"
                     style={styles.fab}
-                    onPress={() => router.push("/(tabs)")}
+                    onPress={() => router.push("/addFriends")}
         />
         </View>
   );
@@ -77,22 +77,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingTop: 0, // Add padding to the top to avoid overlap with status bar
   },
+  header: {
+    color: "black",
+    backgroundColor: "white",
+    paddingInline: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 10
+  },
   backButton: {
     // position: "absolute",
-    left: 10,
-    top: 20, // Space above the back button
-    marginBottom: 20, // Space below the back button
+    padding: 10
   },
   headerText: {
-    position: "absolute",
-    top: 20, // Space above the header text
     fontSize: 22,
-    right: 10,
     fontWeight: "bold",
-    marginBottom: 20, // Space below the header text
+    color: "black"
   },
   transactionsContainer: {
-    marginTop: 40, // Space above the transactions
+    // marginTop: 20, // Space above the transactions
     // alignItems: "flex-start",
     width: "100%",
     paddingVertical: 10, // Space above and below the transactions

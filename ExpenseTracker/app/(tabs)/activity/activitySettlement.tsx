@@ -8,24 +8,15 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons,FAB } from 'react-native-paper';
 import * as React from 'react';
-import {useGetUserPersonalTransactionsQuery} from '@/store/userApi';
+import { useGetUserSettlementsQuery } from "@/store/userApi";
 import { format, parseISO ,isToday} from 'date-fns'; // Import date-fns functions
-
-// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
-
-const transactions = [
-  { id: "1", title:"Dinner", amount: "₹60", time: "6:16 pm · 19 Feb" },
-  { id: "2",title:"Party", amount: "₹90", time: "6:16 pm · 19 Feb" },
-  { id: "3", title:"Travel", amount: "₹80", time: "6:16 pm · 19 Feb" },
-];
-
 
 const groupTransactionsByDate = (transactions: any) => {
   const grouped: { [key: string]: any} = {};
 
   transactions.forEach((transaction:any) => {
     console.log(transaction);
-    const date = transaction.created_at_date_time.split('T')[0]; // Get the date part (YYYY-MM-DD)
+    const date = transaction.createdAt.split('T')[0]; // Get the date part (YYYY-MM-DD)
     console.log(date);
     if (!grouped[date]) {
       grouped[date] = [];
@@ -36,10 +27,27 @@ const groupTransactionsByDate = (transactions: any) => {
   return grouped;
 };
 
+const tempGroupTransactionsByDate = (transactions: any) => {
+  const grouped: { [key: string]: any} = {};
+
+  transactions.forEach((transaction:any) => {
+    console.log(transaction);
+    // const date = transaction.createdAt.split('T')[0]; // Get the date part (YYYY-MM-DD)
+    const date = new Date().toISOString().split('T')[0];
+    console.log(date);
+    if (!grouped[date]) {
+      grouped[date] = [];
+    }
+    grouped[date].push(transaction);
+  });
+
+  return grouped;
+}
+
 export default function ActivitySpendScreen() {
   const router = useRouter();
   const [value, setValue] = React.useState('');
-  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserPersonalTransactionsQuery({});
+  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery({});
   if (isLoadingSettlement) {
       return <Text>Loading...</Text>;
   }
@@ -48,9 +56,10 @@ export default function ActivitySpendScreen() {
       return <Text>Error: {errorSettlement?.message || JSON.stringify(errorSettlement)}</Text>;
   }
   const settlements = dataSettlement.data;
+  console.log("settlements: ", settlements);
   const numberOfSettlements = settlements.length;
 
-  const groupedTransactions = groupTransactionsByDate(settlements);
+  const groupedTransactions = tempGroupTransactionsByDate(settlements);
   const dates = Object.keys(groupedTransactions);
   return (
     <View style={styles.screen}>
@@ -102,11 +111,11 @@ export default function ActivitySpendScreen() {
                     renderItem={({ item }) => (
                       <TransactionCard
                         pressFunction={() => router.push({ pathname: "../../viewSettlement", params: { id:item._id} })}
-                        title={item.description} // Adjust based on your data structure
-                        imageType={item.transactionType} // Adjust based on your data structure
+                        title={item.settlement_description} // Adjust based on your data structure
+                        imageType={undefined} // Adjust based on your data structure
                         amount={`₹${item.amount}`} // Adjust based on your data structure
-                        subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')} // Format the time as needed
-                        transactionType={item.transactionType} // Example logic for transaction type
+                        subtitle={format(parseISO(new Date().toISOString()), 'hh:mm a')} // Format the time as needed
+                        transactionType={undefined} // Example logic for transaction type
                       />
                     )}
                     ItemSeparatorComponent={() => (

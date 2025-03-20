@@ -1,4 +1,4 @@
-import { StyleSheet, Image,ScrollView ,FlatList} from "react-native";
+import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
@@ -21,7 +21,7 @@ export default function WalletsScreen() {
   const [value, setValue] = React.useState('');
   const {data: dataWallet, isLoading: isLoadingWallet, error: errorWallet} = useGetUserWalletsQuery({});
   if (isLoadingWallet) {
-      return <Text>Loading...</Text>;
+      return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     }
     
     if (errorWallet) {
@@ -34,10 +34,10 @@ export default function WalletsScreen() {
     <View style={styles.screen}>
         <ScrollView style={styles.container}>
           
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>      
-          <Text style={styles.headerText}>All Wallets</Text>
+          <View style = {styles.header}>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style={styles.backButton}/>
+            <Text style={styles.headerText}>Wallets</Text>
+          </View>
           
           {/* <View style={styles.navbar}>
             <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
@@ -59,9 +59,9 @@ export default function WalletsScreen() {
               
             )}
             ItemSeparatorComponent={() => (
-              <View style={{  height: 15, backgroundColor: 'white'}} />
+              <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+            contentContainerStyle={{ paddingBottom: 5 }}
 
           />)
           :
@@ -90,18 +90,22 @@ const styles = StyleSheet.create({
     paddingTop: 0, // Add padding to the top to avoid overlap with status bar
   },
   backButton: {
-    // position: "absolute",
-    left: 10,
-    top: 20, // Space above the back button
-    marginBottom: 60, // Space below the back button
+    padding: 10
+  },
+  header: {
+    color: "black",
+    backgroundColor: "white",
+    paddingInline: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 10
   },
   headerText: {
-    position: "absolute",
-    top: 20, // Space above the header text
     fontSize: 22,
-    right: 10,
     fontWeight: "bold",
-    marginBottom: 20, // Space below the header text
+    color: "black"
   },
   navbar: {
     // position: 'absolute',

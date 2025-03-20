@@ -23,9 +23,9 @@ const groupTransactionsByDate = (transactions: any) => {
   const grouped: { [key: string]: any} = {};
 
   transactions.forEach((transaction:any) => {
-    console.log(transaction);
+    // console.log(transaction);
     const date = transaction.created_at_date_time.split('T')[0]; // Get the date part (YYYY-MM-DD)
-    console.log(date);
+    // console.log(date);
     if (!grouped[date]) {
       grouped[date] = [];
     }

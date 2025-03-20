@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetSettlementQuery } from "@/store/settlementApi";
 import moment from "moment";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 // router.push({ pathname: "/viewTransaction", params: {id: "67cf2e67b3452d6bb43d2a23"} })
 
@@ -83,7 +84,7 @@ const SettlementDetailsScreen = () => {
     }
   }, [settlement?.payer_wallet_id, settlement?.receiver_wallet_id]);
 
-  if (isLoading) return <Text>Loading...</Text>;
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading settlement details</Text>;
   if (!data?.data || !loggedInUserId) return <Text>No settlement found</Text>;
 
@@ -94,24 +95,23 @@ const SettlementDetailsScreen = () => {
   return (
     <View style={[styles.container]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-
+        <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {styles.backButton}/>
         {/* Menu Component */}
-        <Menu
-          visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
-          anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
-              <Entypo name="dots-three-vertical" size={20} color="black" />
-            </TouchableOpacity>
-          }
-        >
-          <Menu.Item onPress={() => console.log("Edit settlement")} title="Edit" />
-          <Divider />
-          <Menu.Item onPress={() => console.log("Delete settlement")} title="Delete" />
-        </Menu>
+        <View>
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            anchor={
+              <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+                <Entypo name="dots-three-vertical" size={20} color="black" />
+              </TouchableOpacity>
+            }
+          >
+            <Menu.Item onPress={() => console.log("Edit settlement")} title="Edit" />
+            <Divider />
+            <Menu.Item onPress={() => console.log("Delete settlement")} title="Delete" />
+          </Menu>
+        </View>
       </View>
 
       <View style={styles.detailContainer}>
@@ -134,13 +134,13 @@ const SettlementDetailsScreen = () => {
             />)}
             <Text style = {styles.accountName} >{payer.name}</Text>
         </View>
-        <Text>{"->"}</Text>
+        <Icon name="arrow-forward" size={40} color="black" />
         <View style = {styles.usersContainer}>
             {receiver?.profile_photo ? (<Image source={{ uri: receiver.profile_photo.url }} style={styles.avatar} />) : ( <Image
                 source={require("../assets/images/sampleprofilepic.png")}
                 style={styles.avatar}
             />)}
-            <Text style = {styles.accountName}>{receiver.name}</Text>
+            <Text style = {styles.userName}>{receiver.name}</Text>
         </View>
       </View>
 
@@ -166,10 +166,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 3
   },
+  userName: {
+    fontSize: 18,
+    fontFamily: "Poppins_400Regular",
+    color: "#6B7280",
+  },
   avatar: {
-    width: 200, 
-    height: 200, 
-    borderRadius: 100,
+    width: 60, 
+    height: 60, 
+    borderRadius: 30,
   },
   mediaContainer: {
     marginTop: 20,
@@ -242,7 +247,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "100%"
+    width: "100%",
+    alignItems: "center"
   },
   paidBy: {
     fontSize: 16,
