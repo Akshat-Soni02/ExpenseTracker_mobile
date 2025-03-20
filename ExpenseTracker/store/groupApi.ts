@@ -87,6 +87,7 @@ export const {
   useRemindAllGroupBorrowersMutation,
   useGetGroupHistoryQuery,
   useGetGroupQuery,
+  useLazyGetGroupQuery,
   useUpdateGroupMutation,
   useDeleteGroupMutation,
 } = groupApi;

@@ -19,7 +19,7 @@ const GroupDetailsScreen = () => {
     }
   }, [id]);
 
-  if (isLoading) return <Text>Loading...</Text>;
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading group details</Text>;
   if (!data?.data) return <Text>No group found</Text>;
 
@@ -99,7 +99,7 @@ const GroupDetailsScreen = () => {
 
       {/* Floating Add Expense Button */}
       <TouchableOpacity style={styles.floatingButton}>
-        <FontAwesome name="plus" size={24} color="white" />
+        <Ionicons name="add" size={24} color="#fff" onPress={() => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } })}/>
       </TouchableOpacity>
     </View>
   );
@@ -183,19 +183,35 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   floatingButton: {
-    position: "absolute",
-    bottom: 30,
+    position: 'absolute',
     right: 20,
-    backgroundColor: "#10B981",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    bottom: 20,
+    backgroundColor: '#007AFF',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5, // For Android shadow
+    elevation: 5,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#007AFF',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });

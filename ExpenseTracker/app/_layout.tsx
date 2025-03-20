@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import store from '@/store/store';
 import { useColorScheme } from '@/components/useColorScheme';
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
+import * as Linking from "expo-linking";
 
 const paperLightTheme = {
   ...MD3LightTheme,
@@ -63,6 +64,17 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  const linking = {
+    prefixes: ["https://expenseEase.com", "expenseEase://"],
+    config: {
+      screens: {
+        invite: "invite/:referralCode",
+        addFriends: "addFriends",
+        viewProfile: "profile/:userId",
+      },
+    },
+  };
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
@@ -76,6 +88,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="addSplit" options={{headerShown:false}}/>
         <Stack.Screen name="addTransaction" options={{headerShown:false}}/>
+        <Stack.Screen name="addFriends" options={{headerShown:false}}/>
         <Stack.Screen name="createGroup" options={{headerShown:false}}/>
         <Stack.Screen name="createBill" options={{headerShown:false}}/>
         <Stack.Screen name="createWallet" options={{headerShown:false}}/>
@@ -90,6 +103,7 @@ function RootLayoutNav() {
         <Stack.Screen name="viewWallet" options={{headerShown:false}}/>
         <Stack.Screen name="viewBill" options={{headerShown:false}}/>
         <Stack.Screen name="viewSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="addPeopleEmail" options={{headerShown:false}}/>
         <Stack.Screen name="editSettlement" options={{headerShown:false}}/>
         <Stack.Screen name="editExpense" options={{headerShown:false}}/>
         <Stack.Screen name="editBill" options={{headerShown:false}}/>

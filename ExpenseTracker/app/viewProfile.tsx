@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, Image, ScrollView, TouchableOpacity, Dimensions, StyleSheet, Platform,TextInput} from "react-native";
+import {View, Text, SafeAreaView, Image, ScrollView, TouchableOpacity, Dimensions, StyleSheet, Platform,TextInput, ActivityIndicator} from "react-native";
 import React from "react";
 import { useFonts } from "expo-font";
 import { FontAwesome } from "@expo/vector-icons";
@@ -67,7 +67,7 @@ const [userData, setUserData] = useState({
     refetch();
   };
   if (isLoadingUser) {
-    return <Text>Loading...</Text>;
+    return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   }
   
   if (errorUser) {

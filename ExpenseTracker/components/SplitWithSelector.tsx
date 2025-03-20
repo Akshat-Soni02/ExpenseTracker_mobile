@@ -1,30 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Modal, Image, FlatList } from "react-native";
-import { Control, Controller, useWatch,useController } from "react-hook-form";
-import { useGetUserFriendsQuery,useLazyGetUserByIdQuery } from "@/store/userApi";
+import { Control, Controller, useWatch } from "react-hook-form";
+import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import CustomButton from "./button/CustomButton";
 import { Ionicons } from "@expo/vector-icons";
+import { useLazyGetGroupQuery } from "@/store/groupApi";
 
 interface Props {
   control: Control<any>;
   amount: number;
   setValue: (name: string, value: any) => void;
   title?: string;
+  group_id?: string;
   IncludePaidBy?: boolean;
   edit?:boolean;
 }
 
-const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, IncludePaidBy,edit=false }) => {
+const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, group_id, IncludePaidBy,edit=false }) => {
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [splitAmounts, setSplitAmounts] = useState<Record<string, number>>({});
   const [modalVisible, setModalVisible] = useState(false);
+  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [paidByModalVisible, setPaidByModalVisible] = useState(false);
   const [paidBy, setPaidBy] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const { data, isLoading } = useGetUserFriendsQuery();
+  const [groupMembers, setGroupMembers] = useState<{ _id: string; name: string }[]>([]);
+  const [fromMembers, setFromMembers] = useState<{ _id: string; name: string }[]>([]);
+
+  const { data: userFriends, isLoading: friendsLoading } = useGetUserFriendsQuery();
+  const [getGroup, { data: groupData }] = useLazyGetGroupQuery();
+  const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
+
   const splitWith = useWatch({ control, name: "splitWith" });
   const { field } = useController({ control, name: "paidBy" });
   const paidByUser = field.value;  
@@ -85,6 +94,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
         const userData = await AsyncStorage.getItem("user");
         if (userData) {
           const user = JSON.parse(userData);
+          setLoggedInUserId(user._id);
           const defaultUser = { user_id: user._id, name: user.name, profile_photo: user.profile_photo?.url };
           if(edit){
             console.log("SelectedMembers:",members);
@@ -96,10 +106,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
           else{
           setSelectedUsers([defaultUser]);
           setPaidBy(defaultUser);
-          setValue(
-            "paidBy",
-            defaultUser
-          );}
+          setValue("paidBy", defaultUser);
         }
       } catch (error) {
         console.error("Error loading user:", error);
@@ -126,7 +133,52 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       );
     }
   }, [amount, selectedUsers]);
-  
+
+  useEffect(() => {
+    const loadGroup = async () => {
+      if (group_id) {
+        try {
+          const res = await getGroup(group_id).unwrap();
+          if (res?.data?.members) {
+            const memberIds = res.data.members.map((member) => member.member_id).filter((id) => id !== loggedInUserId);
+            fetchGroupMembers(memberIds);
+          }
+        } catch (error) {
+          console.error("Error loading group:", error);
+        }
+      }
+    };
+
+    loadGroup();
+  }, [group_id, loggedInUserId]);
+
+  const fetchGroupMembers = async (memberIds: string[]) => {
+    if (!memberIds.length) return;
+
+    try {
+      const memberData = await Promise.all(memberIds.map((id) => getUserById(id).unwrap()));
+
+      const newMembers = memberData.map((res, index) => ({
+        _id: memberIds[index],
+        name: res?.data?.name || "Unknown",
+      }));
+
+      setGroupMembers(newMembers);
+      setFromMembers(newMembers);
+    } catch (error) {
+      console.error("Error fetching group members:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (group_id) {
+      if (groupMembers.length > 0) {
+        setFromMembers(groupMembers);
+      }
+    } else {
+      setFromMembers(userFriends?.data || []);
+    }
+  }, [group_id, groupMembers, userFriends]);
 
   const toggleUserSelection = (user: { _id: string; name: string }) => {
     let newSelectedUsers;
@@ -144,7 +196,14 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
     setValue("splitWith", updatedArray);
   };
 
-  const filteredUsers = data?.data?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
+  const filteredUsers = React.useMemo(() => {
+    return fromMembers?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
+  }, [fromMembers, searchQuery]);
+  
+
+  console.log("filteredUsers: ",filteredUsers);
+  console.log("groupMembers: ", groupMembers);
+  console.log(groupData?.data?.members);
 
   return (
     <View style={styles.container}>

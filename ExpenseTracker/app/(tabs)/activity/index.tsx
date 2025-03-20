@@ -1,4 +1,4 @@
-import { StyleSheet, Image,ScrollView ,FlatList} from "react-native";
+import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
@@ -7,129 +7,228 @@ import TransactionCard from "@/components/TransactionCard";
 import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons ,FAB} from 'react-native-paper';
-import { format, parseISO ,isToday} from 'date-fns'; // Import date-fns functions
+import { format, parseISO ,isToday} from 'date-fns';
 import * as React from 'react';
-import {useGetUserExpensesQuery} from '@/store/userApi';
-const transactions = [
-  { id: "1", title:"Dinner",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-  { id: "2",title:"Party", imageType: "expense", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-  { id: "3", title:"Travel",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-];
-const groupTransactionsByDate = (transactions: any) => {
-  const grouped: { [key: string]: any} = {};
+import {useGetUserExpensesQuery, useGetUserPersonalTransactionsQuery, useGetUserSettlementsQuery} from '@/store/userApi';
+import SegmentedControl from "@/components/SegmentedControl";
 
-  transactions.forEach((transaction:any) => {
-    console.log(transaction);
-    const date = transaction.created_at_date_time.split('T')[0]; // Get the date part (YYYY-MM-DD)
-    console.log(date);
-    if (!grouped[date]) {
-      grouped[date] = [];
-    }
-    grouped[date].push(transaction);
-  });
-
-  return grouped;
-};
-
-// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
 export default function ActivityScreen() {
-  
-  
   const router = useRouter();
+  const [page, setPage] = React.useState("splits");
   const [value, setValue] = React.useState('');
-    const {data: dataExpense, isLoading: isLoadingExpense, error: errorExpense} = useGetUserExpensesQuery({});
-    if (isLoadingExpense) {
-        return <Text>Loading...</Text>;
-    }
+  const {data: dataExpense, isLoading: isLoadingExpense, error: errorExpense} = useGetUserExpensesQuery({});
+  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery({});
+  const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery({});
+
+  if (isLoadingExpense || isLoadingPersonalTransaction || isLoadingSettlement) {
+      return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  }
       
-    if (errorExpense) {
-        return <Text>Error: {errorExpense?.message || JSON.stringify(errorExpense)}</Text>;
-    }
-    const Expenses = dataExpense.data;
-    // console.log(detectedExpenses);
-    const numberOfExpenses = Expenses.length;
+  if (errorExpense) return <Text>Error: {errorExpense?.message || JSON.stringify(errorExpense)}</Text>;
+  else if (errorPersonalTransaction) return <Text>Error: {errorPersonalTransaction?.message || JSON.stringify(errorPersonalTransaction)}</Text>;
+  else if (errorSettlement) return <Text>Error: {errorSettlement?.message || JSON.stringify(errorSettlement)}</Text>;
+
+  const Expenses = dataExpense.data;
+  const numberOfExpenses = Expenses.length;
+
+  const settlements = dataSettlement.data;
+  const numberOfSettlements = settlements.length;
+
+  const personalTransactions = dataPersonalTransaction.data;
+  const numberOfPersonalTransactions = personalTransactions.length;
+
+  const groupTransactionsByDate = (transactions: any) => {
+    const grouped: { [key: string]: any} = {};
   
-    const groupedTransactions = groupTransactionsByDate(Expenses);
-    const dates = Object.keys(groupedTransactions);
-    console.log("Grouped Transactions:  ",groupedTransactions);
-  return (
-    <View style={styles.screen}>
-        <ScrollView style={styles.container}>
-          
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>      
-          <Text style={styles.headerText}>All Expenses</Text>
-          <View style={styles.navbar}>
-            <SegmentedButtons
-              value={value}
-              onValueChange={setValue}
-              buttons={[
-                {
-                  value: 'expense',
-                  label: 'Expenses',
-                  checkedColor:"red",
-                  uncheckedColor:"black",
-                },
-                {
-                  value: 'transaction',
-                  label: 'Transactions',
-                  onPress: ()=>router.push("../activity/activityTransaction"),
+    transactions.forEach((transaction:any) => {
+      const date = transaction.created_at_date_time.split('T')[0];
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(transaction);
+    });
+  
+    return grouped;
+  };
+  
+  const tempGroupTransactionsByDate = (transactions: any) => {
+    const grouped: { [key: string]: any} = {};
+  
+    transactions.forEach((transaction:any) => {
+      const date = new Date().toISOString().split('T')[0];
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(transaction);
+    });
+  
+    return grouped;
+  }
 
-                  checkedColor:"red",
-                  uncheckedColor:"black",
-                },
-                { 
-                  value: 'settlement', 
-                  label: 'Settlements',
-                  onPress: ()=>router.push("../activity/activitySettlement"),
+  const groupedSettlements = tempGroupTransactionsByDate(settlements);
+  const settlementDates = Object.keys(groupedSettlements);
 
-                  checkedColor:"red",
-                  uncheckedColor:"black",
+  const groupedPersonalTransactions = groupTransactionsByDate(personalTransactions);
+  const personalTransactionDates = Object.keys(groupedPersonalTransactions);
 
-                },
-              ]}
-            />
-          </View>
+  const groupedExpenses = groupTransactionsByDate(Expenses);
+  const expenseDates = Object.keys(groupedExpenses);
+  console.log(personalTransactions);
 
-        {numberOfExpenses>0?(<View >
-              {dates.map(date => (
-                <View key={date} style={{backgroundColor:"white"}}>
-                  <Text style={styles.sectionTitle}>
-                      {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')} {/* Check if today */}
-                  </Text>
-                  <FlatList
-                    data={groupedTransactions[date]}
-                    keyExtractor={(item) => item._id} // Use _id as the key
-                    renderItem={({ item }) => (
-                      <TransactionCard 
-                        pressFunction = {() => router.push({ pathname: "../../viewExpense", params: { id:item._id} })}
 
-                        title={item.description} // Adjust based on your data structure
-                        imageType={item.transactionType} // Adjust based on your data structure
-                        amount={`₹${item.total_amount}`} // Adjust based on your data structure
-                        subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')} // Format the time as needed
-                        transactionType={item.transactionType} // Example logic for transaction type
+    if(page === "splits") {
+      console.log(page);
+      return (
+        <View style={styles.screen}>
+            <ScrollView style={styles.container}>
+              
+            <View style = {styles.header}>
+              <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>     
+              <Text style={styles.headerText}>Activity</Text>
+            </View>
+              <View style={styles.navbar}>
+                <SegmentedControl value={page} setValue={setPage} />
+              </View>
+    
+            {numberOfExpenses>0?(<View >
+                  {expenseDates.map(date => (
+                    <View key={date} style={{backgroundColor:"white"}}>
+                      <Text style={styles.sectionTitle}>
+                          {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
+                      </Text>
+                      <FlatList
+                        data={groupedExpenses[date]}
+                        keyExtractor={(item) => item._id}
+                        renderItem={({ item }) => (
+                          <TransactionCard 
+                            pressFunction = {() => router.push({ pathname: "../../viewExpense", params: { id:item._id} })}
+    
+                            title={item.description}
+                            imageType={undefined}
+                            amount={`₹${item.total_amount}`}
+                            subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')}
+                            transactionType={item.transaction_type}
+                          />
+                        )}
+                        ItemSeparatorComponent={() => (
+                          <View style={{ height: 5 , backgroundColor: 'white' }} />
+                        )}
+                        contentContainerStyle={{ paddingBottom: 5 }}
+                        nestedScrollEnabled={true}
                       />
-                    )}
-                    ItemSeparatorComponent={() => (
-                      <View style={{ height: 10 , backgroundColor: 'white' }} />
-                    )}
-                    contentContainerStyle={{ paddingBottom: 0 }} // Ensure no extra padding
-                  />
-                </View>
-              ))}
-            </View>):
-              <Text style= {styles.noExpensesText}>No Expenses Found</Text>
-            }
-        </ScrollView>
-        <FAB
-        label="Add Expense"
-        style={styles.fab}
-        onPress={() => router.push("../bills")}
-    />
-    </View>
-  );
+                    </View>
+                  ))}
+                </View>):
+                  <Text style= {styles.noText}>No Expenses Found</Text>
+                }
+            </ScrollView>
+            <FAB
+            label="Add split"
+            style={styles.fab}
+            onPress={() => router.push("/addSplit")}
+        />
+        </View>
+      );
+    } else if (page === "spends") {
+      console.log(dataPersonalTransaction);
+      return (
+        <View style={styles.screen}>
+        <ScrollView style={styles.container}>
+              
+            <View style = {styles.header}>
+                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()}/>     
+                  <Text style={styles.headerText}>Activity</Text>
+              </View>
+              <View style={styles.navbar}>
+                <SegmentedControl value={page} setValue={setPage} />
+              </View>
+              {numberOfPersonalTransactions>0?(<View >
+                  {personalTransactionDates.map(date => (
+                    <View key={date} style={{backgroundColor:"white"}}>
+                      <Text style={styles.sectionTitle}>
+                          {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
+                      </Text>
+                      <FlatList
+                        data={groupedPersonalTransactions[date]}
+                        keyExtractor={(item) => item._id}
+                        renderItem={({ item }) => (
+                          <TransactionCard 
+                            pressFunction = {() => router.push({ pathname: "../../viewTransaction", params: { id:item._id} })}
+    
+                            title={item.description}
+                            imageType={item.transaction_type}
+                            amount={`₹${item.amount}`}
+                            subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')}
+                            transactionType={item.transaction_type}
+                          />
+                        )}
+                        ItemSeparatorComponent={() => (
+                          <View style={{ height: 5 , backgroundColor: 'white' }} />
+                        )}
+                        contentContainerStyle={{ paddingBottom: 0 }}
+                        nestedScrollEnabled={true}
+                      />
+                    </View>
+                  ))}
+                </View>):
+                 <Text style= {styles.noText}>No Personal Transactions Found</Text>
+                }
+    
+            </ScrollView>
+            <FAB
+            label="Add Spend"
+            style={styles.fab}
+            onPress={() => router.push("/addTransaction")}
+        />
+        </View>
+      );
+    } else {
+      console.log(page);
+      return (
+        <View style={styles.screen}>
+        <ScrollView style={styles.container}>
+          <View style = {styles.header}>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()}/>     
+              <Text style={styles.headerText}>Activity</Text>
+          </View>
+              <View style={styles.navbar}>
+                <SegmentedControl value={page} setValue={setPage} />
+              </View>
+              
+              {numberOfSettlements>0?(<View >
+                  {settlementDates.map(date => (
+                    <View key={date} style={{backgroundColor:"white"}}>
+                      <Text style={styles.sectionTitle}>
+                          {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
+                      </Text>
+                      <FlatList
+                        data={groupedSettlements[date]}
+                        keyExtractor={(item) => item._id}
+                        renderItem={({ item }) => (
+                          <TransactionCard
+                            pressFunction={() => router.push({ pathname: "../../viewSettlement", params: { id:item._id} })}
+                            title={item.settlement_description}
+                            imageType={undefined}
+                            amount={`₹${item.amount}`}
+                            subtitle={format(parseISO(new Date().toISOString()), 'hh:mm a')}
+                            transactionType={undefined}
+                          />
+                        )}
+                        ItemSeparatorComponent={() => (
+                          <View style={{ height: 5 , backgroundColor: 'white' }} />
+                        )}
+                        contentContainerStyle={{ paddingBottom: 0 }}
+                        nestedScrollEnabled={true}
+                      />
+                    </View>
+                  ))}
+                </View>):
+                 <Text style= {styles.noText}>No Settlements Found</Text>
+                }
+            </ScrollView>
+          </View>
+      );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -138,40 +237,37 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 10,
-    backgroundColor: "#fff",
-    paddingTop: 0, // Add padding to the top to avoid overlap with status bar
+    backgroundColor: "white",
+    paddingInline: 15
+  },
+  header: {
+    color: "black",
+    backgroundColor: "white",
+    paddingInline: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 10
   },
   backButton: {
-    // position: "absolute",
-    left: 10,
-    top: 20, // Space above the back button
-    marginBottom: 20, // Space below the back button
+    padding: 10
   },
   headerText: {
-    position: "absolute",
-    top: 20, // Space above the header text
     fontSize: 22,
-    right: 10,
     fontWeight: "bold",
-    marginBottom: 20, // Space below the header text
+    color: "black"
   },
   navbar: {
-    // position: 'absolute',
-    // flexDirection: 'row',
-    // justifyContent: 'space-around',
-    // alignItems: 'center',
-    // height: 10,
-    marginBottom: 20, // Space below the navbar
+    marginBottom: 20,
     backgroundColor: '#f8f8f8',
-    // borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     borderRadius: 20,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    marginTop: 25, // Space above the navbar
+    marginTop: 25,
     shadowRadius: 2,
     left : 2,
   },
@@ -187,24 +283,22 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   todayText: {
-    // marginTop: 1 // Space above the "Today" text
     marginLeft: 20,
     color: "black",
     fontSize: 20,
     fontWeight: "bold",
-    // marginBottom: 0, // Space below the "Today" text
   },
   transactionsContainer: {
-    // marginTop: 10, // Space above the transactions
     alignItems: "flex-start",
     width: "100%",
-    paddingVertical: 10, // Space above and below the transactions
+    paddingVertical: 10,
   },
 
   sectionTitle: { 
     fontSize: 18, 
     fontWeight: "bold", 
-    marginBottom: 10 
+    marginBottom: 10,
+    color: "black"
   },
   fab: {
     position: "absolute",
@@ -212,13 +306,15 @@ const styles = StyleSheet.create({
     backgroundColor:"#f8f9fa",
     right: 0,
     bottom: 0,
-},noExpensesText: {
-  height: 100, // Set a fixed height to match the expected space
-  justifyContent: 'center', // Center the text vertically
-  alignItems: 'center', // Center the text horizontally
-  textAlign: 'center', // Center the text
-  fontSize: 16, // Adjust font size as needed
-  color: 'gray', // Change color to indicate no transactions
-  padding: 16, // Add some padding for better spacing
+},
+noText: {
+  height: 100,
+  justifyContent: 'center',
+  alignItems: 'center',
+  textAlign: 'center',
+  fontSize: 16,
+  color: 'gray',
+  padding: 16,
+  backgroundColor: "white"
 },
 });

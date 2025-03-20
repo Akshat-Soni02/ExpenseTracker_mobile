@@ -1,4 +1,4 @@
-import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity} from 'react-native';
+import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 // import {  View } from '@/components/Themed';
 import { useRouter } from "expo-router";
@@ -56,8 +56,8 @@ export default function HomeScreen() {
   //   fetchUser();
   // }, []);
 
-  if (isLoadingDetected || isLoadingGroup || isLoadingUser) {
-    return <Text>Loading...</Text>;
+  if (isLoadingDetected || isLoadingGroup || isLoadingUser || isLoading) {
+    return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   }
   
   if (errorDetected || errorGroup || errorUser) {
@@ -97,11 +97,11 @@ export default function HomeScreen() {
           <View style={styles.financialSummary}>
             <View style={styles.textContainer}>
               <Text style={styles.label}>You owe</Text>
-              <Text style={styles.debit}>₹{exchangeData.data.borrowedAmount}</Text>
+              {!isLoading && (<Text style={styles.debit}>₹{exchangeData?.data?.borrowedAmount}</Text>)}
             </View>
             <View>
               <Text style={styles.label}>You lended</Text>
-              <Text style={styles.credit}>₹{exchangeData.data.lendedAmount}</Text>
+              {!isLoading && (<Text style={styles.credit}>₹{exchangeData?.data?.lendedAmount}</Text>)}
             </View>
           </View>
         </View>
@@ -110,11 +110,10 @@ export default function HomeScreen() {
       {/* Quick Actions */}
       <View style={styles.actions}>
   {[
-    { icon: "plus", label: "New Split", route: "../addSplit" },
+    { icon: "call-split", label: "New Split", route: "../addSplit" },
     { icon: "plus", label: "New Spend", route: "../addTransaction" },
-    { icon: "receipt", label: "Bills", route: "../activity/pendingBills" },
-
-    { icon: "piggy-bank", label: "Budgets", route: "/activity/budgets" },
+    { icon: "file-check-outline", label: "Bills", route: "../activity/pendingBills" },
+    { icon: "finance", label: "Budgets", route: "/activity/budgets" },
   ].map((item, index) => (
     <View key={index} style={styles.actionContainer}>
       <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
@@ -147,7 +146,7 @@ export default function HomeScreen() {
           
         )}
         ItemSeparatorComponent={() => (
-          <View style={{  height: 2, backgroundColor: 'black'}} />
+          <View style={{  height: 2, backgroundColor: 'white'}} />
         )}
         contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
 
@@ -157,7 +156,7 @@ export default function HomeScreen() {
 
       {/* Groups */}
       <View style={styles.titleContainer}>
-        <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
+        <Text style={[styles.sectionTitle,{paddingTop:20}]} >Groups</Text>
         <Button style={styles.viewButton} onPress={()=>router.push("/activity/groups")}>
             View all
         </Button>
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
   profileCard: { 
     flexDirection: "row", 
     justifyContent: "flex-start", 
-    height:180,
+    height:160,
     width:"100%",
     padding: 20, 
     borderRadius: 10, 
@@ -263,7 +262,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    marginBottom:30,
+    marginBottom:20,
   },
   actionContainer: {
     alignItems: "center", // Centers the icon and text
@@ -309,7 +308,7 @@ const styles = StyleSheet.create({
   groupContainer: { 
     flexDirection: "row", 
     justifyContent: "flex-start", 
-    marginTop: 10 ,
+    marginTop: 5 ,
   },
   groupItem: { 
     alignItems: "center",

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/AmountDescriptionInput";
@@ -15,6 +15,7 @@ import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { useLocalSearchParams } from "expo-router";
 export default function AddExpenseScreen() {
+  const {group_id, group_name} = useLocalSearchParams();
   let {detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
   const date_time = new Date(detectedCreated_at_date_time);
   const parsedDate = new Date(date_time);
@@ -123,15 +124,15 @@ export default function AddExpenseScreen() {
       if (data?.wallet?._id) {
         formData.append("wallet_id", data.wallet._id);
       }
+      if(group_id) {
+        formData.append("group_id", group_id);
+      }
       formData.append("total_amount", String(data.amount));
       if (data?.category) {
         formData.append("expense_category", data.category);
       }
       if (data?.notes) {
         formData.append("notes", data.notes);
-      }
-      if (data?.group_id) {
-        formData.append("group_id", data.group_id);
       }
       if (selectedImage) {
         const fileExtension = selectedImage.split(".").pop();
@@ -156,19 +157,18 @@ export default function AddExpenseScreen() {
   
   
 
-
+  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={styles.container}>
-
         <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
         <Text style={styles.header}>New Split</Text>
       </View>
-
+      {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
       {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>):<AmountDescriptionInput control={control} label="Description"/>}
-      <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/>
+      <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} group_id = {group_id} IncludePaidBy/>
       <NotesInput control={control} name="notes" />
 
       <View style={styles.walletPhotoContainer}>
@@ -184,7 +184,7 @@ export default function AddExpenseScreen() {
       </View>
       
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button} disabled = {!splitWith || splitWith.length == 0 || splitWith.reduce((sum, person) => sum + Number(person.amount), 0) !== amount}>Save</CustomButton>
     </ScrollView>
   );
 }
@@ -192,15 +192,15 @@ export default function AddExpenseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 30,
-    marginBottom: 20
+    marginTop: 20,
+    marginBottom: 10
   },
   backButton: {
     padding: 10,

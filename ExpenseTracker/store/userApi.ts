@@ -53,6 +53,14 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
+    sendInvites: builder.mutation({
+      query: (body) => ({
+        url: `/users/send-invites`,
+        method: "POST",
+        body,
+      }),
+    }),
+
     getUser: builder.query<void, void>({
       query: () => `/users/me`,
       providesTags: ["user"],
@@ -172,6 +180,7 @@ export const {
   useSendOtpMutation,
   useVerifyOtpMutation,
   useResetPasswordMutation,
+  useSendInvitesMutation,
   useGetUserQuery,
   useGetUserByIdQuery,
   useLazyGetUserByIdQuery,
@@ -182,6 +191,7 @@ export const {
   useGetUserBudgetsQuery,
   useGetUserBillsQuery,
   useGetUserWalletsQuery,
+  useGetUserSettlementsQuery,
   useGetUserPersonalTransactionsQuery,
   useGetUserDetectedTransactionsQuery,
   useGetUserFriendsQuery,

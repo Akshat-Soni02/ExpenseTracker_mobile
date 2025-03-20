@@ -17,6 +17,10 @@ interface TransactionCardProps {
 }
 
 const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction, cardStyle, amountStyle }) => {
+  const isDebit = (transactionType === "debit" || transactionType === "expense");
+  const isCredit = (transactionType === "credit" || transactionType === "income");
+  console.log(isDebit);
+  console.log(isCredit);
   return (
     // <View style={styles.card}>
     //   {imageName&&<ImageIcon size={50} />}
@@ -33,9 +37,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     <View style={[styles.transactionItem, cardStyle]} >
       {imageName&&<ImageIcon size={50} />}
       {imageType&&<MaterialCommunityIcons
-        name={imageType === "credit" ? "arrow-top-right" : "arrow-bottom-left"}
+        name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
-        color={imageType === "credit" ? "red" : "green"}
+        color={isDebit ? "red" : "green"}
       />}
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
@@ -48,9 +52,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
             styles.transactionAmount,
             amountStyle,
             { 
-              color: transactionType === "debit" 
+              color: isCredit
                 ? "green" 
-                : transactionType === "credit" 
+                : isDebit
                 ? "red" 
                 : "black" // Default color if transactionType is undefined
             }

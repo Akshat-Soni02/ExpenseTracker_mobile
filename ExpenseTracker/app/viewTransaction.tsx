@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
@@ -27,7 +27,7 @@ const TransactionDetailScreen = () => {
     }
   }, [transaction?.wallet_id]);
 
-  if (isLoading) return <Text>Loading...</Text>;
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading transaction details</Text>;
   if (!data?.data) return <Text>No transaction found</Text>;
 

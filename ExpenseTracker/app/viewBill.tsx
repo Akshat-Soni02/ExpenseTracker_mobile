@@ -106,7 +106,7 @@ const BillDetailsScreen = () => {
       
 
 
-  if (isLoading) return <Text>Loading...</Text>;
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading bill details</Text>;
   if (!data?.data) return <Text>No bill found</Text>;
 
