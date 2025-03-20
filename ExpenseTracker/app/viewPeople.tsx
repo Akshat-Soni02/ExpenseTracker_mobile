@@ -1,14 +1,15 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
-import { useGetUserByIdQuery } from "@/store/userApi";
+import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/userApi";
 
 const ViewPeopleScreen = () => {
     const {id, amount} = useLocalSearchParams();
   const { data, isLoading } = useGetUserByIdQuery(id);
+  const [remindBorrower, {isLoading: loadingBorrowReq}] = useRemindUserBorrowerMutation();
 
-  if (isLoading)return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (!data || !data.data) {
     console.log(id);
@@ -19,6 +20,29 @@ const ViewPeopleScreen = () => {
       </View>
     );
   }
+
+  const handleRemind = async () => {
+      try {
+        const response = await remindBorrower({borrower_id: id}).unwrap();
+        Alert.alert(
+          "Remainder Sent", 
+          "A remainder has been sent", 
+          [
+            { text: "ok", style: "cancel" },
+          ]
+        )
+      } catch (error) {
+        console.error("Error sending borrowers mail:", error);
+        const err = error as { data?: { message?: string } };
+        Alert.alert(
+          "Remainder Error", 
+          `${err?.data?.message}`, 
+          [
+            { text: "ok", style: "cancel" },
+          ]
+        )
+      }
+    };
 
   return (
     <View style={styles.container}>
@@ -37,7 +61,19 @@ const ViewPeopleScreen = () => {
           <Text style={styles.email}>{data.data.email}</Text>
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.remindButton}>
+          <TouchableOpacity 
+                    style={styles.remindButton}
+                    onPress={() => 
+                      Alert.alert(
+                        "Remind All", 
+                        `This will send a remainder email to ${data.data.name}!`, 
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          { text: "Yes", onPress: () => handleRemind()}
+                        ]
+                      )
+                    }
+                  >
             <Text style={styles.buttonText}>Remind</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/createSettlement", params: { fetched_amount:amount,receiver_id : id,name: data.data.name } })}>
@@ -118,14 +154,14 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   remindButton: {
-    backgroundColor: "#FBBF24",
+    backgroundColor: "#475569",
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 8,
     marginRight: 10,
   },
   settleButton: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#047857",
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 8,

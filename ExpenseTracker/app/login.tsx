@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { globalStyles } from "../styles/globalStyles";
@@ -9,11 +9,20 @@ import GoogleButton from "@/components/GoogleButton";
 import { useLoginUserMutation } from "@/store/userApi";
 import { UseDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/context/AuthProvider";
+
 export default function LoginScreen() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loginUser, { isLoading }] = useLoginUserMutation(); // RTK Query login mutation
   const [errorMessage, setErrorMessage] = useState("");
+  const { authToken, loading, login } = useAuth();
+
+  useEffect(() => {
+    if (!loading && authToken) {
+      router.replace("(tabs)");
+    }
+  }, [authToken, loading]);
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: { email: "", password: "" },
@@ -25,11 +34,8 @@ export default function LoginScreen() {
       console.log("Login success:", response);
       // dispatch(setCredentials({ token: response.token, user: response.user }));
       console.log(response.userData);
-      await AsyncStorage.setItem("authToken", response.token);
+      await login(response.token);
       await AsyncStorage.setItem("user", JSON.stringify(response.userData));
-      const storedToken = await AsyncStorage.getItem("authToken");
-    console.log("Stored Token in AsyncStorage:", storedToken);
-
       router.push("/(tabs)");
     } catch (error) {
       console.error("Login failed:", error);

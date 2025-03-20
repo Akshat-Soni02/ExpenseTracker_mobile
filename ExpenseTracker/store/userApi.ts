@@ -145,12 +145,18 @@ export const userApi = api.injectEndpoints({
       providesTags: ["user"],
     }),
 
-    remindUserBorrower: builder.query({
-      query: ({ borrower_id }) => `/users/remind-borrower/${borrower_id}`,
+    remindUserBorrower: builder.mutation({
+      query: ({ borrower_id }) => ({
+        url: `/users/remind-borrower/${borrower_id}`,
+        method: "POST",
+      }),
     }),
 
-    remindUserBorrowers: builder.query({
-      query: () => `/users/remind-borrowers`,
+    remindUserBorrowers: builder.mutation({
+      query: () => ({
+        url: `/users/remind-borrowers`,
+        method: "POST",
+      }),
     }),
 
     updateUserDetails: builder.mutation({
@@ -195,8 +201,8 @@ export const {
   useGetUserDetectedTransactionsQuery,
   useGetUserFriendsQuery,
   useGetUserCurrentExchangeStatusQuery,
-  useRemindUserBorrowerQuery,
-  useRemindUserBorrowersQuery,
+  useRemindUserBorrowerMutation,
+  useRemindUserBorrowersMutation,
   useUpdateUserDetailsMutation,
   useUpdateUserProfilePhotoMutation,
 } = userApi;

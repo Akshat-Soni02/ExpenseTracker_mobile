@@ -2,7 +2,36 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { TouchableOpacity, Text, Animated } from "react-native";
 
-const SegmentedControl = ({ value, onChange }) => {
+const SegmentedControl = ({ value, onChange, isBill }) => {
+
+  if(isBill) {
+    const options = ["Pending", "Completed", "Missed"];
+  
+    return (
+      <View style={styles.container}>
+        {options.map((option, index) => {
+          const isSelected = value === option.toLowerCase();
+  
+          return (
+            <TouchableOpacity
+              key={option}
+              style={[
+                styles.button,
+                isSelected && styles.selectedButton,
+                index === 0 && styles.firstButton,
+                index === options.length - 1 && styles.lastButton,
+              ]}
+              onPress={() => onChange(option.toLowerCase())}
+            >
+              <Text style={[styles.text, isSelected && styles.selectedText]}>
+                {option}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  }
   const options = ["Splits", "Spends", "Settlements"];
   
   return (
@@ -31,12 +60,12 @@ const SegmentedControl = ({ value, onChange }) => {
   );
 };
 
-export default function App({value, setValue}) {
+export default function App({value, setValue, isBill}) {
   // const [value, setValue] = useState("splits");
 
   return (
     <View style={styles.wrapper}>
-      <SegmentedControl value={value} onChange={setValue} />
+      <SegmentedControl value={value} onChange={setValue} isBill={isBill}/>
     </View>
   );
 }

@@ -1,21 +1,38 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const api = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'http://192.168.193.4:3001/api/v1',
+const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
+  let token = await AsyncStorage.getItem("AuthToken");
+
+  // Create a base query instance
+  const rawBaseQuery = fetchBaseQuery({
+    baseUrl: 'http://192.168.0.105:3001/api/v1',
     credentials: 'include',
-    prepareHeaders: async (headers) => {
-      const authToken = await AsyncStorage.getItem("authToken");
-      console.log("Hlllllll",authToken);
-      if (authToken) {
-        headers.set("Authorization", `Bearer ${authToken}`);
+    prepareHeaders: (headers) => {
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
     },
-  }),
-  tagTypes: ['authToken','user', 'group', 'expense', 'wallet', "settlement", "bill", "budget", "detectedTransaction", "personalTransaction"],
+  });
+
+  let result = await rawBaseQuery(args, api, extraOptions);
+
+  // If token was missing, wait and retry once
+  if (!token && result.error?.status === 401) {
+    console.log("Token was missing, retrying...");
+    await new Promise((res) => setTimeout(res, 500)); // Small delay before retry
+    token = await AsyncStorage.getItem("AuthToken");
+    result = await rawBaseQuery(args, api, extraOptions);
+  }
+
+  return result;
+};
+
+const api = createApi({
+  reducerPath: 'api',
+  baseQuery: baseQueryWithAuth,
+  tagTypes: ['authToken', 'user', 'group', 'expense', 'wallet', "settlement", "bill", "budget", "detectedTransaction", "personalTransaction"],
   endpoints: () => ({}),
 });
 

@@ -15,6 +15,8 @@ import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQue
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthProvider';
+
 const transactions = [
   { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
   { id: "2",title:"Paytmqr28100743...", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
@@ -25,9 +27,14 @@ const transactions = [
 
 export default function HomeScreen() {
   const router = useRouter();
-
+  const { authToken, loading } = useAuth();
   const [user, setUser] = useState();
-  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading && !authToken) {
+      router.replace("/welcome");
+    }
+  }, [authToken, loading]);
 
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error} = useGetUserCurrentExchangeStatusQuery();
@@ -36,25 +43,6 @@ export default function HomeScreen() {
   
 
   const {data:dataGroup,isLoading:isLoadingGroup,error:errorGroup} = useGetUserGroupsQuery({});
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     try {
-  //       const storedUser = await AsyncStorage.getItem("user");
-  //       console.log("ASFDASDFASDFASDFASDF-------",storedUser);
-  //       if (storedUser) {
-  //         const parsedUser = JSON.parse(storedUser); // Parse the JSON object
-  //         console.log("ppppppp------",parsedUser);
-  //         setUser(parsedUser); // Set the user object
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchUser();
-  // }, []);
 
   if (isLoadingDetected || isLoadingGroup || isLoadingUser || isLoading) {
     return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
@@ -112,7 +100,7 @@ export default function HomeScreen() {
   {[
     { icon: "call-split", label: "New Split", route: "../addSplit" },
     { icon: "plus", label: "New Spend", route: "../addTransaction" },
-    { icon: "file-check-outline", label: "Bills", route: "../activity/pendingBills" },
+    { icon: "file-check-outline", label: "Bills", route: "../activity/bills" },
     { icon: "finance", label: "Budgets", route: "/activity/budgets" },
   ].map((item, index) => (
     <View key={index} style={styles.actionContainer}>
@@ -342,12 +330,13 @@ const styles = StyleSheet.create({
     alignSelf:"flex-end"
   }, 
   noTransactionsText: {
-    height: 100, // Set a fixed height to match the expected space
+    height: 150, // Set a fixed height to match the expected space
     justifyContent: 'center', // Center the text vertically
     alignItems: 'center', // Center the text horizontally
     textAlign: 'center', // Center the text
     fontSize: 16, // Adjust font size as needed
     color: 'gray', // Change color to indicate no transactions
     padding: 16, // Add some padding for better spacing
+    textAlignVertical: "center"
 },
 });

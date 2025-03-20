@@ -15,10 +15,10 @@ import SegmentedControl from "@/components/SegmentedControl";
 export default function ActivityScreen() {
   const router = useRouter();
   const [page, setPage] = React.useState("splits");
-  const [value, setValue] = React.useState('');
   const {data: dataExpense, isLoading: isLoadingExpense, error: errorExpense} = useGetUserExpensesQuery({});
   const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery({});
   const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery({});
+  
 
   if (isLoadingExpense || isLoadingPersonalTransaction || isLoadingSettlement) {
       return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
@@ -87,7 +87,7 @@ export default function ActivityScreen() {
               <Text style={styles.headerText}>Activity</Text>
             </View>
               <View style={styles.navbar}>
-                <SegmentedControl value={page} setValue={setPage} />
+                <SegmentedControl value={page} setValue={setPage} isBill={false}/>
               </View>
     
             {numberOfExpenses>0?(<View >
@@ -140,7 +140,7 @@ export default function ActivityScreen() {
                   <Text style={styles.headerText}>Activity</Text>
               </View>
               <View style={styles.navbar}>
-                <SegmentedControl value={page} setValue={setPage} />
+                <SegmentedControl value={page} setValue={setPage} isBill={false}/>
               </View>
               {numberOfPersonalTransactions>0?(<View >
                   {personalTransactionDates.map(date => (
@@ -192,7 +192,7 @@ export default function ActivityScreen() {
               <Text style={styles.headerText}>Activity</Text>
           </View>
               <View style={styles.navbar}>
-                <SegmentedControl value={page} setValue={setPage} />
+                <SegmentedControl value={page} setValue={setPage} isBill={false}/>
               </View>
               
               {numberOfSettlements>0?(<View >
