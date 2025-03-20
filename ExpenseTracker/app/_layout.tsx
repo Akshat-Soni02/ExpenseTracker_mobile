@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import store from '@/store/store';
 import { useColorScheme } from '@/components/useColorScheme';
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
+import { AuthProvider } from '@/context/AuthProvider';
 import * as Linking from "expo-linking";
 
 const paperLightTheme = {
@@ -27,7 +28,7 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: 'welcome',
+  initialRouteName: '(tabs)',
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -53,11 +54,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Provider store={store}>
-      <PaperProvider theme={paperLightTheme}>
-        <RootLayoutNav />
-      </PaperProvider>
-    </Provider>
+    <AuthProvider>
+      <Provider store={store}>
+        <PaperProvider theme={paperLightTheme}>
+          <RootLayoutNav />
+        </PaperProvider>
+      </Provider>
+    </AuthProvider>
   );
 }
 

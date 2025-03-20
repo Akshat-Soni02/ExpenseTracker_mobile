@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "../components/button/CustomButton";
@@ -7,12 +7,20 @@ import GoogleButton from "@/components/GoogleButton";
 import { useRegisterUserMutation } from "@/store/userApi";
 import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function SignUpScreen() {
   const router = useRouter();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const { authToken, loading, login } = useAuth();
+
+  useEffect(() => {
+    if (!loading && authToken) {
+      router.replace("(tabs)");
+    }
+  }, [authToken, loading]);
 
   const {
     control,
@@ -33,7 +41,8 @@ export default function SignUpScreen() {
         return;
       }
       if (response?.data?.token) {
-        await AsyncStorage.setItem("authToken", response.data.token);
+        await login(response.data.token);
+        await AsyncStorage.setItem("user", JSON.stringify(response.data.userData));
         router.push("/(tabs)");
       }
     } catch (error) {

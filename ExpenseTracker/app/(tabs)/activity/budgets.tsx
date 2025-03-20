@@ -1,4 +1,4 @@
-import { StyleSheet, Image,ScrollView ,FlatList} from "react-native";
+import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
@@ -20,9 +20,7 @@ export default function BudgetsScreen() {
 
   const [value, setValue] = React.useState('');
 const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGetUserBudgetsQuery({});
-  if (isLoadingBudget) {
-      return <Text>Loading...</Text>;
-    }
+  if (isLoadingBudget) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     
     if (errorBudget) {
       return <Text>Error: {errorBudget?.message || JSON.stringify(errorBudget)}</Text>;
@@ -34,10 +32,10 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
     <View style={styles.screen}>
         <ScrollView style={styles.container}>
           
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>      
-          <Text style={styles.headerText}>All Budgets</Text>
+          <View style = {styles.header}>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>     
+            <Text style={styles.headerText}>Budgets</Text>
+          </View>
           
           {/* <View style={styles.navbar}>
             <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
@@ -62,10 +60,10 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
               
             )}
             ItemSeparatorComponent={() => (
-              <View style={{  height: 15, backgroundColor: 'white'}} />
+              <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
-
+            contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
+            nestedScrollEnabled={true}
           />):
           <Text style={styles.noBudgetsText}>No Budgets Found</Text>
           }
@@ -91,36 +89,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingTop: 0, // Add padding to the top to avoid overlap with status bar
   },
-  backButton: {
-    // position: "absolute",
-    left: 10,
-    top: 20, // Space above the back button
-    marginBottom: 60, // Space below the back button
+  header: {
+    color: "black",
+    backgroundColor: "white",
+    paddingInline: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 10
   },
   headerText: {
-    position: "absolute",
-    top: 20, // Space above the header text
     fontSize: 22,
-    right: 10,
     fontWeight: "bold",
-    marginBottom: 20, // Space below the header text
+    color: "black"
   },
   navbar: {
-    // position: 'absolute',
-    // flexDirection: 'row',
-    // justifyContent: 'space-around',
-    // alignItems: 'center',
-    // height: 10,
-    marginBottom: 20, // Space below the navbar
+    marginBottom: 20,
     backgroundColor: '#f8f8f8',
-    // borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     borderRadius: 20,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    marginTop: 25, // Space above the navbar
+    marginTop: 25,
     shadowRadius: 2,
     left : 2,
   },

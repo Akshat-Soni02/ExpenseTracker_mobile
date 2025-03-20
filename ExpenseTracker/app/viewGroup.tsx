@@ -1,17 +1,18 @@
 import React, { useEffect } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useGetGroupQuery, useGetGroupHistoryQuery } from "@/store/groupApi";
 import moment from "moment";
+import { useRemindAllGroupBorrowersMutation } from "@/store/groupApi";
 
 const GroupDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetGroupQuery(id);
   const { data: history, isLoading: loading, error: historyError } = useGetGroupHistoryQuery(id);
+  const [remindAll, {isLoading: loadingBorrowReq}] = useRemindAllGroupBorrowersMutation();
   const group = data?.data;
   const totalMembers = group?.members.length;
-//   console.log("history:", history.data);
 
   useEffect(() => {
     if (id) {
@@ -19,14 +20,34 @@ const GroupDetailsScreen = () => {
     }
   }, [id]);
 
-  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  if (isLoading) return <View style={styles.loadingContainer}><ActivityIndicator color="#000" /></View>;
   if (error) return <Text>Error loading group details</Text>;
   if (!data?.data) return <Text>No group found</Text>;
+  if (historyError) return <Text>Error fetching history</Text>;
+  if (loading) return <Text>Loading...</Text>;
 
-  if (historyError) {
-    return <Text>Error fetching history</Text>;
-  }
-  if(loading) return <Text>Loading...</Text>;
+  const handleRemindAll = async () => {
+    try {
+      const response = await remindAll({group_id: id}).unwrap();
+      Alert.alert(
+        "Remainder Sent", 
+        "A remainder has been sent", 
+        [
+          { text: "ok", style: "cancel" },
+        ]
+      )
+    } catch (error) {
+      console.error("Error sending borrowers mail:", error);
+      const err = error as { data?: { message?: string } };
+      Alert.alert(
+        "Remainder Error", 
+        `${err?.data?.message}`, 
+        [
+          { text: "ok", style: "cancel" },
+        ]
+      )
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -48,58 +69,85 @@ const GroupDetailsScreen = () => {
         </View>
         <View style={styles.optional}>
           {group.initial_budget && (
-            <Text style={styles.optionalField}>Estimated Budget: ₹{group.initial_budget}</Text>
+            <Text style={styles.optionalField}>Budget: ₹{group.initial_budget}</Text>
           )}
           {group.settle_up_date && (
-            <Text style={styles.optionalField}>Settle-Up Date: {moment(group.settle_up_datemoment).format("DD MMM, YYYY")}</Text>
+            <Text style={styles.optionalField}>Settle-Up: {moment(group.settle_up_date).format("DD MMM, YYYY")}</Text>
           )}
         </View>
       </View>
 
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity 
+          style={styles.remindButton} 
+          onPress={() => 
+            Alert.alert(
+              "Remind All", 
+              "This will send a remainder email to all your borrowers in the group!", 
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Yes", onPress: () => handleRemindAll()}
+              ]
+            )
+          }
+        >
+          <Text style={styles.buttonText}>Remind All</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.settleButton} 
+          onPress={() => router.push({ pathname: "/settleUp", params: { group_id: group._id } })}
+        >
+          <Text style={styles.buttonText}>Settle Up</Text>
+        </TouchableOpacity>
+      </View>
+
+
       {/* Expense List */}
       {loading ? (
         <ActivityIndicator color="#000" />
-        ) : history?.data && history.data.length > 0 ? (
+      ) : history?.data && history.data.length > 0 ? (
         <FlatList
-            data={history.data} // Ensure data exists
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => router.push({ pathname: "/viewExpense", params: {id: item._id} })}>
-                    <View style={styles.expenseRow}>
-                        <View style={styles.expenseTextContainer}>
-                        <Text style={styles.expenseDescription} numberOfLines={1}>
-                            {item?.description || "No description"}
-                        </Text>
-                        <Text style={styles.expenseAccount}>{item?.expense_category || "Unknown"}</Text>
-                        </View>
-                        <View style={styles.expenseAmountContainer}>
-                        <Text style={styles.expenseDate}>
-                            {item?.created_at_date_time
-                            ? moment(item.created_at_date_time).format("DD MMM, hh:mm A")
-                            : "Unknown Date"}
-                        </Text>
-                        <Text
-                            style={[
-                            styles.expenseAmount,
-                            { color: item?.total_amount < 0 ? "red" : "green" },
-                            ]}
-                        >
-                            {item?.total_amount > 0 ? "+" : ""}₹{Math.abs(item?.total_amount || 0)}
-                        </Text>
-                        </View>
-                    </View>
-                </TouchableOpacity>
-            )}
-            contentContainerStyle={{ paddingBottom: 80 }}
-            showsVerticalScrollIndicator={false}
+          data={history.data}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: "/viewExpense", params: { id: item._id } })}
+              style={styles.expenseRow}
+            >
+              <View style={styles.expenseTextContainer}>
+                <Text style={styles.expenseDescription} numberOfLines={1}>
+                  {item?.description || "No description"}
+                </Text>
+                <Text style={styles.expenseCategory}>{item?.expense_category || "Unknown"}</Text>
+              </View>
+              <View style={styles.expenseAmountContainer}>
+                <Text style={styles.expenseDate}>
+                  {item?.created_at_date_time
+                    ? moment(item.created_at_date_time).format("DD MMM, hh:mm A")
+                    : "Unknown Date"}
+                </Text>
+                <Text
+                  style={[
+                    styles.expenseAmount,
+                    { color: item?.total_amount < 0 ? "red" : "green" },
+                  ]}
+                >
+                  {item?.total_amount > 0 ? "+" : ""}₹{Math.abs(item?.total_amount || 0)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={{ paddingBottom: 80 }}
+          showsVerticalScrollIndicator={false}
         />
-        ) : (
-        <Text style={{ textAlign: "center", marginTop: 20 }}>No expenses found</Text>
-        )}
+      ) : (
+        <Text style={styles.noExpensesText}>No expenses found</Text>
+      )}
 
       {/* Floating Add Expense Button */}
-      <TouchableOpacity style={styles.floatingButton}>
-        <Ionicons name="add" size={24} color="#fff" onPress={() => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } })}/>
+      <TouchableOpacity style={styles.floatingButton} onPress={() => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } })}>
+        <Ionicons name="add" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -113,11 +161,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
     padding: 20,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
+  },
+  groupInfo: {
+    padding: 18,
+    backgroundColor: "#E3E8EF", // Lightened Header
+    borderRadius: 8,
+    marginBottom: 20,
+    minHeight: 100,
+    justifyContent: "space-between",
+    flexDirection: "row",
   },
   mandatory: {
     alignItems: "flex-start",
@@ -127,34 +190,26 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     gap: 5,
   },
-  groupInfo: {
-    padding: 18,
-    backgroundColor: "#4A627A",
-    borderRadius: 8,
-    marginBottom: 20,
-    minHeight: 100,
-    justifyContent: "space-between",
-    flexDirection: "row",
-  },
   groupName: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "white",
+    color: "#1E293B",
   },
   groupDetails: {
     fontSize: 14,
-    color: "white",
+    color: "#64748B",
     marginTop: 2,
   },
   optionalField: {
     fontSize: 14,
-    color: "#D1D5DB",
+    color: "#64748B",
     marginTop: 4,
   },
   expenseRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 14,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#D1D5DB",
   },
@@ -163,10 +218,10 @@ const styles = StyleSheet.create({
   },
   expenseDescription: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#374151",
   },
-  expenseAccount: {
+  expenseCategory: {
     fontSize: 12,
     color: "#6B7280",
   },
@@ -198,20 +253,44 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    backgroundColor: '#007AFF',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+  noExpensesText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "#6B7280",
   },
+  ////
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 12,
+  },
+  
+  remindButton: {
+    flex: 1,
+    backgroundColor: "#475569", // Slate Gray
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginRight: 6,
+  },
+  
+  
+  settleButton: {
+    flex: 1,
+    backgroundColor: "#047857", // Deep emerald green
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginLeft: 6,
+  },
+  
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  
+
+  
 });
