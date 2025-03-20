@@ -56,7 +56,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
   useEffect(() => {
     if (selectedUsers.length > 0) {
-      const equalSplit = amount / selectedUsers.length;
+      const equalSplit = (amount / selectedUsers.length).toFixed(2);
       const newSplits: Record<string, number> = {};
       selectedUsers.forEach((user) => {
         newSplits[user.user_id] = equalSplit;
@@ -118,6 +118,8 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
     }
   }, [group_id, groupMembers, userFriends]);
 
+  const [updateUI, setUpdateUI] = useState(false);
+
   const toggleUserSelection = (user: { _id: string; name: string }) => {
     let newSelectedUsers;
     if (selectedUsers.some((u) => u.user_id === user._id)) {
@@ -132,7 +134,9 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       amount: splitAmounts[u.user_id] || "0",
     }));
     setValue("splitWith", updatedArray);
+    setUpdateUI((prev) => !prev);
   };
+  
 
   const filteredUsers = React.useMemo(() => {
     return fromMembers?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
@@ -213,6 +217,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
             data={filteredUsers}
             keyExtractor={(item) => item._id}
             estimatedItemSize={50}
+            extraData={updateUI}
             renderItem={({ item }) => {
               const isSelected = selectedUsers.some((u) => u.user_id === item._id);
               return (
