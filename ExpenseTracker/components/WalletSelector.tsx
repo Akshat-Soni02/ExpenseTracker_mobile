@@ -6,12 +6,13 @@ import { useGetUserWalletsQuery } from "@/store/userApi";
 interface WalletSelectorProps {
   control: any;
   name: string;
+  isFrozen?;boolean;
 }
 
-const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name }) => {
+const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name,isFrozen=false }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const { data, isLoading } = useGetUserWalletsQuery();
-
+  
   return (
     <Controller
       control={control}
@@ -21,18 +22,24 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name }) => {
           <Text style={styles.label}>Select Wallet</Text>
           
           {!isLoading && (
-            <TouchableOpacity
+            <View style={[styles.selectionContainer, isFrozen && styles.disabledInputWrapper]}>
+            {/* <TouchableOpacity
               style={styles.selectionContainer}
               onPress={() => setModalVisible(true)}
+            > */}
+            <TouchableOpacity
+              disabled={isFrozen} // Freezing selection
+              onPress={() => !isFrozen && setModalVisible(true)}
             >
-              <Text style={styles.tap}>{value?.wallet_title || "Tap to select"}</Text>
+              <Text style={[styles.tap, isFrozen && styles.disabledText]}>{value?.wallet_title || "Tap to select"}</Text>
+            </TouchableOpacity>
 
-              {value && (
+              {value && !isFrozen && (
                 <TouchableOpacity onPress={() => onChange(null)} style={styles.removeButton}>
                   <Text style={styles.removeText}>✕</Text>
                 </TouchableOpacity>
               )}
-            </TouchableOpacity>
+            </View>
           )}
 
           <Modal visible={modalVisible} transparent animationType="fade">
@@ -143,6 +150,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     fontWeight: "500",
+  },
+  disabledInputWrapper: {
+    backgroundColor: "#E0E0E0", // Light gray background when disabled
+  },
+  disabledText: {
+    color: "#A0AEC0", // Gray text when disabled
   },
 });
 

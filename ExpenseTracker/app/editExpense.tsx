@@ -15,11 +15,11 @@ import { useUpdateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { useLocalSearchParams } from "expo-router";
 import { useGetExpenseQuery } from "@/store/expenseApi";
-import { useLazyGetUserByIdQuery } from "@/store/userApi";
-import { useLazyGetWalletQuery } from "@/store/walletApi";
-export default function AddExpenseScreen() {
+import { useLazyGetUserByIdQuery,useGetUserByIdQuery } from "@/store/userApi";
+import { useLazyGetWalletQuery,useGetWalletQuery } from "@/store/walletApi";
+export default function EditExpenseScreen() {
 
-    let {id} = useLocalSearchParams();
+    let {id,paidByName} = useLocalSearchParams();
  
     const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
     const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
@@ -27,23 +27,36 @@ export default function AddExpenseScreen() {
     const [borrowerNames, setBorrowerNames] = useState<Record<string, string>>({});
     const [lenderName, setLenderName] = useState("Unknown");
     const [userState, setUserState] = useState(null);
-    const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
-      
+    // const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
+    let walletData, walletIsLoading, walletError;
+    
+    if (data?.data.wallet_id) {
+        ({ data: walletData, isLoading: walletIsLoading, error: walletError } = useGetWalletQuery(data.data.wallet_id));
+    }
+    console.log("WalletData",walletData);
+    // const {data:lenderData,isLoading:lenderIsLoading,error:lenderError} = getUserById(expense.lenders.user_id);
+    console.log("ExpenseData",data);
     const expense = data?.data;
     console.log(expense);
-  
+    console.log("ExpenseLenders",expense.lenders[0].user_id);
+    // console.log("Lender:",lenderData);
+    const lender = {"name" : paidByName,"profile_photo":undefined,"user_id":expense.lenders[0].user_id};
+    console.log(lender);
+    // const borrowers = [{}];
     const [updateExpense, {isLoading:isLoadingExpense}] = useUpdateExpenseMutation();
-
+    const splitWithArray = expense.borrowers.map(b => ({
+      amount: b.amount,
+      user_id: b.user_id
+    }));
   const [errorMessage, setErrorMessage] = useState("");
-  
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues:{
           amount: expense.total_amount,
           Description: expense.description,
-          splitWith: null,
-          paidBy: null,
+          splitWith: splitWithArray,
+          paidBy: lender,
           notes: expense.notes,
-          wallet: expense.wallet_id,
+          wallet: walletData?.data,
           category: expense.expense_category,
           date:expense.created_at_date_time,
           time:expense.created_at_date_time,
@@ -72,12 +85,12 @@ export default function AddExpenseScreen() {
     try {
       console.log("submittinggg");
       const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
-  
+      console.log("SplitWith",data.splitWith);
+      console.log("PaidBY:",data.paidBy);
       if (Math.abs(totalSplit - amount) > TOLERANCE) {
         alert("Total split amount must match the entered amount");
         return;
       }
-
       console.log("here");
   
       // Constructing the datetime properly
@@ -109,37 +122,47 @@ export default function AddExpenseScreen() {
       console.log("selectedImage: ", selectedImage);
   
       const formData = new FormData();
-      formData.append("description", data.Description);
-      formData.append("lenders", JSON.stringify([{ ...data.paidBy, amount: data.amount - amt }]));
-      formData.append("borrowers", JSON.stringify(filteredSplit.map((user) => ({ ...user, amount: Number(user.amount) }))));
+      if(data.Description!==expense.description){
+        formData.append("description", data.Description);
+      }
+      // formData.append("lenders", JSON.stringify([{ ...data.paidBy, amount: data.amount - amt }]));
+      // formData.append("borrowers", JSON.stringify(filteredSplit.map((user) => ({ ...user, amount: Number(user.amount) }))));
 
-      if (data?.wallet?._id) {
+      if (data?.wallet?._id!=expense.wallet_id) {
         formData.append("wallet_id", data.wallet._id);
       }
-      formData.append("total_amount", String(data.amount));
-      if (data?.category) {
+      if(data.amount!==expense.total_amount){
+        formData.append("total_amount", String(data.amount));
+      }
+
+      if (data?.category!==expense.expense_category) {
         formData.append("expense_category", data.category);
       }
-      if (data?.notes) {
+
+      if (data?.notes!==expense.notes) {
         formData.append("notes", data.notes);
       }
-      if (data?.group_id) {
-        formData.append("group_id", data.group_id);
-      }
-      if (selectedImage) {
-        const fileExtension = selectedImage.split(".").pop();
-        const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
+
+      // if (data?.group_id!==expense.) {
+      //   formData.append("group_id", data.group_id);
+      // }
+
+      // if (selectedImage) {
+      //   const fileExtension = selectedImage.split(".").pop();
+      //   const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
   
-        formData.append("media", {
-          uri: selectedImage,
-          type: mimeType,
-          name: `split-media.${fileExtension}`,
-        } as any);
-      }
-      const response = await createExpense(formData).unwrap();
-      console.log("adding new expense response:", response);
-      reset();
-      router.replace({ pathname: "/viewExpense", params: { id:response?.data?._id} });
+      //   formData.append("media", {
+      //     uri: selectedImage,
+      //     type: mimeType,
+      //     name: `split-media.${fileExtension}`,
+      //   } as any);
+      // }
+
+
+      
+      const response = await updateExpense(formData).unwrap();
+      console.log("updating expense response:", response);
+      router.back();
     } catch (error) {
       console.error("new expense failed to create:", error);
       const err = error as { data?: { message?: string } };
@@ -161,7 +184,7 @@ export default function AddExpenseScreen() {
       </View>
 
       <AmountDescriptionInput control={control} label="Description"/>
-      <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/>
+      <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy edit={true}/>
       <NotesInput control={control} name="notes" />
 
       <View style={styles.walletPhotoContainer}>

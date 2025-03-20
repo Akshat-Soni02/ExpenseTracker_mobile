@@ -18,7 +18,7 @@ export const settlementApi = api.injectEndpoints({
 
     updateSettlement: builder.mutation({
       query: ({ id, body }) => ({
-        url: `/settlements/${id}`,
+        url: `/settlements/update/${id}`,
         method: "PUT",
         body,
       }),

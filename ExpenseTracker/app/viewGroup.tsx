@@ -35,7 +35,7 @@ const GroupDetailsScreen = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => console.log(history.data)}>
+        <TouchableOpacity onPress={() => router.push({pathname:"/editGroup",params:{id:id}})}>
           <Ionicons name="settings-outline" size={22} color="black" />
         </TouchableOpacity>
       </View>

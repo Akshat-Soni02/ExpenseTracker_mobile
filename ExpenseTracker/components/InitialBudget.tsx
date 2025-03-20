@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useMemo } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Controller, Control } from "react-hook-form";
 
@@ -14,12 +14,15 @@ const InitialBudget: React.FC<Props> = ({ control }) => {
         control={control}
         name="initialBudget"
         defaultValue=""
-        render={({ field: { onChange, value } }) => (
+        render={({ field: { onChange, value } }) => {
+          const displayValue = useMemo(() => (value ? String(value) : ""), [value]);
+          
+          return(
           <TextInput
             style={styles.input}
             placeholder="Enter amount"
             placeholderTextColor="#6B7280"
-            value={value}
+            value={displayValue}
             onChangeText={(text) => {
               const numericValue = text.replace(/[^0-9]/g, ""); // Restrict to numbers only
               onChange(numericValue);
@@ -29,7 +32,8 @@ const InitialBudget: React.FC<Props> = ({ control }) => {
             accessibilityLabel="Initial budget input"
             accessibilityHint="Enter the estimated budget amount"
           />
-        )}
+        );
+        }}
       />
     </View>
   );

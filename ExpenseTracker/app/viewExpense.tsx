@@ -19,7 +19,7 @@ const ExpenseDetailScreen = () => {
   const [lenderName, setLenderName] = useState("Unknown");
   const [userState, setUserState] = useState(null);
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
-  
+  const [paidByName,setPaidByName] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
   const expense = data?.data;
@@ -64,6 +64,7 @@ const ExpenseDetailScreen = () => {
       (async () => {
         const res = await getUserById(data?.data?.lenders[0].user_id).unwrap();
         setLenderName(res.data.name);
+        setPaidByName(res.data.name);
         if (data?.data?.lenders[0].user_id === loggedInUserId) {
           setUserState(data?.data?.lenders[0].amount);
           setLenderName("You");
@@ -104,7 +105,7 @@ const ExpenseDetailScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => router.push({ pathname: "/editExpense", params: {id:id} })} title="Edit" />
+          <Menu.Item onPress={() => router.push({ pathname: "/editExpense", params: {id:id,paidByName:paidByName} })} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => console.log("Delete Expense")} title="Delete" />
         </Menu>

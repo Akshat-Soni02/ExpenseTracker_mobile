@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Modal, Image, FlatList } from "react-native";
-import { Control, Controller, useWatch } from "react-hook-form";
-import { useGetUserFriendsQuery } from "@/store/userApi";
+import { Control, Controller, useWatch,useController } from "react-hook-form";
+import { useGetUserFriendsQuery,useLazyGetUserByIdQuery } from "@/store/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,18 +14,70 @@ interface Props {
   setValue: (name: string, value: any) => void;
   title?: string;
   IncludePaidBy?: boolean;
+  edit?:boolean;
 }
 
-const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, IncludePaidBy }) => {
+const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, IncludePaidBy,edit=false }) => {
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [splitAmounts, setSplitAmounts] = useState<Record<string, number>>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [paidByModalVisible, setPaidByModalVisible] = useState(false);
   const [paidBy, setPaidBy] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
   const { data, isLoading } = useGetUserFriendsQuery();
   const splitWith = useWatch({ control, name: "splitWith" });
+  const { field } = useController({ control, name: "paidBy" });
+  const paidByUser = field.value;  
+  const [groupMembers, setGroupMembers] = useState<{ _id: string; name: string }[]>([]);
+    const [getUserById, { data:Userdata }] = useLazyGetUserByIdQuery();
+  
+  
+  const fetchGroupMembers = async (memberIds: string[]) => {
+    if (memberIds.length === 0) return;
+    console.log("Member IDs before fetching:", memberIds); // ✅ Debugging
+
+  if (!memberIds || memberIds.length === 0 || memberIds.includes(undefined)) {
+    console.error("Invalid member IDs detected:", memberIds);
+    return []; // Return an empty array if there are invalid IDs
+  }
+  
+    try {
+      const memberData = await Promise.all(memberIds.map((id) => getUserById(id).unwrap()));
+  
+      const newMembers = memberData.map((res:any, index:any) => ({
+        _id: memberIds[index],
+        name: res?.data?.name || "Unknown",
+      }));
+  
+      setGroupMembers((prevMembers) => [...prevMembers, ...newMembers]);
+      return newMembers;
+    } catch (error) {
+      console.error("Error fetching group members:", error);
+    }
+  };
+
+  const [members, setMembers] = useState<{ _id: string; name: string }[]>([]);
+
+  const updateMembers = async (memberIds) => {
+    const fetchedMembers = await fetchGroupMembers(memberIds);
+    console.log("FetchedMembers:",fetchedMembers);
+    setMembers(fetchedMembers??[]); // Updates state, triggering a re-render
+  };
+  useEffect(() => {
+    if(edit){
+      const memberIds = splitWith.map((item: any) => item.user_id);
+      updateMembers(memberIds);
+      console.log("membersHere:",members);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("Updated membersHere:", members);
+    if (edit) {
+      setSelectedUsers(members);
+    }
+  }, [members]);
+  
 
   useEffect(() => {
     const loadUser = async () => {
@@ -34,12 +86,20 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
         if (userData) {
           const user = JSON.parse(userData);
           const defaultUser = { user_id: user._id, name: user.name, profile_photo: user.profile_photo?.url };
+          if(edit){
+            console.log("SelectedMembers:",members);
+            setSelectedUsers(members);
+            
+            console.log("SelectedUsers:",selectedUsers);
+            setPaidBy(paidByUser);
+          }
+          else{
           setSelectedUsers([defaultUser]);
           setPaidBy(defaultUser);
           setValue(
             "paidBy",
             defaultUser
-          );
+          );}
         }
       } catch (error) {
         console.error("Error loading user:", error);
@@ -47,6 +107,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
     };
     loadUser();
   }, []);
+
 
   useEffect(() => {
     if (selectedUsers.length > 0) {

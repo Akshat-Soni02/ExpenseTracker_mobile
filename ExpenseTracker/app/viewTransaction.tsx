@@ -52,7 +52,7 @@ const TransactionDetailScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => console.log("Edit Spend")} title="Edit" />
+          <Menu.Item onPress={() => router.push({pathname:"/editTransaction",params:{fetchedId:id}})} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => console.log("Delete Spend")} title="Delete" />
         </Menu>

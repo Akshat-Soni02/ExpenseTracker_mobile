@@ -75,7 +75,6 @@ function RootLayoutNav() {
         <Stack.Screen name="reset" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="addSplit" options={{headerShown:false}}/>
-        <Stack.Screen name="addSplitPeople" options={{headerShown:false}}/>
         <Stack.Screen name="addTransaction" options={{headerShown:false}}/>
         <Stack.Screen name="createGroup" options={{headerShown:false}}/>
         <Stack.Screen name="createBill" options={{headerShown:false}}/>
@@ -91,7 +90,12 @@ function RootLayoutNav() {
         <Stack.Screen name="viewWallet" options={{headerShown:false}}/>
         <Stack.Screen name="viewBill" options={{headerShown:false}}/>
         <Stack.Screen name="viewSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="editSettlement" options={{headerShown:false}}/>
         <Stack.Screen name="editExpense" options={{headerShown:false}}/>
+        <Stack.Screen name="editBill" options={{headerShown:false}}/>
+        <Stack.Screen name="editTransaction" options={{headerShown:false}}/>
+        <Stack.Screen name="editWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="editGroup" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

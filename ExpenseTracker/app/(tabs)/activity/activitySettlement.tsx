@@ -8,7 +8,7 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons,FAB } from 'react-native-paper';
 import * as React from 'react';
-import {useGetUserPersonalTransactionsQuery} from '@/store/userApi';
+import {useGetUserSettlementsQuery} from '@/store/userApi';
 import { format, parseISO ,isToday} from 'date-fns'; // Import date-fns functions
 
 // import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
@@ -39,7 +39,7 @@ const groupTransactionsByDate = (transactions: any) => {
 export default function ActivitySpendScreen() {
   const router = useRouter();
   const [value, setValue] = React.useState('');
-  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserPersonalTransactionsQuery({});
+  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery({});
   if (isLoadingSettlement) {
       return <Text>Loading...</Text>;
   }
@@ -50,8 +50,8 @@ export default function ActivitySpendScreen() {
   const settlements = dataSettlement.data;
   const numberOfSettlements = settlements.length;
 
-  const groupedTransactions = groupTransactionsByDate(settlements);
-  const dates = Object.keys(groupedTransactions);
+  // const groupedTransactions = groupTransactionsByDate(settlements);
+  // const dates = Object.keys(groupedTransactions);
   return (
     <View style={styles.screen}>
     <ScrollView style={styles.container}>
@@ -91,13 +91,13 @@ export default function ActivitySpendScreen() {
           </View>
           
           {numberOfSettlements>0?(<View >
-              {dates.map(date => (
-                <View key={date} style={{backgroundColor:"white"}}>
-                  <Text style={styles.sectionTitle}>
-                      {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')} {/* Check if today */}
-                  </Text>
+              {/* {dates.map(date => ( */}
+                {/* <View key={date} style={{backgroundColor:"white"}}> */}
+                  {/* <Text style={styles.sectionTitle}> */}
+                      {/* {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')} Check if today */}
+                  {/* </Text> */}
                   <FlatList
-                    data={groupedTransactions[date]}
+                    data={settlements}
                     keyExtractor={(item) => item._id} // Use _id as the key
                     renderItem={({ item }) => (
                       <TransactionCard
@@ -105,7 +105,7 @@ export default function ActivitySpendScreen() {
                         title={item.description} // Adjust based on your data structure
                         imageType={item.transactionType} // Adjust based on your data structure
                         amount={`₹${item.amount}`} // Adjust based on your data structure
-                        subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')} // Format the time as needed
+                        // subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')} // Format the time as needed
                         transactionType={item.transactionType} // Example logic for transaction type
                       />
                     )}
@@ -114,8 +114,8 @@ export default function ActivitySpendScreen() {
                     )}
                     contentContainerStyle={{ paddingBottom: 0 }} // Ensure no extra padding
                   />
-                </View>
-              ))}
+                {/* </View> */}
+              {/* ))} */}
             </View>):
              <Text style= {styles.noSettlementsText}>No Settlements Found</Text>
             }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useForm } from "react-hook-form";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
 import TitleInput from "@/components/TitleInput";
@@ -10,16 +10,18 @@ import InitialBudget from "@/components/InitialBudget";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import AmountDescriptionInput from "@/components/AmountDescriptionInput";
 import LowerLimit from "@/components/LowerLimit";
-import { useCreateWalletMutation } from "@/store/walletApi";
+import { useUpdateWalletMutation } from "@/store/walletApi";
 
 export default function CreateWalletScreen() {
-  const [createWallet, {isLoading}] = useCreateWalletMutation();
+  let {fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit} = useLocalSearchParams();
+  console.log(fetchedName,fetchedLowerLimit);
+  const [updateWallet, {isLoading}] = useUpdateWalletMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
-      amount: 0,
-      title: "",  //Change to Name
-      lower_limit: 0
+      amount: fetchedAmount,
+      Name: fetchedName,
+      lowerLimit: fetchedLowerLimit,
     },
   });
 
@@ -30,16 +32,26 @@ export default function CreateWalletScreen() {
   const onWalletSubmit = async (data: any) => {
     try {
       console.log("Wallet Data:", data);
-      const response = await createWallet({
-        amount: data.amount,
-        lower_limit: data.lowerLimit,
-        wallet_title: data.Name
-      }).unwrap();
-      console.log("New wallet response: ", response);
+      let dataObj: { amount?: number; lower_limit?: number; wallet_title?: string } = {};
+      if(data.amount!==fetchedAmount){
+        console.log("Hereamount");
+        dataObj.amount = data.amount;
+      }
+      if(data.lowerLimit!==fetchedLowerLimit){
+        console.log("HereLowerLimit");
+        dataObj.lower_limit = data.lowerLimit;
+      }
+      if(data.Name!==fetchedName){
+        console.log("HereName");
+        dataObj.wallet_title = data.Name;
+      }
+      console.log(dataObj);
+      const response = await updateWallet({id:fetchedId,body:dataObj}).unwrap();
+      console.log("pdate wallet response: ", response);
       reset();
-      router.replace("/(tabs)/wallets");
+      router.back();
     } catch (error) {
-      console.error("new wallet failed to create:", error);
+      console.error("wallet failed to update:", error);
         const err = error as { data?: { message?: string } };
         if (err?.data?.message) {
           setErrorMessage(err.data.message);

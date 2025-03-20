@@ -108,7 +108,7 @@ const SettlementDetailsScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => console.log("Edit settlement")} title="Edit" />
+          <Menu.Item onPress={() => router.push({pathname:"/editSettlement",params:{id:id}})} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => console.log("Delete settlement")} title="Delete" />
         </Menu>
