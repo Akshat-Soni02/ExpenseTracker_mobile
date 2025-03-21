@@ -96,7 +96,7 @@ const GroupDetailsScreen = () => {
 
         <TouchableOpacity 
           style={styles.settleButton} 
-          onPress={() => router.push({ pathname: "/settleUp", params: { group_id: group._id } })}
+          onPress={() => router.push({ pathname: "/groupSettlements", params: { group_id: group._id,group_name:group.group_title } })}
         >
           <Text style={styles.buttonText}>Settle Up</Text>
         </TouchableOpacity>

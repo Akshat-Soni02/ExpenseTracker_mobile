@@ -17,6 +17,7 @@ import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactio
 import { useEffect } from "react";
 export default function AddTransactionScreen() {
   let {detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
+  let detectedAmountNumber = Number(detectedAmount);
   console.log("Amount",detectedId);
 
   const date_time = new Date(detectedCreated_at_date_time);
@@ -34,7 +35,7 @@ export default function AddTransactionScreen() {
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: detectedId
     ?{
-      amount: detectedAmount,
+      amount: detectedAmountNumber,
       Description: detectedDescription,
       transactionType: detectedTransaction_type,
       notes: detectedNotes,
@@ -96,7 +97,7 @@ export default function AddTransactionScreen() {
         media: data?.photo,
         transaction_category: data?.category,
         notes: data?.notes,
-        amount: detectedAmount,
+        amount: detectedAmountNumber,
         created_at_date_time
       }).unwrap();
       console.log("New personal transaction response: ", response);

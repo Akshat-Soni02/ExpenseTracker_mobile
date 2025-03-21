@@ -14,12 +14,13 @@ import { useUpdateWalletMutation } from "@/store/walletApi";
 
 export default function CreateWalletScreen() {
   let {fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit} = useLocalSearchParams();
+  let fetchedAmountNumber = Number(fetchedAmount);
   console.log(fetchedName,fetchedLowerLimit);
   const [updateWallet, {isLoading}] = useUpdateWalletMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
-      amount: fetchedAmount,
+      amount: fetchedAmountNumber,
       Name: fetchedName,
       lowerLimit: fetchedLowerLimit,
     },
@@ -33,7 +34,7 @@ export default function CreateWalletScreen() {
     try {
       console.log("Wallet Data:", data);
       let dataObj: { amount?: number; lower_limit?: number; wallet_title?: string } = {};
-      if(data.amount!==fetchedAmount){
+      if(data.amount!==fetchedAmountNumber){
         console.log("Hereamount");
         dataObj.amount = data.amount;
       }

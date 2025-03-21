@@ -15,6 +15,7 @@ import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 export default function AddExpenseScreen() {
   let {group_id, group_name,detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
+  let detectedAmountNumber = Number(detectedAmount);
   const date_time = new Date(detectedCreated_at_date_time);
   const parsedDate = new Date(date_time);
   const dateOnly = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
@@ -32,7 +33,7 @@ export default function AddExpenseScreen() {
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: detectedId
       ? {
-          amount: detectedAmount,
+          amount: detectedAmountNumber,
           Description: detectedDescription,
           splitWith: null,
           paidBy: null,

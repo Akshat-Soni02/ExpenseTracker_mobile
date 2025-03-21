@@ -14,18 +14,19 @@ import CategorySelector from "@/components/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
 import {useCreateSettlementMutation} from '@/store/settlementApi';
 export default function AddSettlementScreen() {
-  let {fetched_amount,receiver_id,name} = useLocalSearchParams();
+  let {fetched_amount,receiver_id,name,group_id,group_name} = useLocalSearchParams();
   let status = "receiver";
-  if(fetched_amount<0){
-    fetched_amount=fetched_amount*-1;
+  let fetched_amount_number = Number(fetched_amount);
+  if(fetched_amount_number<0){
+    fetched_amount_number=fetched_amount_number*-1;
     status = "sent";
   }
-  console.log(fetched_amount);
+  console.log(fetched_amount_number);
   const [createSettlement, {isLoading}] = useCreateSettlementMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
-      amount:fetched_amount,
+      amount:fetched_amount_number,
       description: "",
       wallet: "",
       photo: null,
@@ -51,14 +52,15 @@ export default function AddSettlementScreen() {
 const onSubmit = async (data: any) => {
 
   try {
+    console.log("Type of fetchedamount",typeof fetched_amount_number);
     if(status=="sent"){
-      
       const response = await createSettlement({
           settlement_description: data.Description,
-          payer_wallet_id: data?.wallet,
+          payer_wallet_id: data?.wallet || undefined,
           receiver_id:receiver_id,
-          amount: fetched_amount,
+          amount: fetched_amount_number,
           status:status,
+          group_id:group_id,
         // filePath: data?.photo?._j
 
       }).unwrap();
@@ -66,15 +68,16 @@ const onSubmit = async (data: any) => {
     else{
       const response = await createSettlement({
           settlement_description: data.Description,
-          receiver_wallet_id: data?.wallet,
+          receiver_wallet_id: data?.wallet || undefined,
           payer_id:receiver_id,
-          amount: fetched_amount,
+          amount: fetched_amount_number,
           status:status,
+          group_id:group_id,
           // filePath: data?.photo?._j
       }).unwrap();
     }
     reset();
-    router.replace("/(tabs)/people");
+    router.back();
   } catch (error) {
     console.error("new settlement failed to create:", error);
     const err = error as { data?: { message?: string } };
@@ -97,7 +100,7 @@ return (
         </TouchableOpacity>
         {status==="sent"?<Text style={styles.header}>You owe {name}</Text>:<Text style={styles.header}>{name} owes you</Text>}
       </View>
-
+      {group_name && <Text style={styles.groupName}> in {group_name}</Text>}
       <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>
       {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
       
@@ -157,5 +160,9 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginBottom: 10,
+  },
+  groupName:{
+    alignSelf:"center",
+    fontSize:20,
   }
 });
