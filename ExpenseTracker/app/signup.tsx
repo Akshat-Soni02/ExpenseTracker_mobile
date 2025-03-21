@@ -4,7 +4,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "../components/button/CustomButton";
 import { useRouter } from "expo-router";
 import GoogleButton from "@/components/GoogleButton";
-import { useRegisterUserMutation } from "@/store/userApi";
+import { useRegisterUserMutation, useAutoaddFriendsMutation } from "@/store/userApi";
 import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/context/AuthProvider";
@@ -14,6 +14,7 @@ export default function SignUpScreen() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [autoAdd, {isLoading: load}] = useAutoaddFriendsMutation();
   const { authToken, loading, login } = useAuth();
 
   useEffect(() => {
@@ -43,6 +44,8 @@ export default function SignUpScreen() {
       if (response?.data?.token) {
         await login(response.data.token);
         await AsyncStorage.setItem("user", JSON.stringify(response.data.userData));
+        const res = await autoAdd({email: data.email}).unwrap();
+        if(res?.error) console.log("error auto adding friends", res.error);
         router.push("/(tabs)");
       }
     } catch (error) {

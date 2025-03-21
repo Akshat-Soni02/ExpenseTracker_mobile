@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import ImageIcon from "./ImageIcon"; // Adjust the import path as necessary
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Divider} from 'react-native-paper';
@@ -35,7 +35,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     // </View>
     <TouchableOpacity onPress={pressFunction}>
     <View style={[styles.transactionItem, cardStyle]} >
-      {imageName&&<ImageIcon size={50} />}
+      {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
       {imageType&&<MaterialCommunityIcons
         name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
@@ -83,6 +83,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2, 
+  },
+  profileImage: {
+    height: 50,
+    width: 50,
+    borderRadius: 25
   },
   textContainer: {
     flex: 1,

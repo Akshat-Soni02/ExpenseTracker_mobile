@@ -116,6 +116,7 @@ export default function AddExpenseScreen() {
           name: `split-media.${fileExtension}`,
         } as any);
       }
+      formData.append("created_at_date_time", String(created_at_date_time));
       const response = await createExpense(formData).unwrap();
       console.log("adding new expense response:", response);
       reset();

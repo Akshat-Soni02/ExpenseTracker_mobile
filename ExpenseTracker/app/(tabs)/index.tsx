@@ -27,7 +27,7 @@ const transactions = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { authToken, loading } = useAuth();
+  const { authToken, loading, logout } = useAuth();
   const [user, setUser] = useState();
 
   useEffect(() => {
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom:20,
   },
@@ -295,12 +295,11 @@ const styles = StyleSheet.create({
   },
   groupContainer: { 
     flexDirection: "row", 
-    justifyContent: "flex-start", 
+    justifyContent: "space-between", 
     marginTop: 5 ,
   },
   groupItem: { 
     alignItems: "center",
-    marginRight:40,
   },
   groupLetter: { 
     fontSize: 25, 

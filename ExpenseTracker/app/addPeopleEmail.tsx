@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, FlatList, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useAddUserFriendsMutation } from "@/store/userApi";
 
 const EmailInputScreen = () => {
   const router = useRouter();
   const { contacts } = useLocalSearchParams();
+  const [addFriends, {isLoading}] = useAddUserFriendsMutation();
   const parsedContacts = contacts ? JSON.parse(contacts) : [];
 
   const [emailData, setEmailData] = useState(
@@ -21,15 +23,22 @@ const EmailInputScreen = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const finalData = parsedContacts.map((contact) => ({
       name: contact.displayName,
       phone: contact.phoneNumbers[0]?.number || "",
       email: emailData[contact.recordID] || "",
     }));
     console.log("Final Selected Friends with Emails:", finalData);
-    router.back(); // Go back after submission
+    try {
+      const response = await addFriends({invitees: finalData}).unwrap();
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.log("error adding friends: ", error);
+    }
   };
+
+  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff", padding: 12 }}>
@@ -66,7 +75,14 @@ const EmailInputScreen = () => {
       />
 
       <TouchableOpacity
-        onPress={handleSubmit}
+        onPress={() => Alert.alert(
+                      "Add friends", 
+                      "This will send a email to all your friends who are not currently on ExpenseEase!", 
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        { text: "Yes", onPress: () => handleSubmit()}
+                      ]
+                    )}
         style={{
           backgroundColor: "#007bff",
           padding: 14,
