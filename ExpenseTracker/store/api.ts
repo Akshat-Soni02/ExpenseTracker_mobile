@@ -6,7 +6,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
 
   // Create a base query instance
   const rawBaseQuery = fetchBaseQuery({
-    baseUrl: 'http://192.168.0.105:3001/api/v1',
+    baseUrl: 'http://192.168.193.4:3001/api/v1',
     credentials: 'include',
     prepareHeaders: (headers) => {
       if (token) {
