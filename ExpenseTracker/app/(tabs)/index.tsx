@@ -27,7 +27,7 @@ const transactions = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { authToken, loading } = useAuth();
+  const { authToken, loading, logout } = useAuth();
   const [user, setUser] = useState();
 
   useEffect(() => {
@@ -39,7 +39,6 @@ export default function HomeScreen() {
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error} = useGetUserCurrentExchangeStatusQuery();
   const {data:dataDetected,isLoading:isLoadingDetected,error:errorDetected} = useGetUserDetectedTransactionsQuery({});
-  console.log("exchangeData: ",exchangeData);
   
 
   const {data:dataGroup,isLoading:isLoadingGroup,error:errorGroup} = useGetUserGroupsQuery({});
@@ -51,7 +50,6 @@ export default function HomeScreen() {
   if (errorDetected || errorGroup || errorUser) {
     return <Text>Error: {errorDetected?.message || JSON.stringify(errorDetected) || errorGroup?.message || JSON.stringify(errorGroup) || errorUser?.message || JSON.stringify(errorUser)}</Text>;
   }
-  console.log("Hereeeeeeeee      ",dataUser);
   const groups = dataGroup.data;
   const numberofGroups = groups.length;
   console.log(dataDetected.data.slice(0,3).length);
@@ -77,7 +75,7 @@ export default function HomeScreen() {
           <View style={styles.totalSpend}>
             <View>
               <Text style={styles.label}>Today's Spend</Text>
-              <Text style={styles.spend}>₹5000</Text>
+              <Text style={styles.spend}>₹0</Text>
             </View>
           </View>
         </View>
@@ -150,7 +148,7 @@ export default function HomeScreen() {
         </Button>
       </View>
       <View style={styles.groupContainer}>
-        {groups.map((group:any, index:any) => (
+        {groups.slice(0, 3).map((group:any, index:any) => (
           <TouchableOpacity onPress={() => router.push({ pathname: "../../viewGroup", params: { id:group._id} })}>
           <View key={index} style={styles.groupItem}>
             <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
@@ -248,7 +246,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom:20,
   },
@@ -295,12 +293,11 @@ const styles = StyleSheet.create({
   },
   groupContainer: { 
     flexDirection: "row", 
-    justifyContent: "flex-start", 
+    justifyContent: "space-between", 
     marginTop: 5 ,
   },
   groupItem: { 
     alignItems: "center",
-    marginRight:40,
   },
   groupLetter: { 
     fontSize: 25, 

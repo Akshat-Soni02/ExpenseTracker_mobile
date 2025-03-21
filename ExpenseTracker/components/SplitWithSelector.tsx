@@ -74,7 +74,9 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   useEffect(() => {
     if(edit){
       const memberIds = splitWith.map((item: any) => item.user_id);
-      memberIds.push(paidByUser.user_id);
+      if(IncludePaidBy){
+        memberIds.push(paidByUser.user_id)
+      };
       console.log("MemberIds",memberIds);
       updateMembers(memberIds);
       console.log("membersHere:",members);

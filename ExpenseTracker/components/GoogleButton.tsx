@@ -5,7 +5,7 @@ import {
   } from '@react-native-google-signin/google-signin';
 import { View, Button, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGoogleLoginMutation } from '@/store/userApi';
+import { useAutoaddFriendsMutation, useGoogleLoginMutation } from '@/store/userApi';
 import { useAuth } from '@/context/AuthProvider';
 import { router } from 'expo-router';
 
@@ -22,6 +22,7 @@ export const handleGoogleSignOut = async () => {
 
 const GoogleButton = () => {
   const [googleLogin, { isLoading }] = useGoogleLoginMutation();
+  const [autoAdd, {isLoading: load}] = useAutoaddFriendsMutation();
   const {  login } = useAuth();
 
     GoogleSignin.configure({
@@ -42,9 +43,11 @@ const GoogleButton = () => {
                 console.log("Current User:", currentUser);
               await GoogleSignin.hasPlayServices();
               const userInfo = await GoogleSignin.signIn();
-              const res = await googleLogin({idToken: userInfo.data?.idToken});
+              let res = await googleLogin({idToken: userInfo.data?.idToken});
               await login(res.data.token);
               await AsyncStorage.setItem("user", JSON.stringify(res.data.userData));
+              res = await autoAdd({email: res.data.userData.email}).unwrap();
+              if(res?.error) console.log("error auto adding friends", res.error);
               router.push("/(tabs)");
               console.log(JSON.stringify(userInfo, null, 2));
             } catch (error: any) {

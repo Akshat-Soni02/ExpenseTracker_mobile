@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetPersonalTransactionQuery } from "@/store/personalTransactionApi";
+import FastImage from 'react-native-fast-image';
+
 
 const TransactionDetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -14,6 +16,14 @@ const TransactionDetailScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const transaction = data?.data;
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    if (transaction?.media?.url) {
+      setImageUrl(transaction.media.url);
+    }
+  }, [transaction?.media?.url]);
+
 
   useEffect(() => {
     if (id) {
@@ -73,6 +83,16 @@ const TransactionDetailScreen = () => {
           <Text style={styles.notesText}>{transaction.notes}</Text>
         </View>
       )}
+
+      {imageUrl && (
+        <View style={styles.mediaContainer}>
+          <FastImage
+            style={styles.previewImage}
+            source={{ uri: imageUrl }}
+            resizeMode={FastImage.resizeMode.contain}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -84,6 +104,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F9FAFB",
     padding: 20,
+  },
+  mediaContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: 200,
+    height: 200,
+    marginTop: 10,
+    borderRadius: 8,
+    resizeMode: "contain",
   },
   header: {
     flexDirection: "row",

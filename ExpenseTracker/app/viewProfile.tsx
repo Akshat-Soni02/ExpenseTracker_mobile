@@ -8,9 +8,11 @@ import {
   StyleSheet,
   TextInput,
   ActivityIndicator,
+  Alert
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useGetUserQuery, useLogoutUserMutation, useUpdateUserDetailsMutation } from "@/store/userApi";
@@ -28,7 +30,8 @@ const ProfileScreen = () => {
   const [updateUser, {isLoading}] = useUpdateUserDetailsMutation();
   const [isEditing, setIsEditing] = useState(false);
   const { data: dataUser, isLoading: isLoadingUser, error: errorUser, refetch } = useGetUserQuery({});
-  const [userData, setUserData] = useState({ name: "", phone_number: "", daily_limit: "" });
+  const [userData, setUserData] = useState({ name: "", phone_number: "", daily_limit: ""});
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     if (dataUser?.data) {
@@ -55,7 +58,21 @@ const ProfileScreen = () => {
   const handleEditToggle = async () => {
     if (isEditing) {
       try {
-        await updateUser(userData).unwrap();
+        const formData = new FormData();
+        if(userData.name && userData.name.length !== 0) formData.append("name", userData.name);
+        if(userData.phone_number && userData.phone_number.length !== 0) formData.append("phone_number", userData.phone_number);
+        if(userData.daily_limit && userData.daily_limit.length !== 0) formData.append("daily_limit", userData.daily_limit);
+        if(selectedImage) {
+          const fileExtension = selectedImage.split(".").pop();
+          const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
+    
+          formData.append("media", {
+            uri: selectedImage,
+            type: mimeType,
+            name: `user-media.${fileExtension}`,
+          } as any);
+        }
+        await updateUser(formData).unwrap();
       } catch (error) {
         console.error("Update failed:", error);
       }
@@ -70,6 +87,24 @@ const ProfileScreen = () => {
     return <Text style={styles.errorText}>Error: {errorUser?.message || JSON.stringify(errorUser)}</Text>;
   }
 
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert("Permission Required", "You need to grant permission to access photos.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.container}>
@@ -83,10 +118,16 @@ const ProfileScreen = () => {
 
         {/* Profile Image */}
         <View style={styles.profileSection}>
-          {dataUser?.data?.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.profileImage} />) : ( <LinearGradient 
-            colors={["#2C2C2C", "#555555"]} 
-            style={styles.profileImageContainer} 
-          />)}
+        <TouchableOpacity onPress={isEditing ? pickImage : null} activeOpacity={isEditing ? 0.7 : 1}>
+          {selectedImage || dataUser?.data?.profile_photo ? (
+            <Image
+              source={{ uri: selectedImage || dataUser.data.profile_photo.url }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <LinearGradient colors={["#2C2C2C", "#555555"]} style={styles.profileImageContainer} />
+          )}
+        </TouchableOpacity>
           {isEditing ? (
             <TextInput
               style={styles.inputName}

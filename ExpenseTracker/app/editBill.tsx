@@ -13,6 +13,7 @@ import CategorySelector from "@/components/CategorySelector";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import SplitWithSelector from "@/components/SplitWithSelector";
 import { useUpdateBillMutation , useGetBillQuery} from "@/store/billApi";
+import _ from "lodash";
 
 
 export default function CreateBillScreen() {
@@ -22,9 +23,10 @@ export default function CreateBillScreen() {
         amount: m.amount,
         user_id: m.user_id
       }));
-  console.log("BillData",billData.data.members);
+  console.log("BillData",splitWithArray);
   const [updateBill, {isLoading}] = useUpdateBillMutation();
   const [errorMessage, setErrorMessage] = useState("");
+
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       amount: billData.data.amount,
@@ -61,6 +63,8 @@ export default function CreateBillScreen() {
       data?.splitWith.forEach((split) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
       });
+      // const filteredSplit = data.splitWith.filter((user) => user.user_id !== data.paidBy.user_id);
+
 
       let dataObj: { amount?: number; bill_title?:string;bill_category?:string;due_date_time?:any;recurring?:boolean;members?:any} = {};
       if(data.amount!==billData.data.amount){
@@ -87,10 +91,24 @@ export default function CreateBillScreen() {
       //   console.log("HereMembers");
       //   dataObj.members=data.members;
       // }
+      const borrowersData = data.splitWith.map((user) => ({ ...user, amount: Number(user.amount) }));
+      const simplifiedBorrowers = borrowersData.map(({ user_id, amount }) => ({ user_id, amount }));
+      const prevBorrowers = billData.data.members.map(({ user_id, amount }) => ({ user_id, amount }));
+      if (!_.isEqual(simplifiedBorrowers, prevBorrowers)) {
+            console.log("BorrowersData",simplifiedBorrowers);
+            console.log("expenseBorrowers",prevBorrowers);
+            console.log("Changed Borrowers");
+            let members = [];
+            data?.splitWith.forEach((split) => {
+              members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
+            });
 
-      // const response = await updateBill({id:id,body:dataObj}).unwrap();
-      // console.log("New Bill create response: ", response);
-      // router.back();
+            dataObj.members = members;
+      }
+      console.log("SplitWith",data.splitWith);
+      const response = await updateBill({id:id,body:dataObj}).unwrap();
+      console.log("New Bill create response: ", response);
+      router.back();
     } catch (error) {
       console.error("new bill failed to create:", error);
       const err = error as { data?: { message?: string } };
@@ -117,7 +135,7 @@ export default function CreateBillScreen() {
 
       {/* Add Members to share */}
       {/* <AddPeopleInput control={control} /> */}
-      <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
+      <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} edit = {true} title="Share with"/>
 
       {/* Initial Budget & Date */}
       <View style={styles.dateTimeContainer}>

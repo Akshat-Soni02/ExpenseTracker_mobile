@@ -90,16 +90,33 @@ export default function AddTransactionScreen() {
           selectedTime.getSeconds()
       );
       console.log("Transaction Data:", { ...data, transactionType });
-      const response = await createPersonalTransaction({
-        transaction_type: transactionType,
-        description: data.Description,
-        wallet_id: data?.wallet?._id,
-        media: data?.photo,
-        transaction_category: data?.category,
-        notes: data?.notes,
-        amount: detectedAmountNumber,
-        created_at_date_time
-      }).unwrap();
+      const formData = new FormData();
+      formData.append("transaction_type", transactionType);
+      formData.append("description", data.Description);
+      if (data?.wallet?._id) {
+        formData.append("wallet_id", data?.wallet?._id);
+      }
+      if (data?.photo) {
+        const selectedImage = data.photo;
+        const fileExtension = selectedImage.split(".").pop();
+        const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
+  
+        formData.append("media", {
+          uri: selectedImage,
+          type: mimeType,
+          name: `transaction-media.${fileExtension}`,
+        } as any);
+      }
+      if (data?.category) {
+        formData.append("transaction_category", data.category);
+      }
+      if (data?.notes) {
+        formData.append("notes", data.notes);
+      }
+      formData.append("amount", String(data.amountNumber));
+      formData.append("created_at_date_time", String(created_at_date_time));
+    
+      const response = await createPersonalTransaction(formData).unwrap();
       console.log("New personal transaction response: ", response);
       await deleteTransaction(detectedId).unwrap();
       await refetch();

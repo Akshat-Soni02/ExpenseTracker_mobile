@@ -4,7 +4,7 @@ export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
     registerUser: builder.mutation({
       query: (body) => ({
-        url: `/user/new`,
+        url: `/users/new`,
         method: "POST",
         body,
       }),
@@ -159,6 +159,23 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
+    addUserFriends: builder.mutation({
+      query: (body) => ({
+        url: `/users/send-invites`,
+        method: "POST",
+        body
+      }),
+      invalidatesTags: ["user"]
+    }),
+
+    autoaddFriends: builder.mutation({
+      query: (body) => ({
+        url: `/users/auto-add-friends`,
+        method: "POST",
+        body
+      }),
+    }),
+
     updateUserDetails: builder.mutation({
       query: ( body ) => ({
         url: `/users/profile-details`,
@@ -205,4 +222,6 @@ export const {
   useRemindUserBorrowersMutation,
   useUpdateUserDetailsMutation,
   useUpdateUserProfilePhotoMutation,
+  useAddUserFriendsMutation,
+  useAutoaddFriendsMutation
 } = userApi;

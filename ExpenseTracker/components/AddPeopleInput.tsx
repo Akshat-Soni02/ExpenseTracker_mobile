@@ -27,7 +27,7 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
         const userData = await AsyncStorage.getItem("user");
         if (userData) {
           const parsedUser = JSON.parse(userData);
-          setUser({ user_id: parsedUser._id, name: parsedUser.name, profile_photo: parsedUser.profile_photo });
+          setUser({ user_id: parsedUser._id, name: parsedUser.name, profile_photo: parsedUser.profile_photo.url });
         }
       } catch (error) {
         console.error("Error loading user:", error);
@@ -71,6 +71,8 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
               {selectedUsers.map((userId) => {
                 const selectedUser = data?.data?.find((u) => u._id === userId) || 
                                      (user?.user_id === userId ? user : null);
+                
+                console.log("this is how user looks like", user);
                 return (
                   selectedUser && (
                     <View key={selectedUser.user_id} style={styles.splitItem}>
