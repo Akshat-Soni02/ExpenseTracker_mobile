@@ -5,12 +5,15 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useGetGroupQuery, useGetGroupHistoryQuery } from "@/store/groupApi";
 import moment from "moment";
 import { useRemindAllGroupBorrowersMutation } from "@/store/groupApi";
+import { FAB, Portal, PaperProvider } from 'react-native-paper';
 
 const GroupDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetGroupQuery(id);
   const { data: history, isLoading: loading, error: historyError } = useGetGroupHistoryQuery(id);
   const [remindAll, {isLoading: loadingBorrowReq}] = useRemindAllGroupBorrowersMutation();
+  const [state, setState] = React.useState({ open: false });
+
   const group = data?.data;
   const totalMembers = group?.members.length;
 
@@ -25,6 +28,10 @@ const GroupDetailsScreen = () => {
   if (!data?.data) return <Text>No group found</Text>;
   if (historyError) return <Text>Error fetching history</Text>;
   if (loading) return <Text>Loading...</Text>;
+
+  const onStateChange = ({ open }) => setState({ open });
+
+  const { open } = state;
 
   const handleRemindAll = async () => {
     try {
@@ -50,6 +57,9 @@ const GroupDetailsScreen = () => {
   };
 
   return (
+    <PaperProvider>
+
+    <View style={{flex:1}}>
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -146,10 +156,45 @@ const GroupDetailsScreen = () => {
       )}
 
       {/* Floating Add Expense Button */}
-      <TouchableOpacity style={styles.floatingButton} onPress={() => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } })}>
+      {/* <TouchableOpacity style={styles.floatingButton} onPress={() => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } })}>
         <Ionicons name="add" size={24} color="#fff" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      
     </View>
+    <Portal>
+      <FAB.Group
+        open={open}
+        visible
+        icon={open ? 'close' : 'plus'}
+        actions={[
+          // { icon: 'plus', onPress: () => console.log('Pressed add') },
+          {
+            icon: 'currency-inr',
+            label: 'Add Split',
+            onPress: () => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } }),
+          },
+          {
+            icon: 'account-minus',
+            label: 'Leave Group',
+            onPress: () => console.log('Pressed email'),
+          },
+          {
+            icon: 'graphql',
+            label: 'Simplify Debts',
+            onPress: () => console.log('Pressed notifications'),
+          },
+        ]}
+        onStateChange={onStateChange}
+        onPress={() => {
+          if (open) {
+            // do something if the speed dial is open
+          }
+        }}
+      />
+    </Portal>
+  </View>
+  </PaperProvider>
+
   );
 };
 
