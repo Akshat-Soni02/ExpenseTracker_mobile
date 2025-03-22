@@ -4,7 +4,7 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useGetGroupQuery, useGetGroupHistoryQuery } from "@/store/groupApi";
 import moment from "moment";
-import { useRemindAllGroupBorrowersMutation } from "@/store/groupApi";
+import { useRemindAllGroupBorrowersMutation ,useLazyLeaveGroupQuery,  useSimplifyDebtsMutation} from "@/store/groupApi";
 import { FAB, Portal, PaperProvider } from 'react-native-paper';
 
 const GroupDetailsScreen = () => {
@@ -12,6 +12,9 @@ const GroupDetailsScreen = () => {
   const { data, isLoading, error, refetch } = useGetGroupQuery(id);
   const { data: history, isLoading: loading, error: historyError } = useGetGroupHistoryQuery(id);
   const [remindAll, {isLoading: loadingBorrowReq}] = useRemindAllGroupBorrowersMutation();
+  const [leaveGroup, { isFetching, error:leaveError }] = useLazyLeaveGroupQuery();
+  const [simplifyDebts, {isLoading: loadingSimplify}] = useSimplifyDebtsMutation();
+
   const [state, setState] = React.useState({ open: false });
 
   const group = data?.data;
@@ -55,7 +58,26 @@ const GroupDetailsScreen = () => {
       )
     }
   };
+  const handleLeaveGroup = async () => {
+    try {
+      await leaveGroup({ groupId:id }).unwrap();
+      console.log("Successfully left the group");
+      router.push("/(tabs)");
+    } catch (err) {
+      console.error("Error leaving group:", err);
+    }
+  };
 
+
+  const onSimplifyDebts = async () => {
+    try {
+      await simplifyDebts( id ).unwrap();
+      console.log("Successfully simplified debts");
+      refetch();
+    } catch (err) {
+      console.error("Error leaving group:", err);
+    }
+  };
   return (
     <PaperProvider>
 
@@ -176,12 +198,12 @@ const GroupDetailsScreen = () => {
           {
             icon: 'account-minus',
             label: 'Leave Group',
-            onPress: () => console.log('Pressed email'),
+            onPress:handleLeaveGroup,
           },
           {
             icon: 'graphql',
             label: 'Simplify Debts',
-            onPress: () => console.log('Pressed notifications'),
+            onPress: onSimplifyDebts,
           },
         ]}
         onStateChange={onStateChange}
