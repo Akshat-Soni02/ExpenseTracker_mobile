@@ -148,7 +148,7 @@ export default function HomeScreen() {
         </Button>
       </View>
       <View style={styles.groupContainer}>
-        {groups.slice(0, 3).map((group:any, index:any) => (
+        {groups.slice(0, 3).map((group:any, index:any = group._id) => (
           <TouchableOpacity onPress={() => router.push({ pathname: "../../viewGroup", params: { id:group._id} })}>
           <View key={index} style={styles.groupItem}>
             <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
