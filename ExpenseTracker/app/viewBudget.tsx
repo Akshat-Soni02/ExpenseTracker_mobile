@@ -282,8 +282,8 @@ export default function ViewBudgetScreen() {
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       amount: "",
-      budget_title: "",
-      budget_category: "",
+      Description: "",
+      category: "",
       period: "monthly",
     },
   });
@@ -291,10 +291,11 @@ export default function ViewBudgetScreen() {
   // Reset form with default values when switching to edit mode
   useEffect(() => {
     if (isEditing && dataBudget) {
+      console.log(dataBudget.data.budget_title);
       reset({
         amount: dataBudget.data.amount.toString(), // Convert to string if necessary
-        budget_title: dataBudget.data.budget_title,
-        budget_category: dataBudget.data.budget_category,
+        Description: dataBudget.data.budget_title,
+        category: dataBudget.data.budget_category,
         period: dataBudget.data.period,
       });
     }
@@ -306,9 +307,9 @@ export default function ViewBudgetScreen() {
         await updateBudget({
           id,
           body: {
-            budget_title: data.budget_title,
+            budget_title: data.Description,
             amount: parseFloat(data.amount), // Ensure numeric conversion
-            budget_category: data.budget_category,
+            budget_category: data.category,
             period: data.period,
           },
         }).unwrap();
@@ -369,9 +370,9 @@ export default function ViewBudgetScreen() {
         </View>
       ) : (
         <>
-          <AmountDescriptionInput control={control} name="budget_title" label="Description" />
-          <CategorySelector control={control} name="budget_category" />
-          <PeriodSelector control={control} name="period" />
+          <AmountDescriptionInput control={control} label="Description" />
+          <CategorySelector control={control}/>
+          <PeriodSelector control={control}/>
         </>
       )}
 

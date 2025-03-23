@@ -3,13 +3,15 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "rea
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
-import { useGetWalletQuery } from "@/store/walletApi";
+import { useGetWalletQuery,useDeleteWalletMutation } from "@/store/walletApi";
 
 const WalletDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetWalletQuery(id);
   
   const [menuVisible, setMenuVisible] = useState(false);
+  const [deleteWallet, {isLoading:isLoadingDelete}] = useDeleteWalletMutation();
+  const [errorMessage, setErrorMessage] = useState("");
 
   const wallet = data?.data;
 
@@ -26,6 +28,21 @@ const WalletDetailsScreen = () => {
 
 
   const themeColor = wallet.lower_limit <= wallet.amount ? "#10B981" : "#EF4444";
+
+  const onDelete = async () => {
+    try {
+      await deleteWallet(id);
+      router.push("/(tabs)/wallets");
+    } catch (error) {
+      console.error("wallet failed to delete:", error);
+        const err = error as { data?: { message?: string } };
+        if (err?.data?.message) {
+          setErrorMessage(err.data.message);
+        } else {
+          setErrorMessage("Something went wrong. Please try again.");
+        }
+    }
+  };
 
   return (
     <View style={[styles.container]}>
@@ -44,9 +61,9 @@ const WalletDetailsScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => console.log("Edit Wallet")} title="Edit" />
+          <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/editWallet",params:{fetchedId:id,fetchedAmount:wallet.amount,fetchedName:wallet.wallet_title,fetchedLowerLimit:wallet.lower_limit}})}} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => console.log("Delete Wallet")} title="Delete" />
+          <Menu.Item onPress={() => onDelete()} title="Delete" />
         </Menu>
       </View>
 

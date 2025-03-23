@@ -10,6 +10,7 @@ import store from '@/store/store';
 import { useColorScheme } from '@/components/useColorScheme';
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
 import { AuthProvider } from '@/context/AuthProvider';
+import { StatusBar } from 'expo-status-bar';
 import * as Linking from "expo-linking";
 
 const paperLightTheme = {
@@ -107,6 +108,13 @@ function RootLayoutNav() {
         <Stack.Screen name="viewBill" options={{headerShown:false}}/>
         <Stack.Screen name="viewSettlement" options={{headerShown:false}}/>
         <Stack.Screen name="addPeopleEmail" options={{headerShown:false}}/>
+        <Stack.Screen name="editSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="editExpense" options={{headerShown:false}}/>
+        <Stack.Screen name="editBill" options={{headerShown:false}}/>
+        <Stack.Screen name="editTransaction" options={{headerShown:false}}/>
+        <Stack.Screen name="editWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="editGroup" options={{headerShown:false}}/>
+        <Stack.Screen name="groupSettlements" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

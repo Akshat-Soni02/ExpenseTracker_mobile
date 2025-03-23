@@ -21,11 +21,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { handleGoogleSignOut } from "@/components/GoogleButton";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Feather from '@expo/vector-icons/Feather';
+import { useDispatch, UseDispatch } from "react-redux";
+import api from "@/store/api";
 const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
   const router = useRouter();
-  const { logout } = useAuth();
+  const dispatch = useDispatch();
+  const [localLoading, setLocalLoading] = useState(false);
+  const { logout, loading } = useAuth();
   const [logoutUser, { isLoading: isLoggingOut }] = useLogoutUserMutation();
   const [updateUser, {isLoading}] = useUpdateUserDetailsMutation();
   const [isEditing, setIsEditing] = useState(false);
@@ -37,21 +41,25 @@ const ProfileScreen = () => {
     if (dataUser?.data) {
       setUserData({
         name: dataUser.data.name,
-        phone_number: dataUser.data.phone_number? dataUser.data.phone_number : "Not provided",
+        phone_number: dataUser.data.phone_number? dataUser.data.phone_number : "",
         daily_limit: dataUser.data.daily_limit ? dataUser.data.daily_limit : 0,
       });
     }
   }, [dataUser]);
 
   const handleLogout = async () => {
+    setLocalLoading(true);
     try {
       await logoutUser().unwrap();
       await logout();
       await handleGoogleSignOut();
-      await AsyncStorage.removeItem("user");
+      await AsyncStorage.clear();
+      dispatch(api.util.resetApiState());
       router.replace("/welcome");
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      setLocalLoading(false);
     }
   };
 
@@ -72,7 +80,8 @@ const ProfileScreen = () => {
             name: `user-media.${fileExtension}`,
           } as any);
         }
-        await updateUser(formData).unwrap();
+        const res = await updateUser(formData).unwrap();
+        await AsyncStorage.setItem("user", JSON.stringify(res.data));
       } catch (error) {
         console.error("Update failed:", error);
       }
@@ -81,7 +90,7 @@ const ProfileScreen = () => {
     refetch();
   };
 
-  if (isLoadingUser || isLoggingOut) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  if (localLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (errorUser) {
     return <Text style={styles.errorText}>Error: {errorUser?.message || JSON.stringify(errorUser)}</Text>;
@@ -158,7 +167,7 @@ const ProfileScreen = () => {
 
         <View style={styles.card}>
           <Text style={styles.label}>Email ID:</Text>
-          <Text style={styles.value}>{dataUser.data.email}</Text>
+          <Text style={styles.value}>{dataUser?.data?.email}</Text>
         </View>
 
         <View style={styles.card}>

@@ -76,12 +76,21 @@ export const groupApi = api.injectEndpoints({
       }),
       invalidatesTags: ["group"],
     }),
+
+    simplifyDebts: builder.mutation({
+      query: (id) => ({
+        url: `/groups/simplify-debt/${id}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["group","user"],
+    }),
   }),
 });
 
 export const {
   useCreateGroupMutation,
   useLeaveGroupQuery,
+  useLazyLeaveGroupQuery,
   useGetUserExchangeStateInGroupQuery,
   useRemindGroupBorrowerMutation,
   useRemindAllGroupBorrowersMutation,
@@ -90,4 +99,5 @@ export const {
   useLazyGetGroupQuery,
   useUpdateGroupMutation,
   useDeleteGroupMutation,
+  useSimplifyDebtsMutation,
 } = groupApi;

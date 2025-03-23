@@ -76,8 +76,8 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
                 return (
                   selectedUser && (
                     <View key={selectedUser.user_id} style={styles.splitItem}>
-                      {user?.profile_photo ? (
-                        <Image source={{ uri: user.profile_photo }} style={styles.userIcon} />
+                      {selectedUser?.profile_photo ? (
+                        <Image source={{ uri: selectedUser.profile_photo }} style={styles.userIcon} />
                       ) : (
                         <LinearGradient colors={["#D1D5DB", "#9CA3AF"]} style={styles.userIcon} />
                       )}
@@ -135,6 +135,9 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
                       </TouchableOpacity>
                     );
                   }}
+                  ItemSeparatorComponent={() => (
+                    <View style={{  height: 2, backgroundColor: 'white'}} />
+                  )}
                 />
                 <CustomButton onPress={() => setModalVisible(false)}>Done</CustomButton>
               </View>

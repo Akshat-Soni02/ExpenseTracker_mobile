@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useForm } from "react-hook-form";
-import { useRouter } from "expo-router";
+import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
 import TitleInput from "@/components/TitleInput";
@@ -12,21 +12,33 @@ import AmountDescriptionInput from "@/components/AmountDescriptionInput";
 import CategorySelector from "@/components/CategorySelector";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import SplitWithSelector from "@/components/SplitWithSelector";
-import { useCreateBillMutation } from "@/store/billApi";
+import { useUpdateBillMutation , useGetBillQuery} from "@/store/billApi";
+import _ from "lodash";
+
 
 export default function CreateBillScreen() {
-  const [createBill, {isLoading}] = useCreateBillMutation();
+      let {id} = useLocalSearchParams();
+      const { data:billData, isLoading:billIsLoading, error:billError, refetch } = useGetBillQuery(id);
+      const splitWithArray = billData.data.members.map(m => ({
+        amount: m.amount,
+        user_id: m.user_id
+      }));
+  console.log("BillData",splitWithArray);
+  const [updateBill, {isLoading}] = useUpdateBillMutation();
   const [errorMessage, setErrorMessage] = useState("");
+
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
-      amount: 0,
-      title: "",
-      splitWith: [{ user_id: "1", amount: 0 }],
-      members: [],
-      date: new Date(),
-      time: new Date(new Date().setHours(0, 0, 0, 0)),
-      category: "",
-      recurring: false
+      amount: billData.data.amount,
+      Title: billData.data.bill_title,
+      // Description:billData.data.bill_title,
+      // splitWith: [{ user_id: "1", amount: 0 }],
+      splitWith:splitWithArray,
+      members: billData.data.members,
+      date: new Date(billData.data.due_date_time),
+      time: new Date(billData.data.due_date_time),
+      category: billData.data.bill_category,
+      recurring: billData.data.recurring
     },
   });
 
@@ -51,18 +63,52 @@ export default function CreateBillScreen() {
       data?.splitWith.forEach((split) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
       });
+      // const filteredSplit = data.splitWith.filter((user) => user.user_id !== data.paidBy.user_id);
 
-      const response = await createBill({
-        bill_title: data?.Title,
-        amount: data?.amount,
-        bill_category: data?.category,
-        due_date_time,
-        recurring: data?.recurring,
-        members
-      }).unwrap();
+
+      let dataObj: { amount?: number; bill_title?:string;bill_category?:string;due_date_time?:any;recurring?:boolean;members?:any} = {};
+      if(data.amount!==billData.data.amount){
+        console.log("Hereamount");
+        dataObj.amount = data.amount;
+      }
+      if(data.Title!==billData.data.bill_title){
+        console.log("HereLowerLimit");
+        dataObj.bill_title = data.Title;
+      }
+      if(data.category!==billData.data.bill_category){
+        console.log("HereName");
+        dataObj.bill_category= data.category;
+      }
+      if(due_date_time!==billData.data.due_date_time){
+        console.log("HereWallet");
+        dataObj.due_date_time = data.due_date_time;
+      }
+      if(data.recurring!==billData.data.recurring){
+        console.log("HereRecurring");
+        dataObj.recurring=data.recurring;
+      }
+      // if(data.members!==billData.data.members){
+      //   console.log("HereMembers");
+      //   dataObj.members=data.members;
+      // }
+      const borrowersData = data.splitWith.map((user) => ({ ...user, amount: Number(user.amount) }));
+      const simplifiedBorrowers = borrowersData.map(({ user_id, amount }) => ({ user_id, amount }));
+      const prevBorrowers = billData.data.members.map(({ user_id, amount }) => ({ user_id, amount }));
+      if (!_.isEqual(simplifiedBorrowers, prevBorrowers)) {
+            console.log("BorrowersData",simplifiedBorrowers);
+            console.log("expenseBorrowers",prevBorrowers);
+            console.log("Changed Borrowers");
+            let members = [];
+            data?.splitWith.forEach((split) => {
+              members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
+            });
+
+            dataObj.members = members;
+      }
+      console.log("SplitWith",data.splitWith);
+      const response = await updateBill({id:id,body:dataObj}).unwrap();
       console.log("New Bill create response: ", response);
-      reset();
-      router.replace("/(tabs)/activity/bills");
+      router.back();
     } catch (error) {
       console.error("new bill failed to create:", error);
       const err = error as { data?: { message?: string } };
@@ -75,14 +121,13 @@ export default function CreateBillScreen() {
     
   };
 
-  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Bill</Text>
+        <Text style={styles.header}>Edit Bill</Text>
       </View>
 
       {/* Bill Title and amount */}
@@ -90,12 +135,12 @@ export default function CreateBillScreen() {
 
       {/* Add Members to share */}
       {/* <AddPeopleInput control={control} /> */}
-      <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
+      <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} edit = {true} title="Share with"/>
 
       {/* Initial Budget & Date */}
       <View style={styles.dateTimeContainer}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Due Date"/>
-        <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" useDefaultToday/>
+        <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" />
       </View>
       <CategorySelector control={control}/>
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
@@ -110,15 +155,15 @@ export default function CreateBillScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
   headerContainer: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 20,
   },
   backButton: {
     padding: 10,

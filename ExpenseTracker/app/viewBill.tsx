@@ -117,14 +117,14 @@ const BillDetailsScreen = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> router.push({pathname:"/editBill",params : {id:id}})}>
           <Ionicons name="settings-outline" size={22} color="black" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.detailContainer}>
         <Text style={styles.title}>{bill.bill_title}</Text>
-        <Text style={styles.date}>Due on: {moment(bill.due_date_time).format("DD MMM, YYYY, hh:mm A")}</Text>
+        <Text style={styles.date}>Due on: {moment(bill.due_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
         {/* <Text style={[styles.amount, { color: themeColor }]}>₹{bill.amount}</Text> */}
         {/* {bill.bill_category && (<Text style={styles.date}>Category: {bill.bill_category}</Text>)} */}
       </View>

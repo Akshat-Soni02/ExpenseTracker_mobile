@@ -1,4 +1,4 @@
-import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar} from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 // import {  View } from '@/components/Themed';
 import { useRouter } from "expo-router";
@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthProvider';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const transactions = [
   { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
@@ -35,6 +36,11 @@ export default function HomeScreen() {
       router.replace("/welcome");
     }
   }, [authToken, loading]);
+
+  useEffect(() => {
+    StatusBar.setBarStyle('dark-content');
+    StatusBar.setBackgroundColor('#ffffff');
+  }, []);
 
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error} = useGetUserCurrentExchangeStatusQuery();
@@ -62,10 +68,7 @@ export default function HomeScreen() {
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
           <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../viewProfile")}>
-            {dataUser.data.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.avatar} />) : ( <Image
-              source={require("../../assets/images/sampleprofilepic.png")}
-              style={styles.avatar}
-            />)}
+            {dataUser.data.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.avatar} />) : ( <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
             <View>
               <Text style={styles.greeting}>Good afternoon</Text>
               <Text style={styles.name}>{dataUser.data.name}</Text>
@@ -83,11 +86,11 @@ export default function HomeScreen() {
           <View style={styles.financialSummary}>
             <View style={styles.textContainer}>
               <Text style={styles.label}>You owe</Text>
-              {!isLoading && (<Text style={styles.debit}>₹{exchangeData?.data?.borrowedAmount}</Text>)}
+              {!isLoading && (<Text style={styles.debit}>₹{exchangeData?.data?.borrowedAmount?.toFixed(2)}</Text>)}
             </View>
             <View>
               <Text style={styles.label}>You lended</Text>
-              {!isLoading && (<Text style={styles.credit}>₹{exchangeData?.data?.lendedAmount}</Text>)}
+              {!isLoading && (<Text style={styles.credit}>₹{exchangeData?.data?.lendedAmount?.toFixed(2)}</Text>)}
             </View>
           </View>
         </View>

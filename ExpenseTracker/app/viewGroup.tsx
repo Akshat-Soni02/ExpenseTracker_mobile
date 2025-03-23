@@ -4,13 +4,19 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useGetGroupQuery, useGetGroupHistoryQuery } from "@/store/groupApi";
 import moment from "moment";
-import { useRemindAllGroupBorrowersMutation } from "@/store/groupApi";
+import { useRemindAllGroupBorrowersMutation ,useLazyLeaveGroupQuery,  useSimplifyDebtsMutation} from "@/store/groupApi";
+import { FAB, Portal, PaperProvider } from 'react-native-paper';
 
 const GroupDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetGroupQuery(id);
   const { data: history, isLoading: loading, error: historyError } = useGetGroupHistoryQuery(id);
   const [remindAll, {isLoading: loadingBorrowReq}] = useRemindAllGroupBorrowersMutation();
+  const [leaveGroup, { isFetching, error:leaveError }] = useLazyLeaveGroupQuery();
+  const [simplifyDebts, {isLoading: loadingSimplify}] = useSimplifyDebtsMutation();
+
+  const [state, setState] = React.useState({ open: false });
+
   const group = data?.data;
   const totalMembers = group?.members.length;
 
@@ -20,11 +26,15 @@ const GroupDetailsScreen = () => {
     }
   }, [id]);
 
-  if (isLoading) return <View style={styles.loadingContainer}><ActivityIndicator color="#000" /></View>;
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading group details</Text>;
   if (!data?.data) return <Text>No group found</Text>;
   if (historyError) return <Text>Error fetching history</Text>;
   if (loading) return <Text>Loading...</Text>;
+
+  const onStateChange = ({ open }) => setState({ open });
+
+  const { open } = state;
 
   const handleRemindAll = async () => {
     try {
@@ -48,15 +58,44 @@ const GroupDetailsScreen = () => {
       )
     }
   };
+  const handleLeaveGroup = async () => {
+    try {
+      await leaveGroup({ groupId:id }).unwrap();
+      console.log("Successfully left the group");
+      router.push("/(tabs)");
+    } catch (err) {
+      console.error("Error leaving group:", err);
+      Alert.alert(
+        "Cannot leave group", 
+        `${err?.data?.message}`, 
+        [
+          { text: "ok", style: "cancel" },
+        ]
+      )
+    }
+  };
 
+
+  const onSimplifyDebts = async () => {
+    try {
+      await simplifyDebts( id ).unwrap();
+      console.log("Successfully simplified debts");
+      refetch();
+    } catch (err) {
+      console.error("Error leaving group:", err);
+    }
+  };
   return (
+    <PaperProvider>
+
+    <View style={{flex:1}}>
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => console.log(history.data)}>
+        <TouchableOpacity onPress={() => router.push({pathname:"/editGroup",params:{id:id}})}>
           <Ionicons name="settings-outline" size={22} color="black" />
         </TouchableOpacity>
       </View>
@@ -96,7 +135,7 @@ const GroupDetailsScreen = () => {
 
         <TouchableOpacity 
           style={styles.settleButton} 
-          onPress={() => router.push({ pathname: "/settleUp", params: { group_id: group._id } })}
+          onPress={() => router.push({ pathname: "/groupSettlements", params: { group_id: group._id,group_name:group.group_title } })}
         >
           <Text style={styles.buttonText}>Settle Up</Text>
         </TouchableOpacity>
@@ -108,48 +147,105 @@ const GroupDetailsScreen = () => {
         <ActivityIndicator color="#000" />
       ) : history?.data && history.data.length > 0 ? (
         <FlatList
-          data={history.data}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => router.push({ pathname: "/viewExpense", params: { id: item._id } })}
-              style={styles.expenseRow}
-            >
-              <View style={styles.expenseTextContainer}>
-                <Text style={styles.expenseDescription} numberOfLines={1}>
-                  {item?.description || "No description"}
-                </Text>
-                <Text style={styles.expenseCategory}>{item?.expense_category || "Unknown"}</Text>
-              </View>
-              <View style={styles.expenseAmountContainer}>
-                <Text style={styles.expenseDate}>
-                  {item?.created_at_date_time
-                    ? moment(item.created_at_date_time).format("DD MMM, hh:mm A")
-                    : "Unknown Date"}
-                </Text>
-                <Text
-                  style={[
-                    styles.expenseAmount,
-                    { color: item?.total_amount < 0 ? "red" : "green" },
-                  ]}
-                >
-                  {item?.total_amount > 0 ? "+" : ""}₹{Math.abs(item?.total_amount || 0)}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-          contentContainerStyle={{ paddingBottom: 80 }}
-          showsVerticalScrollIndicator={false}
-        />
+  data={history.data}
+  keyExtractor={(item) => item._id}
+  renderItem={({ item }) => {
+    if (item.type === "expense") {
+      return (
+        <TouchableOpacity
+          onPress={() => router.push({ pathname: "/viewExpense", params: { id: item._id } })}
+          style={styles.expenseRow}
+        >
+          <View style={styles.expenseTextContainer}>
+            <Text style={styles.expenseDescription} numberOfLines={1}>
+              {item?.description || "No description"}
+            </Text>
+            {item?.expense_category && (<Text style={styles.expenseCategory}>{item.expense_category}</Text>)}
+          </View>
+          <View style={styles.expenseAmountContainer}>
+            <Text style={styles.expenseDate}>
+              {item?.created_at_date_time
+                ? moment(item.created_at_date_time).format("DD MMM, hh:mm A")
+                : "Unknown Date"}
+            </Text>
+            <Text style={[styles.expenseAmount, { color: "black", fontWeight: "400" }]}>
+              ₹{Math.abs(item?.total_amount || 0)}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      );
+    } else if (item.type === "settlement") {
+      return (
+        <TouchableOpacity
+          onPress={() => router.push({ pathname: "/viewSettlement", params: { id: item._id } })}
+          style={styles.settlementRow}
+        >
+        <Text style={styles.settlementText} numberOfLines={1}>
+            {item?.settlement_description || "Settlement"}
+          </Text>
+          <View style={styles.expenseAmountContainer}>
+            <Text style={styles.expenseDate}>
+              {item?.createdAt
+                ? moment(item.createdAt).format("DD MMM, hh:mm A")
+                : "Unknown Date"}
+            </Text>
+            <Text style={styles.settlementAmount}>
+              ₹{Math.abs(item?.amount || 0)}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+    return null;
+  }}
+  contentContainerStyle={{ paddingBottom: 80 }}
+  showsVerticalScrollIndicator={false}
+/>
+
       ) : (
         <Text style={styles.noExpensesText}>No expenses found</Text>
       )}
 
       {/* Floating Add Expense Button */}
-      <TouchableOpacity style={styles.floatingButton} onPress={() => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } })}>
+      {/* <TouchableOpacity style={styles.floatingButton} onPress={() => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } })}>
         <Ionicons name="add" size={24} color="#fff" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      
     </View>
+    <Portal>
+      <FAB.Group
+        open={open}
+        visible
+        icon={open ? 'close' : 'plus'}
+        actions={[
+          // { icon: 'plus', onPress: () => console.log('Pressed add') },
+          {
+            icon: 'currency-inr',
+            label: 'Add Split',
+            onPress: () => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } }),
+          },
+          {
+            icon: 'account-minus',
+            label: 'Leave Group',
+            onPress:handleLeaveGroup,
+          },
+          {
+            icon: 'graphql',
+            label: 'Simplify Debts',
+            onPress: onSimplifyDebts,
+          },
+        ]}
+        onStateChange={onStateChange}
+        onPress={() => {
+          if (open) {
+            // do something if the speed dial is open
+          }
+        }}
+      />
+    </Portal>
+  </View>
+  </PaperProvider>
+
   );
 };
 
@@ -274,7 +370,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 6,
   },
-  
+  settlementRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#D1D5DB",
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    marginVertical: 5,
+  },
+  settlementText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#334155",
+  },
+  settlementAmount: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#0F766E",
+  },  
   
   settleButton: {
     flex: 1,

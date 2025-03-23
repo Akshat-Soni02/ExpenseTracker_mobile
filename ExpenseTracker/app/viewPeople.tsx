@@ -6,6 +6,7 @@ import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/user
 
 const ViewPeopleScreen = () => {
     const {id, amount} = useLocalSearchParams();
+    let amountNumber = Number(amount);
   const { data, isLoading } = useGetUserByIdQuery(id);
   const [remindBorrower, {isLoading: loadingBorrowReq}] = useRemindUserBorrowerMutation();
 
@@ -76,7 +77,7 @@ const ViewPeopleScreen = () => {
                   >
             <Text style={styles.buttonText}>Remind</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/createSettlement", params: { fetched_amount:amount,receiver_id : id,name: data.data.name } })}>
+          <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/createSettlement", params: { fetched_amount:amountNumber,receiver_id : id,name: data.data.name } })}>
             <Text style={styles.buttonText}>Settle Up</Text>
           </TouchableOpacity>
         </View>
@@ -84,13 +85,17 @@ const ViewPeopleScreen = () => {
 
       {/* Debt Summary */}
       <View style={styles.summaryContainer}>
-        {amount >= 0 ? (
+        {amountNumber > 0 ? (
           <Text style={styles.summaryText}>
-            You lend <Text style={styles.greenAmount}>₹{amount}</Text> to {data.data.name}
+            You lend <Text style={styles.greenAmount}>₹{amountNumber.toFixed(2)}</Text> to {data.data.name}
+          </Text>
+        ) : amountNumber < 0 ? (
+          <Text style={styles.summaryText}>
+            You owe <Text style={styles.redAmount}>₹{Math.abs(amountNumber).toFixed(2)}</Text> to {data.data.name}
           </Text>
         ) : (
           <Text style={styles.summaryText}>
-            You owe <Text style={styles.redAmount}>₹{Math.abs(amount)}</Text> to {data.data.name}
+            You are settled with {data.data.name}
           </Text>
         )}
       </View>

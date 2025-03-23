@@ -17,7 +17,7 @@ export const billApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (_result, _error, { billId }) => [{ type: "bill", id: billId }],
+      invalidatesTags: ["bill"],
     }),
 
     getBill: builder.query({

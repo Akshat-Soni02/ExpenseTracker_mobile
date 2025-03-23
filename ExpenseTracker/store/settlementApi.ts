@@ -8,7 +8,7 @@ export const settlementApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["settlement", "group", "wallet"],
+      invalidatesTags: ["settlement", "group", "wallet","user"],
     }),
 
     getSettlement: builder.query({
@@ -18,13 +18,13 @@ export const settlementApi = api.injectEndpoints({
 
     updateSettlement: builder.mutation({
       query: ({ id, body }) => ({
-        url: `/settlements/${id}`,
+        url: `/settlements/update/${id}`,
         method: "PUT",
         body,
       }),
       invalidatesTags: (_result, _error, { id }) => [
         { type: "settlement", id },
-        "settlement", "group", "wallet"
+        "settlement", "group", "wallet", "user"
       ],
     }),
 
@@ -35,7 +35,7 @@ export const settlementApi = api.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, id) => [
         { type: "settlement", id },
-        "settlement", "group", "wallet"
+        "settlement", "group", "wallet", "user"
       ],
     }),
   }),

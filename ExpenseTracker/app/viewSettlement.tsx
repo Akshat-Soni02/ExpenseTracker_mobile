@@ -6,7 +6,8 @@ import { Menu, Divider } from "react-native-paper";
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetSettlementQuery } from "@/store/settlementApi";
+import { useGetSettlementQuery, useDeleteSettlementMutation } from "@/store/settlementApi";
+import { LinearGradient } from "expo-linear-gradient";
 import moment from "moment";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -15,6 +16,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 const SettlementDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetSettlementQuery(id);
+  const [deleteSettlement, {isLoading: deleteLoading, error: deleteError}] = useDeleteSettlementMutation();
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
   const [receiver, setReceiver] = useState({});
@@ -84,6 +86,20 @@ const SettlementDetailsScreen = () => {
     }
   }, [settlement?.payer_wallet_id, settlement?.receiver_wallet_id]);
 
+  const handleSettlementDelete = async () => {
+      try {
+        const response = await deleteSettlement(id);
+        console.log("settlement deleting response",response);
+        if(!response || deleteError) {
+          console.log(error);
+          // setMenuVisible(false);
+        }
+        router.replace("/(tabs)/activity")
+      } catch (error) {
+        
+      }
+    }
+
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading settlement details</Text>;
   if (!data?.data || !loggedInUserId) return <Text>No settlement found</Text>;
@@ -107,9 +123,9 @@ const SettlementDetailsScreen = () => {
               </TouchableOpacity>
             }
           >
-            <Menu.Item onPress={() => console.log("Edit settlement")} title="Edit" />
+            <Menu.Item onPress={() => {setMenuVisible(false);router.push({ pathname: "/editSettlement", params: {id} })}} title="Edit" />
             <Divider />
-            <Menu.Item onPress={() => console.log("Delete settlement")} title="Delete" />
+            <Menu.Item onPress={() => {setMenuVisible(false);handleSettlementDelete()}} title="Delete" />
           </Menu>
         </View>
       </View>
@@ -123,23 +139,17 @@ const SettlementDetailsScreen = () => {
         {/* {isLender && expense.wallet_id && (
           <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )} */}
-        <Text style={styles.date}>{moment(settlement.createdAt).format("DD MMM, YYYY, hh:mm A")}</Text>
+        <Text style={styles.date}>{moment(settlement.createdAt).format("DD MMM YYYY, hh:mm A")}</Text>
       </View>
 
       <View style={styles.splitContainer}>
         <View style = {styles.usersContainer}>
-            {payer?.profile_photo ? (<Image source={{ uri: payer.profile_photo.url }} style={styles.avatar} />) : ( <Image
-                source={require("../assets/images/sampleprofilepic.png")}
-                style={styles.avatar}
-            />)}
+            {payer?.profile_photo ? (<Image source={{ uri: payer.profile_photo.url }} style={styles.avatar} />) : (<LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
             <Text style = {styles.accountName} >{payer.name}</Text>
         </View>
         <Icon name="arrow-forward" size={40} color="black" />
         <View style = {styles.usersContainer}>
-            {receiver?.profile_photo ? (<Image source={{ uri: receiver.profile_photo.url }} style={styles.avatar} />) : ( <Image
-                source={require("../assets/images/sampleprofilepic.png")}
-                style={styles.avatar}
-            />)}
+            {receiver?.profile_photo ? (<Image source={{ uri: receiver.profile_photo.url }} style={styles.avatar} />) : (<LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
             <Text style = {styles.userName}>{receiver.name}</Text>
         </View>
       </View>

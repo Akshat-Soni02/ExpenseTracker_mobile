@@ -44,7 +44,7 @@ export default function PeopleScreen() {
                 pressFunction = {() => router.push({ pathname: "/viewPeople", params: {id: item._id, amount: item.amount} })}
                 imageName={item.profile_photo}
                 title = {item.name}
-                amount={`₹${item.amount}`}
+                amount={`₹${Math.abs(item.amount).toFixed(2)}`}
                 subtitle={undefined}
                 optionText={item.type === "credit" ? "You lend" : item.type === "debit" ? "You owe" : undefined}
                 transactionType={item.type}
