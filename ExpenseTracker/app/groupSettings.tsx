@@ -10,7 +10,6 @@ const GroupSettings = ({ group }) => {
 
   const handleLeaveGroup = () => {
     // Handle leave group logic
-    console.log("Leaving group...");
   };
 
   return (

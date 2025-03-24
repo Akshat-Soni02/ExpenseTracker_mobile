@@ -42,7 +42,6 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   
   const fetchEditMembers = async (memberIds: string[]) => {
     if (memberIds.length === 0) return;
-    console.log("Member IDs before fetching:", memberIds); 
 
   if (!memberIds || memberIds.length === 0 || memberIds.includes(undefined)) {
     console.error("Invalid member IDs detected:", memberIds);
@@ -68,7 +67,6 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
   const updateMembers = async (memberIds) => {
     const fetchedMembers = await fetchEditMembers(memberIds);
-    console.log("FetchedMembers:",fetchedMembers);
     setMembers(fetchedMembers??[]); // Updates state, triggering a re-render
   };
   useEffect(() => {
@@ -77,14 +75,11 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       if(IncludePaidBy){
         memberIds.push(paidByUser.user_id)
       };
-      console.log("MemberIds",memberIds);
       updateMembers(memberIds);
-      console.log("membersHere:",members);
     }
   }, []);
 
   useEffect(() => {
-    console.log("Updated membersHere:", members);
     if (edit) {
       setSelectedUsers(members);
     }
@@ -100,10 +95,8 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
           setLoggedInUserId(user._id);
           const defaultUser = { user_id: user._id, name: user.name, profile_photo: user.profile_photo?.url };
           if(edit){
-            console.log("SelectedMembers:",members);
             setSelectedUsers(members);
             setSelectedUsers((prevUsers) => [...members, defaultUser]);
-            console.log("SelectedUsers:",selectedUsers);
             setPaidBy(paidByUser);
           }
           else{
@@ -128,7 +121,6 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
         newSplits[user.user_id] = equalSplit;
       });
       setSplitAmounts(newSplits);
-      console.log("SelectedUSers",selectedUsers);
       setValue(
         "splitWith",
         selectedUsers.map((user) => ({
@@ -210,9 +202,6 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   }, [fromMembers, searchQuery]);
   
 
-  console.log("filteredUsers: ",filteredUsers);
-  console.log("groupMembers: ", groupMembers);
-  console.log(groupData?.data?.members);
 
   return (
     <View style={styles.container}>

@@ -20,11 +20,9 @@ export default function ForgotPasswordScreen() {
   } = useForm();
 
   const onSubmit = async (data: any) => {
-    console.log("Button clicked, email:", data.email);
     setErrorMessage("");
     try {
       const response = await sendOtp({ email: data.email }).unwrap();
-      console.log("OTP sent:", response);
       router.push({ pathname: "/otp", params: { email: data.email } });
     } catch (error) {
       console.error("OTP failed to send:", error);

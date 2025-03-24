@@ -58,9 +58,7 @@ export default function HomeScreen() {
   }
   const groups = dataGroup.data;
   const numberofGroups = groups.length;
-  console.log(dataDetected.data.slice(0,3).length);
   const numberOfTransactions = dataDetected.data.length;
-  console.log(numberOfTransactions);
   return (
   <View style={styles.page}>
     <View style={styles.container}>

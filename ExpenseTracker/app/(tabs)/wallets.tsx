@@ -28,7 +28,6 @@ export default function WalletsScreen() {
       return <Text>Error: {errorWallet?.message || JSON.stringify(errorWallet)}</Text>;
     }
   const wallets = dataWallet.data;
-  console.log(wallets);
   const numberOfWallets = wallets.length; 
   return (
     <View style={styles.screen}>

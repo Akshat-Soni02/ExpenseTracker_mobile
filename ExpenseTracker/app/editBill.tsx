@@ -23,7 +23,6 @@ export default function CreateBillScreen() {
         amount: m.amount,
         user_id: m.user_id
       }));
-  console.log("BillData",splitWithArray);
   const [updateBill, {isLoading}] = useUpdateBillMutation();
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -58,7 +57,6 @@ export default function CreateBillScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
-      console.log("Bill Data:", data);
       let members = [];
       data?.splitWith.forEach((split) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
@@ -68,36 +66,27 @@ export default function CreateBillScreen() {
 
       let dataObj: { amount?: number; bill_title?:string;bill_category?:string;due_date_time?:any;recurring?:boolean;members?:any} = {};
       if(data.amount!==billData.data.amount){
-        console.log("Hereamount");
         dataObj.amount = data.amount;
       }
       if(data.Title!==billData.data.bill_title){
-        console.log("HereLowerLimit");
         dataObj.bill_title = data.Title;
       }
       if(data.category!==billData.data.bill_category){
-        console.log("HereName");
         dataObj.bill_category= data.category;
       }
       if(due_date_time!==billData.data.due_date_time){
-        console.log("HereWallet");
         dataObj.due_date_time = data.due_date_time;
       }
       if(data.recurring!==billData.data.recurring){
-        console.log("HereRecurring");
         dataObj.recurring=data.recurring;
       }
       // if(data.members!==billData.data.members){
-      //   console.log("HereMembers");
       //   dataObj.members=data.members;
       // }
       const borrowersData = data.splitWith.map((user) => ({ ...user, amount: Number(user.amount) }));
       const simplifiedBorrowers = borrowersData.map(({ user_id, amount }) => ({ user_id, amount }));
       const prevBorrowers = billData.data.members.map(({ user_id, amount }) => ({ user_id, amount }));
       if (!_.isEqual(simplifiedBorrowers, prevBorrowers)) {
-            console.log("BorrowersData",simplifiedBorrowers);
-            console.log("expenseBorrowers",prevBorrowers);
-            console.log("Changed Borrowers");
             let members = [];
             data?.splitWith.forEach((split) => {
               members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
@@ -105,9 +94,7 @@ export default function CreateBillScreen() {
 
             dataObj.members = members;
       }
-      console.log("SplitWith",data.splitWith);
       const response = await updateBill({id:id,body:dataObj}).unwrap();
-      console.log("New Bill create response: ", response);
       router.back();
     } catch (error) {
       console.error("new bill failed to create:", error);

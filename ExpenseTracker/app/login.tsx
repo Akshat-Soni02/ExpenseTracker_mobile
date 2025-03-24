@@ -31,9 +31,7 @@ export default function LoginScreen() {
   const onSubmit = async (data: { email: string; password: string }) => {
     try {
       const response = await loginUser(data).unwrap();
-      console.log("Login success:", response);
       // dispatch(setCredentials({ token: response.token, user: response.user }));
-      console.log(response.userData);
       await login(response.token);
       await AsyncStorage.setItem("user", JSON.stringify(response.userData));
       router.push("/(tabs)");

@@ -15,7 +15,6 @@ import { useUpdateWalletMutation } from "@/store/walletApi";
 export default function CreateWalletScreen() {
   let {fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit} = useLocalSearchParams();
   let fetchedAmountNumber = Number(fetchedAmount);
-  console.log(fetchedName,fetchedLowerLimit);
   const [updateWallet, {isLoading}] = useUpdateWalletMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, setValue, reset } = useForm({
@@ -32,23 +31,17 @@ export default function CreateWalletScreen() {
 
   const onWalletSubmit = async (data: any) => {
     try {
-      console.log("Wallet Data:", data);
       let dataObj: { amount?: number; lower_limit?: number; wallet_title?: string } = {};
       if(data.amount!==fetchedAmountNumber){
-        console.log("Hereamount");
         dataObj.amount = data.amount;
       }
       if(data.lowerLimit!==fetchedLowerLimit){
-        console.log("HereLowerLimit");
         dataObj.lower_limit = data.lowerLimit;
       }
       if(data.Name!==fetchedName){
-        console.log("HereName");
         dataObj.wallet_title = data.Name;
       }
-      console.log(dataObj);
       const response = await updateWallet({id:fetchedId,body:dataObj}).unwrap();
-      console.log("pdate wallet response: ", response);
       reset();
       router.back();
     } catch (error) {

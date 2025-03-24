@@ -31,7 +31,6 @@ export default function ResetPasswordScreen() {
   const onSubmit = async (data: { password: string; confirmPassword: string }) => {
     setErrorMessage("");
     try {
-      // console.log({email, data});
       await resetPassword({email, newPassword: data.confirmPassword}).unwrap();
       router.push("/login");
     } catch (error) {

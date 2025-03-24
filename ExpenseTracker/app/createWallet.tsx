@@ -29,13 +29,11 @@ export default function CreateWalletScreen() {
 
   const onWalletSubmit = async (data: any) => {
     try {
-      console.log("Wallet Data:", data);
       const response = await createWallet({
         amount: data.amount,
         lower_limit: data.lowerLimit,
         wallet_title: data.Name
       }).unwrap();
-      console.log("New wallet response: ", response);
       reset();
       router.replace("/(tabs)/wallets");
     } catch (error) {

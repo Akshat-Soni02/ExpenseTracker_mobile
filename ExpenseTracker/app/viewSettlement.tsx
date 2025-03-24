@@ -27,8 +27,6 @@ const SettlementDetailsScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const settlement = data?.data;
-  console.log(id);
-  console.log(settlement);
 
   useEffect(() => {
     if (id) {
@@ -89,7 +87,6 @@ const SettlementDetailsScreen = () => {
   const handleSettlementDelete = async () => {
       try {
         const response = await deleteSettlement(id);
-        console.log("settlement deleting response",response);
         if(!response || deleteError) {
           console.log(error);
           // setMenuVisible(false);

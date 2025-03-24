@@ -46,14 +46,12 @@ const onSubmit = async (data: any) => {
   try {
 
     
-    console.log("Budget Data:", data);
     const response = await createBudget({
       budget_title: data.Description,
       amount: data.amount,
       budget_category: data?.category,
       period:data?.period,
     }).unwrap();
-    console.log("adding new budget response:", response);
     reset();
     router.replace("/(tabs)/activity/budgets");
   } catch (error) {

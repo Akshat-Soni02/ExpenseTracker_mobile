@@ -14,7 +14,6 @@ import { router } from 'expo-router';
 export const handleGoogleSignOut = async () => {
   try {
     await GoogleSignin.signOut();
-    console.log("Logged out successfully");
   } catch (error) {
     console.error("Logout Error:", error);
   }
@@ -40,7 +39,6 @@ const GoogleButton = () => {
         onPress={async () => {
             try {
                 const currentUser = await GoogleSignin.getCurrentUser();
-                console.log("Current User:", currentUser);
               await GoogleSignin.hasPlayServices();
               const userInfo = await GoogleSignin.signIn();
               let res = await googleLogin({idToken: userInfo.data?.idToken});
@@ -49,7 +47,6 @@ const GoogleButton = () => {
               res = await autoAdd({email: res.data.userData.email}).unwrap();
               if(res?.error) console.log("error auto adding friends", res.error);
               router.push("/(tabs)");
-              console.log(JSON.stringify(userInfo, null, 2));
             } catch (error: any) {
               if (error.code === statusCodes.SIGN_IN_CANCELLED) {
                 // user cancelled the login flow

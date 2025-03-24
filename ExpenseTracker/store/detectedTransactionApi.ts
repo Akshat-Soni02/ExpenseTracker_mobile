@@ -17,7 +17,7 @@ export const detectedTransactionApi = api.injectEndpoints({
     }),
     deleteDetectedTransaction: builder.mutation({
       query: (id) => ({
-        url: `/budgets/${id}`,
+        url: `/detected-transactions/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: (_result, _error, id) => [

@@ -25,7 +25,6 @@ export default function PeopleScreen() {
       return <Text>Error: {errorPeople?.message || JSON.stringify(errorPeople)}</Text>;
     }
   const people = dataPeople.data;
-  console.log(people);
   const numberOfPeople = people.length;
 
   return (

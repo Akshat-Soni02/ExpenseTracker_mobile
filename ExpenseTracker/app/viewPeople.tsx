@@ -13,8 +13,6 @@ const ViewPeopleScreen = () => {
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (!data || !data.data) {
-    console.log(id);
-    console.log(data);
     return (
       <View style={styles.loaderContainer}>
         <Text style={styles.errorText}>User data not available</Text>

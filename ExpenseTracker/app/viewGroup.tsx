@@ -26,7 +26,7 @@ const GroupDetailsScreen = () => {
     }
   }, [id]);
 
-  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  if (isLoading) return <View style={styles.loadingContainer}><ActivityIndicator color="#000" /></View>;
   if (error) return <Text>Error loading group details</Text>;
   if (!data?.data) return <Text>No group found</Text>;
   if (historyError) return <Text>Error fetching history</Text>;
@@ -61,17 +61,9 @@ const GroupDetailsScreen = () => {
   const handleLeaveGroup = async () => {
     try {
       await leaveGroup({ groupId:id }).unwrap();
-      console.log("Successfully left the group");
       router.push("/(tabs)");
     } catch (err) {
       console.error("Error leaving group:", err);
-      Alert.alert(
-        "Cannot leave group", 
-        `${err?.data?.message}`, 
-        [
-          { text: "ok", style: "cancel" },
-        ]
-      )
     }
   };
 
@@ -79,7 +71,6 @@ const GroupDetailsScreen = () => {
   const onSimplifyDebts = async () => {
     try {
       await simplifyDebts( id ).unwrap();
-      console.log("Successfully simplified debts");
       refetch();
     } catch (err) {
       console.error("Error leaving group:", err);
@@ -147,61 +138,39 @@ const GroupDetailsScreen = () => {
         <ActivityIndicator color="#000" />
       ) : history?.data && history.data.length > 0 ? (
         <FlatList
-  data={history.data}
-  keyExtractor={(item) => item._id}
-  renderItem={({ item }) => {
-    if (item.type === "expense") {
-      return (
-        <TouchableOpacity
-          onPress={() => router.push({ pathname: "/viewExpense", params: { id: item._id } })}
-          style={styles.expenseRow}
-        >
-          <View style={styles.expenseTextContainer}>
-            <Text style={styles.expenseDescription} numberOfLines={1}>
-              {item?.description || "No description"}
-            </Text>
-            {item?.expense_category && (<Text style={styles.expenseCategory}>{item.expense_category}</Text>)}
-          </View>
-          <View style={styles.expenseAmountContainer}>
-            <Text style={styles.expenseDate}>
-              {item?.created_at_date_time
-                ? moment(item.created_at_date_time).format("DD MMM, hh:mm A")
-                : "Unknown Date"}
-            </Text>
-            <Text style={[styles.expenseAmount, { color: "black", fontWeight: "400" }]}>
-              ₹{Math.abs(item?.total_amount || 0)}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      );
-    } else if (item.type === "settlement") {
-      return (
-        <TouchableOpacity
-          onPress={() => router.push({ pathname: "/viewSettlement", params: { id: item._id } })}
-          style={styles.settlementRow}
-        >
-        <Text style={styles.settlementText} numberOfLines={1}>
-            {item?.settlement_description || "Settlement"}
-          </Text>
-          <View style={styles.expenseAmountContainer}>
-            <Text style={styles.expenseDate}>
-              {item?.createdAt
-                ? moment(item.createdAt).format("DD MMM, hh:mm A")
-                : "Unknown Date"}
-            </Text>
-            <Text style={styles.settlementAmount}>
-              ₹{Math.abs(item?.amount || 0)}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      );
-    }
-    return null;
-  }}
-  contentContainerStyle={{ paddingBottom: 80 }}
-  showsVerticalScrollIndicator={false}
-/>
-
+          data={history.data}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: "/viewExpense", params: { id: item._id } })}
+              style={styles.expenseRow}
+            >
+              <View style={styles.expenseTextContainer}>
+                <Text style={styles.expenseDescription} numberOfLines={1}>
+                  {item?.description || "No description"}
+                </Text>
+                <Text style={styles.expenseCategory}>{item?.expense_category || "Unknown"}</Text>
+              </View>
+              <View style={styles.expenseAmountContainer}>
+                <Text style={styles.expenseDate}>
+                  {item?.created_at_date_time
+                    ? moment(item.created_at_date_time).format("DD MMM, hh:mm A")
+                    : "Unknown Date"}
+                </Text>
+                <Text
+                  style={[
+                    styles.expenseAmount,
+                    { color: item?.total_amount < 0 ? "red" : "green" },
+                  ]}
+                >
+                  {item?.total_amount > 0 ? "+" : ""}₹{Math.abs(item?.total_amount || 0)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={{ paddingBottom: 80 }}
+          showsVerticalScrollIndicator={false}
+        />
       ) : (
         <Text style={styles.noExpensesText}>No expenses found</Text>
       )}
@@ -370,27 +339,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 6,
   },
-  settlementRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#D1D5DB",
-    backgroundColor: "#F1F5F9",
-    borderRadius: 8,
-    marginVertical: 5,
-  },
-  settlementText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#334155",
-  },
-  settlementAmount: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#0F766E",
-  },  
+  
   
   settleButton: {
     flex: 1,

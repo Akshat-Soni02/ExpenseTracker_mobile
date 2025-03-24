@@ -25,7 +25,6 @@ const ExpenseDetailScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const expense = data?.data;
-  console.log(expense);
 
   useEffect(() => {
     if (id) {
@@ -90,7 +89,6 @@ const ExpenseDetailScreen = () => {
   const handleExpenseDelete = async () => {
     try {
       const response = await deleteExpense(id);
-      console.log("expense deleting response",response);
       if(!response || deleteError) {
         console.log(error);
         // setMenuVisible(false);

@@ -60,7 +60,6 @@ export default function UpdateExpenseScreen() {
   //     created_at_date_time,
 const onSubmit = (data: any) => {
   const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
-  console.log("split:", totalSplit, "amount:", amount);
 
   if (Math.abs(totalSplit - amount) > TOLERANCE) {
     alert("Total split amount must match the entered amount");
@@ -79,8 +78,6 @@ const onSubmit = (data: any) => {
     selectedTime.getSeconds()
   );
 
-  console.log("Expense Data:", data);
-  console.log(created_at_date_time);
   reset();
   router.replace("/(tabs)");
 };
