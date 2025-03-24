@@ -95,7 +95,7 @@ const ExpenseDetailScreen = () => {
         console.log(error);
         // setMenuVisible(false);
       }
-      router.replace("/(tabs)/activity")
+      router.back();
     } catch (error) {
       
     }
@@ -135,7 +135,7 @@ const ExpenseDetailScreen = () => {
 
       <View style={styles.detailContainer}>
         <Text style={styles.title}>{expense.description}</Text>
-        <Text style={[styles.amount, { color: themeColor }]}>₹{userState?.toFixed(2)}</Text>
+        <Text style={[styles.amount, { color: themeColor }]}>₹{userState?.toFixed(2) || 0}</Text>
         {isLender && expense.wallet_id && (
           <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )}

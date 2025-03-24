@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import { useGetBillQuery, useUpdateUserStatusOfBillMutation } from "@/store/billApi";
+import { FontAwesome, Ionicons, Entypo } from "@expo/vector-icons";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useDeleteBillMutation, useGetBillQuery, useUpdateUserStatusOfBillMutation } from "@/store/billApi";
 import moment from "moment";
 import TransactionCard from "@/components/TransactionCard";
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import CustomButton from "@/components/button/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Menu, Divider } from "react-native-paper";
 
 const BillDetailsScreen = () => {
   const { id } = useLocalSearchParams();
+  const [deleteBill, {isLoading: deleteLoading, error: deleteError}] = useDeleteBillMutation();
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [myBill, setMyBill] = useState(null);
   const { data, isLoading, error, refetch } = useGetBillQuery(id);
@@ -18,6 +20,7 @@ const BillDetailsScreen = () => {
   const [updateUserStatus, {isLoading: load}] = useUpdateUserStatusOfBillMutation();
   const [memberNames, setMemberNames] = useState<Record<string, string>>({});
   const [localLoading, setLocalLoading] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
   const bill = data?.data;
   const totalMembers = bill?.members.length;
   const members = bill?.members;
@@ -69,6 +72,12 @@ const BillDetailsScreen = () => {
         }
     }, [members, loggedInUserId]);
 
+    useFocusEffect(
+        useCallback(() => {
+          setMenuVisible(false);
+        }, [])
+      );
+
 
     const handleStatusChange = (bill) => {
         if (bill.status === "paid") {
@@ -103,6 +112,20 @@ const BillDetailsScreen = () => {
             // setLocalLoading(false);
         }
       };
+
+      const handleBillDelete = async () => {
+          try {
+            const response = await deleteBill(id);
+            console.log("bill deleting response",response);
+            if(!response || deleteError) {
+              console.log(error);
+              // setMenuVisible(false);
+            }
+            router.back();
+          } catch (error) {
+            
+          }
+        }
       
 
 
@@ -117,9 +140,23 @@ const BillDetailsScreen = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=> router.push({pathname:"/editBill",params : {id:id}})}>
+        {/* Menu Component */}
+        <Menu
+          visible={menuVisible}
+          onDismiss={() => setMenuVisible(false)}
+          anchor={
+            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+              <Entypo name="dots-three-vertical" size={20} color="black" />
+            </TouchableOpacity>
+          }
+        >
+          <Menu.Item onPress={() => router.push({pathname:"/editBill",params : {id:id}})} title="Edit" />
+          <Divider />
+          <Menu.Item onPress={() => handleBillDelete()} title="Delete" />
+        </Menu>
+        {/* <TouchableOpacity onPress={()=> router.push({pathname:"/editBill",params : {id:id}})}>
           <Ionicons name="settings-outline" size={22} color="black" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <View style={styles.detailContainer}>

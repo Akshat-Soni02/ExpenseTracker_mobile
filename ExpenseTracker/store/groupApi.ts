@@ -84,6 +84,15 @@ export const groupApi = api.injectEndpoints({
       }),
       invalidatesTags: ["group","user"],
     }),
+
+    addPeopleInGroup: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/groups/add-to-group/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["group"],
+    }),
   }),
 });
 
@@ -100,4 +109,5 @@ export const {
   useUpdateGroupMutation,
   useDeleteGroupMutation,
   useSimplifyDebtsMutation,
+  useAddPeopleInGroupMutation
 } = groupApi;
