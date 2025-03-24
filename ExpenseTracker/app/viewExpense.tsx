@@ -1,25 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from "react-native";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetExpenseQuery } from "@/store/expenseApi";
+import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
+import moment from "moment";
 
 // router.push({ pathname: "/viewTransaction", params: {id: "67cf2e67b3452d6bb43d2a23"} })
 
 const ExpenseDetailScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
+  const [deleteExpense, {isLoading: deleteLoading, error: deleteError}] = useDeleteExpenseMutation();
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
   const [borrowerNames, setBorrowerNames] = useState<Record<string, string>>({});
   const [lenderName, setLenderName] = useState("Unknown");
   const [userState, setUserState] = useState(null);
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
-  
+  const [paidByName,setPaidByName] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
   const expense = data?.data;
@@ -63,6 +65,7 @@ const ExpenseDetailScreen = () => {
       (async () => {
         const res = await getUserById(data?.data?.lenders[0].user_id).unwrap();
         setLenderName(res.data.name);
+        setPaidByName(res.data.name);
         if (data?.data?.lenders[0].user_id === loggedInUserId) {
           setUserState(data?.data?.lenders[0].amount);
           setLenderName("You");
@@ -77,7 +80,26 @@ const ExpenseDetailScreen = () => {
     }
   }, [expense?.wallet_id]);
 
-  if (isLoading) return <Text>Loading...</Text>;
+  useFocusEffect(
+    useCallback(() => {
+      setMenuVisible(false);
+    }, [])
+  );
+
+  const handleExpenseDelete = async () => {
+    try {
+      const response = await deleteExpense(id);
+      if(!response || deleteError) {
+        console.log(error);
+        // setMenuVisible(false);
+      }
+      router.replace("/(tabs)/activity")
+    } catch (error) {
+      
+    }
+  }
+
+  if (isLoading || deleteLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading expense details</Text>;
   if (!data?.data || !loggedInUserId) return <Text>No expense found</Text>;
 
@@ -103,19 +125,19 @@ const ExpenseDetailScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => console.log("Edit Expense")} title="Edit" />
+          <Menu.Item onPress={() => router.push({ pathname: "/editExpense", params: {id:id,paidByName:paidByName} })} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => console.log("Delete Expense")} title="Delete" />
+          <Menu.Item onPress={() => handleExpenseDelete()} title="Delete" />
         </Menu>
       </View>
 
       <View style={styles.detailContainer}>
         <Text style={styles.title}>{expense.description}</Text>
-        <Text style={[styles.amount, { color: themeColor }]}>₹{userState}</Text>
+        <Text style={[styles.amount, { color: themeColor }]}>₹{userState?.toFixed(2)}</Text>
         {isLender && expense.wallet_id && (
           <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )}
-        <Text style={styles.date}>{new Date(expense.created_at_date_time).toLocaleString()}</Text>
+        <Text style={styles.date}>{moment(expense.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
       </View>
 
       {expense.notes && (
@@ -135,6 +157,12 @@ const ExpenseDetailScreen = () => {
           </Text>
         ))}
       </View>
+
+      {expense.media && (
+        <View style={styles.mediaContainer}>
+          <Image source={{ uri: expense.media.url }} style={styles.previewImage} />
+      </View>
+      )}
     </View>
   );
 };
@@ -146,6 +174,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F9FAFB",
     padding: 20,
+  },
+  mediaContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: 200,
+    height: 200,
+    marginTop: 10,
+    borderRadius: 8,
   },
   header: {
     flexDirection: "row",

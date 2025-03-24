@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -46,14 +46,12 @@ const onSubmit = async (data: any) => {
   try {
 
     
-    console.log("Budget Data:", data);
     const response = await createBudget({
       budget_title: data.Description,
       amount: data.amount,
       budget_category: data?.category,
       period:data?.period,
     }).unwrap();
-    console.log("adding new budget response:", response);
     reset();
     router.replace("/(tabs)/activity/budgets");
   } catch (error) {
@@ -67,7 +65,7 @@ const onSubmit = async (data: any) => {
   }
 };
 
-
+if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={styles.container}>
 
@@ -103,15 +101,15 @@ const onSubmit = async (data: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 50,
-    marginBottom: 20
+    marginTop: 20,
+    marginBottom: 10
   },
   backButton: {
     padding: 10,

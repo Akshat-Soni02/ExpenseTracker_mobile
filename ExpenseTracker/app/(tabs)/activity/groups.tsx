@@ -1,4 +1,4 @@
-import { StyleSheet, Image,ScrollView ,FlatList} from "react-native";
+import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
@@ -8,6 +8,7 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SegmentedButtons,FAB } from 'react-native-paper';
 import * as React from 'react';
+import moment from "moment";
 import {useGetUserGroupsQuery} from '@/store/userApi'; 
 const transactions = [
   { id: "1", title:"General",imageType: undefined, amount: "₹60", time: "cash" ,transactionType: undefined},
@@ -21,23 +22,21 @@ export default function GroupsScreen() {
   const [value, setValue] = React.useState('');
 const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUserGroupsQuery({});
   if (isLoadingGroup) {
-      return <Text>Loading...</Text>;
+      return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     }
     
     if (errorGroup) {
       return <Text>Error: {errorGroup?.message || JSON.stringify(errorGroup)}</Text>;
     }
   const groups = dataGroup.data;
-  console.log(groups);
   const numberOfGroups = groups.length; 
   return (
     <View style={styles.screen}>
         <ScrollView style={styles.container}>
-          
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>      
-          <Text style={styles.headerText}>All Groups</Text>
+          <View style = {styles.header}>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>     
+            <Text style={styles.headerText}>Groups</Text>
+          </View>
           
           {/* <View style={styles.navbar}>
             <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
@@ -49,22 +48,23 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TransactionCard 
+              pressFunction = {() => router.push({ pathname: "../../viewGroup", params: { id:item._id} })}
               title = {item.group_title}
               imageType = {undefined}
               amount={`₹${item.initial_budget}`}
-              subtitle={`Settle Up: ${item.settle_up_date?.split("T")[0]}`}
+              subtitle={item?.settle_up_date && `Settle Up: ${moment(item?.settle_up_date).format("DD MMM, YYYY")}`}
               transactionType={undefined}
               optionText={"inital budget"}
               />
               
             )}
             ItemSeparatorComponent={() => (
-              <View style={{  height: 15, backgroundColor: 'white'}} />
+              <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+            contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
 
           />):
-          <Text style={styles.noBudgetsText}>No Budgets Found</Text>
+          <Text style={styles.noBudgetsText}>No Groups Found</Text>
           }
           
         </ScrollView>
@@ -88,19 +88,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingTop: 0, // Add padding to the top to avoid overlap with status bar
   },
+  header: {
+    color: "black",
+    backgroundColor: "white",
+    paddingInline: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 10
+  },
   backButton: {
-    // position: "absolute",
-    left: 10,
-    top: 20, // Space above the back button
-    marginBottom: 60, // Space below the back button
+    padding: 10
   },
   headerText: {
-    position: "absolute",
-    top: 20, // Space above the header text
     fontSize: 22,
-    right: 10,
     fontWeight: "bold",
-    marginBottom: 20, // Space below the header text
+    color: "black"
   },
   navbar: {
     // position: 'absolute',

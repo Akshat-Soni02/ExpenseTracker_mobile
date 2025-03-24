@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
@@ -31,7 +31,6 @@ export default function ResetPasswordScreen() {
   const onSubmit = async (data: { password: string; confirmPassword: string }) => {
     setErrorMessage("");
     try {
-      // console.log({email, data});
       await resetPassword({email, newPassword: data.confirmPassword}).unwrap();
       router.push("/login");
     } catch (error) {
@@ -111,7 +110,7 @@ export default function ResetPasswordScreen() {
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       {/* Reset Password Button */}
       <CustomButton onPress={handleSubmit(onSubmit)} disabled={isLoading} style={styles.button}>
-        {isLoading ? "Resetting..." : "Reset password"}
+        {isLoading ? <ActivityIndicator color="#fff" /> : "Reset password"}
       </CustomButton>
 
       {/* Login Link */}

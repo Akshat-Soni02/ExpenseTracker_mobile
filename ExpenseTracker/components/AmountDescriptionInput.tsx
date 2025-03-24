@@ -31,7 +31,11 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmo
                 value={displayValue}
                 placeholder="0"
                 onChangeText={(text) => {
-                  if (text === "" || isAmountFrozen) return;
+                  if (isAmountFrozen) return;
+                  if (text === "") {
+                    onChange("");
+                    return;
+                  }
                   const numericValue = parseFloat(text);
                   if (!isNaN(numericValue)) {
                     onChange(numericValue);

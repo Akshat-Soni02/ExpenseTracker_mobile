@@ -1,80 +1,78 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useForm } from "react-hook-form";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
 import TitleInput from "@/components/TitleInput";
 import AddPeopleInput from "@/components/AddPeopleInput";
 import InitialBudget from "@/components/InitialBudget";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
-import { useCreateGroupMutation } from "@/store/groupApi";
+import AmountDescriptionInput from "@/components/AmountDescriptionInput";
+import LowerLimit from "@/components/LowerLimit";
+import { useUpdateWalletMutation } from "@/store/walletApi";
 
-export default function CreateGroupScreen() {
-  const [createGroup, {isLoading}] = useCreateGroupMutation();
+export default function CreateWalletScreen() {
+  let {fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit} = useLocalSearchParams();
+  let fetchedAmountNumber = Number(fetchedAmount);
+  const [updateWallet, {isLoading}] = useUpdateWalletMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
-      title: "",
-      members: [],
-      initialBudget: 0,
-      settleUpDate: null,
+      amount: fetchedAmountNumber,
+      Name: fetchedName,
+      lowerLimit: fetchedLowerLimit,
     },
   });
 
   const router = useRouter();
 
-//   group_title,
-//     memberIds = [],
-//     initial_budget,
-//     settle_up_date,
+// amount, wallet_title, lower_limit
 
-  const onGroupSubmit = async (data: any) => {
+  const onWalletSubmit = async (data: any) => {
     try {
-      const response = await createGroup({
-        group_title: data.title,
-        memberIds: data.selectedUsers,
-        initial_budget: data?.initialBudget,
-        settle_up_date: data.settleUpDate
-      }).unwrap();
+      let dataObj: { amount?: number; lower_limit?: number; wallet_title?: string } = {};
+      if(data.amount!==fetchedAmountNumber){
+        dataObj.amount = data.amount;
+      }
+      if(data.lowerLimit!==fetchedLowerLimit){
+        dataObj.lower_limit = data.lowerLimit;
+      }
+      if(data.Name!==fetchedName){
+        dataObj.wallet_title = data.Name;
+      }
+      const response = await updateWallet({id:fetchedId,body:dataObj}).unwrap();
       reset();
-      router.replace("/(tabs)/activity/groups");
+      router.back();
     } catch (error) {
-      console.error("new group failed to create:", error);
+      console.error("wallet failed to update:", error);
         const err = error as { data?: { message?: string } };
         if (err?.data?.message) {
           setErrorMessage(err.data.message);
         } else {
           setErrorMessage("Something went wrong. Please try again.");
         }
-      }
-    };
+    }
+  };
 
-    if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Group</Text>
+        <Text style={styles.header}>New Wallet</Text>
       </View>
 
-      {/* Group Title */}
-      <TitleInput control={control} />
+      {/* wallet Title and Amount */}
+      <AmountDescriptionInput control={control} label = "Name"/>
 
-      {/* Add Members */}
-      <AddPeopleInput control={control} />
-
-      {/* Initial Budget & Date */}
-      <View style={styles.dateTimeContainer}>
-        <InitialBudget control={control} />
-        <CustomDateTimePicker control={control} name="settleUpDate" label="Date" heading="Settle-up Date"/>
-      </View>
+      {/* lower limit */}
+      <LowerLimit control={control}/>
 
       {/* Save Button */}
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <CustomButton onPress={handleSubmit(onGroupSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onWalletSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );
 }
@@ -82,15 +80,15 @@ export default function CreateGroupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
   headerContainer: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 20,
   },
   backButton: {
     padding: 10,
@@ -113,6 +111,6 @@ const styles = StyleSheet.create({
   error: {
     color: "red",
     fontSize: 12,
-    marginBottom: 10,
+    marginBottom: 5,
   }
 });

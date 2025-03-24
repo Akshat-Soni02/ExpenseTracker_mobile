@@ -1,29 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
-import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetPersonalTransactionQuery } from "@/store/personalTransactionApi";
-import FastImage from 'react-native-fast-image';
+import { useGetWalletQuery,useDeleteWalletMutation } from "@/store/walletApi";
 
-
-const TransactionDetailScreen = () => {
+const WalletDetailsScreen = () => {
   const { id } = useLocalSearchParams();
-  const { data, isLoading, error, refetch } = useGetPersonalTransactionQuery(id);
-  const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
+  const { data, isLoading, error, refetch } = useGetWalletQuery(id);
   
   const [menuVisible, setMenuVisible] = useState(false);
+  const [deleteWallet, {isLoading:isLoadingDelete}] = useDeleteWalletMutation();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const transaction = data?.data;
-  const [imageUrl, setImageUrl] = useState(null);
-
-  useEffect(() => {
-    if (transaction?.media?.url) {
-      setImageUrl(transaction.media.url);
-    }
-  }, [transaction?.media?.url]);
-
+  const wallet = data?.data;
 
   useEffect(() => {
     if (id) {
@@ -31,19 +21,28 @@ const TransactionDetailScreen = () => {
     }
   }, [id]);
 
-  useEffect(() => {
-    if (transaction?.wallet_id) {
-      getWallet(transaction.wallet_id);
-    }
-  }, [transaction?.wallet_id]);
-
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  if (error) return <Text>Error loading transaction details</Text>;
-  if (!data?.data) return <Text>No transaction found</Text>;
+  if (error) return <Text>Error loading Wallet details</Text>;
+  if (!data?.data) return <Text>No wallet found</Text>;
 
 
 
-  const themeColor = transaction.transaction_type === "income" ? "#10B981" : "#EF4444";
+  const themeColor = wallet.lower_limit <= wallet.amount ? "#10B981" : "#EF4444";
+
+  const onDelete = async () => {
+    try {
+      await deleteWallet(id);
+      router.push("/(tabs)/wallets");
+    } catch (error) {
+      console.error("wallet failed to delete:", error);
+        const err = error as { data?: { message?: string } };
+        if (err?.data?.message) {
+          setErrorMessage(err.data.message);
+        } else {
+          setErrorMessage("Something went wrong. Please try again.");
+        }
+    }
+  };
 
   return (
     <View style={[styles.container]}>
@@ -62,59 +61,28 @@ const TransactionDetailScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => router.push({pathname:"/editTransaction",params:{fetchedId:id}})} title="Edit" />
+          <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/editWallet",params:{fetchedId:id,fetchedAmount:wallet.amount,fetchedName:wallet.wallet_title,fetchedLowerLimit:wallet.lower_limit}})}} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => console.log("Delete Spend")} title="Delete" />
+          <Menu.Item onPress={() => onDelete()} title="Delete" />
         </Menu>
       </View>
 
       <View style={styles.detailContainer}>
-        <Text style={styles.title}>{transaction.description}</Text>
-        <Text style={[styles.amount, { color: themeColor }]}>₹{transaction.amount}</Text>
-        {transaction.wallet_id && (
-          <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
-        )}
-        <Text style={styles.date}>{new Date(transaction.created_at_date_time).toLocaleString()}</Text>
+        <Text style={styles.title}>{wallet.wallet_title}</Text>
+        <Text style={[styles.amount, { color: themeColor }]}>₹{wallet.amount}</Text>
+        {wallet.lower_limit && (<Text style={styles.date}>Lower limit : {wallet.lower_limit}</Text>)}
       </View>
-
-      {transaction.notes && (
-        <View style={styles.notesContainer}>
-          <Text style={styles.notesTitle}>Notes</Text>
-          <Text style={styles.notesText}>{transaction.notes}</Text>
-        </View>
-      )}
-
-      {imageUrl && (
-        <View style={styles.mediaContainer}>
-          <FastImage
-            style={styles.previewImage}
-            source={{ uri: imageUrl }}
-            resizeMode={FastImage.resizeMode.contain}
-          />
-        </View>
-      )}
     </View>
   );
 };
 
-export default TransactionDetailScreen;
+export default WalletDetailsScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB",
     padding: 20,
-  },
-  mediaContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  previewImage: {
-    width: 200,
-    height: 200,
-    marginTop: 10,
-    borderRadius: 8,
-    resizeMode: "contain",
   },
   header: {
     flexDirection: "row",

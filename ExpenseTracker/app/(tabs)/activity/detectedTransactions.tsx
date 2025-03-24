@@ -32,22 +32,18 @@ export default function DetectedTransactionsScreen() {
       return <Text>Error: {errorDetected?.message || JSON.stringify(errorDetected)}</Text>;
     }
   const detectedTransactions = dataDetected.data;
-  console.log(detectedTransactions);
   const numberOfDetectedTransactions = detectedTransactions.length; 
 
   const openModal = (transaction:any) => {
-    console.log("Transaction clicked:", transaction);
     setSelectedTransaction(transaction);
     setModalVisible(true);
   };
-  
+  //credit debit, 
   const handleSelection = (option:any) => {
-    if (option === "view") {
-      console.log("View");
-      // router.push(`/transaction/${selectedTransaction._id}`);
-    } else if (option === "edit") {
-      // router.push(`/edit-transaction/${selectedTransaction._id}`);
-      console.log("Edit");
+    if (option === "to Split") {
+      router.push({ pathname: "../../addSplit", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type: selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
+    } else if (option === "to Personal") {
+      router.push({ pathname: "../../addTransaction", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type:selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
     }
     setModalVisible(false);
   };
@@ -100,12 +96,13 @@ export default function DetectedTransactionsScreen() {
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
             <Text style={styles.modalText}>Choose an action</Text>
             
-            <Pressable style={styles.button} onPress={() => handleSelection("view")}>
-              <Text style={styles.buttonText}>View Details</Text>
+            {selectedTransaction?.transaction_type.toString()==="credit" &&<Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
+              <Text style={styles.buttonText}>to Split</Text>
             </Pressable>
+            } 
 
-            <Pressable style={styles.button} onPress={() => handleSelection("edit")}>
-              <Text style={styles.buttonText}>Edit Transaction</Text>
+            <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
+              <Text style={styles.buttonText}>to Personal</Text>
             </Pressable>
 
             <Pressable style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>

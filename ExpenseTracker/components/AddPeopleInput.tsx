@@ -27,7 +27,7 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
         const userData = await AsyncStorage.getItem("user");
         if (userData) {
           const parsedUser = JSON.parse(userData);
-          setUser({ user_id: parsedUser._id, name: parsedUser.name, profile_photo: parsedUser.profile_photo });
+          setUser({ user_id: parsedUser._id, name: parsedUser.name, profile_photo: parsedUser.profile_photo.url });
         }
       } catch (error) {
         console.error("Error loading user:", error);
@@ -71,11 +71,12 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
               {selectedUsers.map((userId) => {
                 const selectedUser = data?.data?.find((u) => u._id === userId) || 
                                      (user?.user_id === userId ? user : null);
+                
                 return (
                   selectedUser && (
                     <View key={selectedUser.user_id} style={styles.splitItem}>
-                      {user?.profile_photo ? (
-                        <Image source={{ uri: user.profile_photo }} style={styles.userIcon} />
+                      {selectedUser?.profile_photo ? (
+                        <Image source={{ uri: selectedUser.profile_photo }} style={styles.userIcon} />
                       ) : (
                         <LinearGradient colors={["#D1D5DB", "#9CA3AF"]} style={styles.userIcon} />
                       )}
@@ -133,6 +134,9 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
                       </TouchableOpacity>
                     );
                   }}
+                  ItemSeparatorComponent={() => (
+                    <View style={{  height: 2, backgroundColor: 'white'}} />
+                  )}
                 />
                 <CustomButton onPress={() => setModalVisible(false)}>Done</CustomButton>
               </View>

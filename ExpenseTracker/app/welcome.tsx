@@ -1,11 +1,25 @@
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet, Image, StatusBar } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
+import { useAuth } from "@/context/AuthProvider";
+import { useEffect } from "react";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { authToken, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && authToken) {
+      router.replace("(tabs)");
+    }
+  }, [authToken, loading]);
+
+  useEffect(() => {
+    StatusBar.setBarStyle('dark-content');
+    StatusBar.setBackgroundColor('#ffffff');
+  }, []);
 
   return (
     <View style={styles.container}>

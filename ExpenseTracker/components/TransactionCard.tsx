@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import ImageIcon from "./ImageIcon"; // Adjust the import path as necessary
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Divider} from 'react-native-paper';
@@ -7,14 +7,18 @@ interface TransactionCardProps {
   imageName?: string; // Name of the profile image
   title: string; // Title of the card
   subtitle?: string; // Optional subtitle
-  amount: string; // Amount text
+  amount?: string; // Amount text
   optionText?: string; // Optional text above the amount
   imageType?:string;
   transactionType?:string;
   pressFunction?:any;
+  cardStyle?: object;
+  amountStyle?: object;
 }
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction, cardStyle, amountStyle }) => {
+  const isDebit = (transactionType === "debit" || transactionType === "expense");
+  const isCredit = (transactionType === "credit" || transactionType === "income");
   return (
     // <View style={styles.card}>
     //   {imageName&&<ImageIcon size={50} />}
@@ -28,26 +32,27 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
     //   </View>
     // </View>
     <TouchableOpacity onPress={pressFunction}>
-    <View style={styles.transactionItem} >
-      {imageName&&<ImageIcon size={50} />}
+    <View style={[styles.transactionItem, cardStyle]} >
+      {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
       {imageType&&<MaterialCommunityIcons
-        name={imageType === "debit" ? "arrow-top-right" : "arrow-bottom-left"}
+        name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
-        color={imageType === "debit" ? "red" : "green"}
+        color={isDebit ? "red" : "green"}
       />}
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
-        <Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle}</Text>
+        {subtitle && (<Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle}</Text>)}
       </View>
       <View style={styles.amountDetails}>
         {optionText&&<Text style={styles.topAmountText}>{optionText}</Text>}
         <Text
           style={[
             styles.transactionAmount,
+            amountStyle,
             { 
-              color: transactionType === "credit" 
+              color: isCredit
                 ? "green" 
-                : transactionType === "debit" 
+                : isDebit
                 ? "red" 
                 : "black" // Default color if transactionType is undefined
             }
@@ -76,6 +81,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2, 
+  },
+  profileImage: {
+    height: 50,
+    width: 50,
+    borderRadius: 25
   },
   textContainer: {
     flex: 1,

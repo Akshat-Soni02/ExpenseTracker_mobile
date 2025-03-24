@@ -9,9 +9,7 @@ import { useGetExpenseQuery } from "@/store/expenseApi";
 
 const EeDetailScreen = () => {
   const { id } = useLocalSearchParams();
-  console.log("id: "+ id);
   const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
-  console.log(data);
 
   useEffect(() => {
     if (id) {

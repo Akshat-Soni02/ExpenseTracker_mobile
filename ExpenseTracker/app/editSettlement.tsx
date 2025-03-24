@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -12,72 +12,55 @@ import PhotoSelector from "@/components/PhotoSelector";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
-import {useCreateSettlementMutation} from '@/store/settlementApi';
+import { useGetWalletQuery } from "@/store/walletApi";
+import {useUpdateSettlementMutation,useGetSettlementQuery} from '@/store/settlementApi';
 export default function AddSettlementScreen() {
-  let {fetched_amount,receiver_id,name,group_id,group_name} = useLocalSearchParams();
-  let status = "receiver";
-  let fetched_amount_number = Number(fetched_amount);
-  if(fetched_amount_number<0){
-    fetched_amount_number=fetched_amount_number*-1;
-    status = "sent";
-  }
-  const [createSettlement, {isLoading}] = useCreateSettlementMutation();
+  let {id} = useLocalSearchParams();
+//   let status = "receiver";
+//   if(fetched_amount<0){
+//     fetched_amount=fetched_amount*-1;
+//     status = "sent";
+//   }
+
+
+    const { data:settlementData, isLoading:settlementIsLoading, error:settlementError, refetch } = useGetSettlementQuery(id);
+    let walletData, walletIsLoading, walletError;
+
+    if(settlementData.data.payer_wallet_id){
+            ({ data: walletData, isLoading: walletIsLoading, error: walletError } = useGetWalletQuery(settlementData.data.payer_wallet_id));
+    }
+    else if(settlementData.data.receiver_wallet_id){
+        ({ data: walletData, isLoading: walletIsLoading, error: walletError } = useGetWalletQuery(settlementData.data.receiver_wallet_id));
+
+    }
+  const [updateSettlement, {isLoading}] = useUpdateSettlementMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
-      amount:fetched_amount_number,
-      description: "",
-      wallet: "",
+      amount:settlementData.data.amount,
+      Description: settlementData.data.settlement_description,
+      wallet: walletData?.data,
       photo: null,
     },
   });
   
   const router = useRouter();
   const amount = watch("amount");
-  const splitWith = watch("splitWith");
 
   const TOLERANCE = 0.1;
 
-
-  // description,
-  // lenders,
-  // borrowers,
-  // wallet_id,
-  // total_amount,
-  // expense_category,
-  // notes,
-  // group_id,
-  // created_at_date_time,
 const onSubmit = async (data: any) => {
 
   try {
-    if(status=="sent"){
-      const response = await createSettlement({
-          settlement_description: data.Description,
-          payer_wallet_id: data?.wallet || undefined,
-          receiver_id:receiver_id,
-          amount: fetched_amount_number,
-          status:status,
-          group_id:group_id,
-        // filePath: data?.photo?._j
-
+    if(settlementData.data.settlement_description!==data.Description){
+      const response = await updateSettlement({id:id,body:{
+        settlement_description: data.Description,
+      },
       }).unwrap();
     }
-    else{
-      const response = await createSettlement({
-          settlement_description: data.Description,
-          receiver_wallet_id: data?.wallet || undefined,
-          payer_id:receiver_id,
-          amount: fetched_amount_number,
-          status:status,
-          group_id:group_id,
-          // filePath: data?.photo?._j
-      }).unwrap();
-    }
-    reset();
     router.back();
   } catch (error) {
-    console.error("new settlement failed to create:", error);
+    console.error("failed to update Settlement:", error);
     const err = error as { data?: { message?: string } };
     if (err?.data?.message) {
       setErrorMessage(err.data.message);
@@ -87,7 +70,6 @@ const onSubmit = async (data: any) => {
   }
 };
   
-if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 return (
   // <View style={[{flex:1}]}>
     <ScrollView style={styles.container}>
@@ -96,38 +78,35 @@ return (
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        {status==="sent"?<Text style={styles.header}>Paid to {name}</Text>:<Text style={styles.header}>Received from {name}</Text>}
+            <Text style={styles.header}>Edit Settlement</Text>
       </View>
-      {group_name && <Text style={styles.groupName}> in {group_name}</Text>}
+
       <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>
       {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
       
       <View style={styles.walletPhotoContainer}>
-        <WalletSelector control={control} name="wallet"/>
+        <WalletSelector control={control} name="wallet" isFrozen={true}/>
         <PhotoSelector control={control} />
       </View>
       
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Settle</CustomButton>
-    </ScrollView>
-    
-          
-          // </View>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
+    </ScrollView>          
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
+    marginTop: 50,
+    marginBottom: 20
   },
   backButton: {
     padding: 10,
@@ -159,9 +138,5 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginBottom: 10,
-  },
-  groupName:{
-    alignSelf:"center",
-    fontSize:20,
   }
 });

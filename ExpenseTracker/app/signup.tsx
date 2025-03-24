@@ -1,18 +1,27 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "../components/button/CustomButton";
 import { useRouter } from "expo-router";
 import GoogleButton from "@/components/GoogleButton";
-import { useRegisterUserMutation } from "@/store/userApi";
+import { useRegisterUserMutation, useAutoaddFriendsMutation } from "@/store/userApi";
 import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function SignUpScreen() {
   const router = useRouter();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [autoAdd, {isLoading: load}] = useAutoaddFriendsMutation();
+  const { authToken, loading, login } = useAuth();
+
+  useEffect(() => {
+    if (!loading && authToken) {
+      router.replace("(tabs)");
+    }
+  }, [authToken, loading]);
 
   const {
     control,
@@ -22,18 +31,19 @@ export default function SignUpScreen() {
 
   const onSubmit = async (data: any) => {
     try {
-      console.log("Form Data:", data);
       const response = await registerUser({
         email: data.email,
         password: data.confirmPassword,
       });
-      console.log("RTK Query Response:", response);
       if (response?.error) {
         console.error("Registration failed:", response.error);
         return;
       }
       if (response?.data?.token) {
-        await AsyncStorage.setItem("authToken", response.data.token);
+        await login(response.data.token);
+        await AsyncStorage.setItem("user", JSON.stringify(response.data.userData));
+        const res = await autoAdd({email: data.email}).unwrap();
+        if(res?.error) console.log("error auto adding friends", res.error);
         router.push("/(tabs)");
       }
     } catch (error) {
@@ -145,7 +155,7 @@ export default function SignUpScreen() {
 
       {/* Sign Up Button */}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.signUpButton}>
-        {isLoading ? "Signing Up..." : "Sign up"}
+        {isLoading ? <ActivityIndicator color="#fff" /> : "Sign up"}
       </CustomButton>
 
       </View>

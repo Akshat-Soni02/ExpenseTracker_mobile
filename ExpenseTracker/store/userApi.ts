@@ -4,7 +4,7 @@ export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
     registerUser: builder.mutation({
       query: (body) => ({
-        url: `/user/new`,
+        url: `/users/new`,
         method: "POST",
         body,
       }),
@@ -48,6 +48,14 @@ export const userApi = api.injectEndpoints({
     resetPassword: builder.mutation({
       query: (body) => ({
         url: `/users/reset-password`,
+        method: "POST",
+        body,
+      }),
+    }),
+
+    sendInvites: builder.mutation({
+      query: (body) => ({
+        url: `/users/send-invites`,
         method: "POST",
         body,
       }),
@@ -132,17 +140,40 @@ export const userApi = api.injectEndpoints({
       providesTags: ["user"],
     }),
 
-    getUserCurrentExchangeStatus: builder.query({
+    getUserCurrentExchangeStatus: builder.query<void, void>({
       query: () => `/users/current-exchange-status`,
       providesTags: ["user"],
     }),
 
-    remindUserBorrower: builder.query({
-      query: ({ borrower_id }) => `/users/remind-borrower/${borrower_id}`,
+    remindUserBorrower: builder.mutation({
+      query: ({ borrower_id }) => ({
+        url: `/users/remind-borrower/${borrower_id}`,
+        method: "POST",
+      }),
     }),
 
-    remindUserBorrowers: builder.query({
-      query: () => `/users/remind-borrowers`,
+    remindUserBorrowers: builder.mutation({
+      query: () => ({
+        url: `/users/remind-borrowers`,
+        method: "POST",
+      }),
+    }),
+
+    addUserFriends: builder.mutation({
+      query: (body) => ({
+        url: `/users/send-invites`,
+        method: "POST",
+        body
+      }),
+      invalidatesTags: ["user"]
+    }),
+
+    autoaddFriends: builder.mutation({
+      query: (body) => ({
+        url: `/users/auto-add-friends`,
+        method: "POST",
+        body
+      }),
     }),
 
     updateUserDetails: builder.mutation({
@@ -172,6 +203,7 @@ export const {
   useSendOtpMutation,
   useVerifyOtpMutation,
   useResetPasswordMutation,
+  useSendInvitesMutation,
   useGetUserQuery,
   useGetUserByIdQuery,
   useLazyGetUserByIdQuery,
@@ -181,12 +213,15 @@ export const {
   useGetUserBudgetsQuery,
   useGetUserBillsQuery,
   useGetUserWalletsQuery,
+  useGetUserSettlementsQuery,
   useGetUserPersonalTransactionsQuery,
   useGetUserDetectedTransactionsQuery,
   useGetUserFriendsQuery,
   useGetUserCurrentExchangeStatusQuery,
-  useRemindUserBorrowerQuery,
-  useRemindUserBorrowersQuery,
+  useRemindUserBorrowerMutation,
+  useRemindUserBorrowersMutation,
   useUpdateUserDetailsMutation,
   useUpdateUserProfilePhotoMutation,
+  useAddUserFriendsMutation,
+  useAutoaddFriendsMutation
 } = userApi;

@@ -1,4 +1,4 @@
-import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity} from 'react-native';
+import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar} from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 // import {  View } from '@/components/Themed';
 import { useRouter } from "expo-router";
@@ -11,10 +11,13 @@ import { Divider} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
-import { useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery } from '@/store/userApi';
+import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery } from '@/store/userApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthProvider';
+import { LinearGradient } from 'expo-linear-gradient';
+
 const transactions = [
   { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
   { id: "2",title:"Paytmqr28100743...", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
@@ -25,48 +28,37 @@ const transactions = [
 
 export default function HomeScreen() {
   const router = useRouter();
-
+  const { authToken, loading, logout } = useAuth();
   const [user, setUser] = useState();
-  const [loading, setLoading] = useState(true);
 
-  const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery({});
+  useEffect(() => {
+    if (!loading && !authToken) {
+      router.replace("/welcome");
+    }
+  }, [authToken, loading]);
+
+  useEffect(() => {
+    StatusBar.setBarStyle('dark-content');
+    StatusBar.setBackgroundColor('#ffffff');
+  }, []);
+
+  const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery();
+  const {data: exchangeData, isLoading, error} = useGetUserCurrentExchangeStatusQuery();
   const {data:dataDetected,isLoading:isLoadingDetected,error:errorDetected} = useGetUserDetectedTransactionsQuery({});
   
 
   const {data:dataGroup,isLoading:isLoadingGroup,error:errorGroup} = useGetUserGroupsQuery({});
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     try {
-  //       const storedUser = await AsyncStorage.getItem("user");
-  //       console.log("ASFDASDFASDFASDFASDF-------",storedUser);
-  //       if (storedUser) {
-  //         const parsedUser = JSON.parse(storedUser); // Parse the JSON object
-  //         console.log("ppppppp------",parsedUser);
-  //         setUser(parsedUser); // Set the user object
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
 
-  //   fetchUser();
-  // }, []);
-
-  if (isLoadingDetected || isLoadingGroup || isLoadingUser) {
-    return <Text>Loading...</Text>;
+  if (isLoadingDetected || isLoadingGroup || isLoadingUser || isLoading) {
+    return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   }
   
   if (errorDetected || errorGroup || errorUser) {
     return <Text>Error: {errorDetected?.message || JSON.stringify(errorDetected) || errorGroup?.message || JSON.stringify(errorGroup) || errorUser?.message || JSON.stringify(errorUser)}</Text>;
   }
-  console.log("Hereeeeeeeee      ",dataUser);
   const groups = dataGroup.data;
   const numberofGroups = groups.length;
-  console.log(dataDetected.data.slice(0,3).length);
   const numberOfTransactions = dataDetected.data.length;
-  console.log(numberOfTransactions);
   return (
   <View style={styles.page}>
     <View style={styles.container}>
@@ -74,10 +66,7 @@ export default function HomeScreen() {
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
           <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../viewProfile")}>
-            <Image
-              source={require("../../assets/images/sampleprofilepic.png")}
-              style={styles.avatar}
-            />
+            {dataUser.data.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.avatar} />) : ( <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
             <View>
               <Text style={styles.greeting}>Good afternoon</Text>
               <Text style={styles.name}>{dataUser.data.name}</Text>
@@ -87,7 +76,7 @@ export default function HomeScreen() {
           <View style={styles.totalSpend}>
             <View>
               <Text style={styles.label}>Today's Spend</Text>
-              <Text style={styles.spend}>₹5000</Text>
+              <Text style={styles.spend}>₹0</Text>
             </View>
           </View>
         </View>
@@ -95,11 +84,11 @@ export default function HomeScreen() {
           <View style={styles.financialSummary}>
             <View style={styles.textContainer}>
               <Text style={styles.label}>You owe</Text>
-              <Text style={styles.debit}>₹500</Text>
+              {!isLoading && (<Text style={styles.debit}>₹{exchangeData?.data?.borrowedAmount?.toFixed(2)}</Text>)}
             </View>
             <View>
               <Text style={styles.label}>You lended</Text>
-              <Text style={styles.credit}>₹1000</Text>
+              {!isLoading && (<Text style={styles.credit}>₹{exchangeData?.data?.lendedAmount?.toFixed(2)}</Text>)}
             </View>
           </View>
         </View>
@@ -108,10 +97,10 @@ export default function HomeScreen() {
       {/* Quick Actions */}
       <View style={styles.actions}>
   {[
-    { icon: "plus", label: "New Split", route: "../addSplit" },
-    { icon: "receipt", label: "Bills", route: "../activity/pendingBills" },
+    { icon: "call-split", label: "New Split", route: "../addSplit" },
     { icon: "plus", label: "New Spend", route: "../addTransaction" },
-    { icon: "piggy-bank", label: "Budgets", route: "/activity/budgets" },
+    { icon: "file-check-outline", label: "Bills", route: "../activity/bills" },
+    { icon: "finance", label: "Budgets", route: "/activity/budgets" },
   ].map((item, index) => (
     <View key={index} style={styles.actionContainer}>
       <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
@@ -144,7 +133,7 @@ export default function HomeScreen() {
           
         )}
         ItemSeparatorComponent={() => (
-          <View style={{  height: 2, backgroundColor: 'black'}} />
+          <View style={{  height: 2, backgroundColor: 'white'}} />
         )}
         contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
 
@@ -154,20 +143,22 @@ export default function HomeScreen() {
 
       {/* Groups */}
       <View style={styles.titleContainer}>
-        <Text style={[styles.sectionTitle,{paddingTop:30}]} >Groups</Text>
+        <Text style={[styles.sectionTitle,{paddingTop:20}]} >Groups</Text>
         <Button style={styles.viewButton} onPress={()=>router.push("/activity/groups")}>
             View all
         </Button>
       </View>
       <View style={styles.groupContainer}>
-        {groups.map((group:any, index:any) => (
+        {groups.slice(0, 3).map((group:any, index:any = group._id) => (
+          <TouchableOpacity onPress={() => router.push({ pathname: "../../viewGroup", params: { id:group._id} })}>
           <View key={index} style={styles.groupItem}>
             <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
             <Text style={styles.groupName}>{group.group_title}</Text>
           </View>
+          </TouchableOpacity>
         ))}
         <View style={styles.groupItem}>
-          <TouchableOpacity style={styles.newGroup}>
+          <TouchableOpacity style={styles.newGroup} onPress={() => router.push("../createGroup")}>
             <Ionicons name="add" size={24} color="#000" />          
           </TouchableOpacity>
           <Text style={styles.groupName}>Add</Text>
@@ -190,7 +181,7 @@ const styles = StyleSheet.create({
   profileCard: { 
     flexDirection: "row", 
     justifyContent: "flex-start", 
-    height:180,
+    height:160,
     width:"100%",
     padding: 20, 
     borderRadius: 10, 
@@ -256,9 +247,9 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom:30,
+    marginBottom:20,
   },
   actionContainer: {
     alignItems: "center", // Centers the icon and text
@@ -303,12 +294,11 @@ const styles = StyleSheet.create({
   },
   groupContainer: { 
     flexDirection: "row", 
-    justifyContent: "flex-start", 
-    marginTop: 10 ,
+    justifyContent: "space-between", 
+    marginTop: 5 ,
   },
   groupItem: { 
     alignItems: "center",
-    marginRight:40,
   },
   groupLetter: { 
     fontSize: 25, 
@@ -338,12 +328,13 @@ const styles = StyleSheet.create({
     alignSelf:"flex-end"
   }, 
   noTransactionsText: {
-    height: 100, // Set a fixed height to match the expected space
+    height: 150, // Set a fixed height to match the expected space
     justifyContent: 'center', // Center the text vertically
     alignItems: 'center', // Center the text horizontally
     textAlign: 'center', // Center the text
     fontSize: 16, // Adjust font size as needed
     color: 'gray', // Change color to indicate no transactions
     padding: 16, // Add some padding for better spacing
+    textAlignVertical: "center"
 },
 });

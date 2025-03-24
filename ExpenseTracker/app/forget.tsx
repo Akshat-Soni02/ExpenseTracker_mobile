@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
@@ -20,11 +20,9 @@ export default function ForgotPasswordScreen() {
   } = useForm();
 
   const onSubmit = async (data: any) => {
-    console.log("Button clicked, email:", data.email);
     setErrorMessage("");
     try {
       const response = await sendOtp({ email: data.email }).unwrap();
-      console.log("OTP sent:", response);
       router.push({ pathname: "/otp", params: { email: data.email } });
     } catch (error) {
       console.error("OTP failed to send:", error);
@@ -37,6 +35,7 @@ export default function ForgotPasswordScreen() {
     }
   };
 
+  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <View style={styles.container}>
       {/* Back Button */}

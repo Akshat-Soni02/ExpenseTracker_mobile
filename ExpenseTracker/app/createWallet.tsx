@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,7 +18,7 @@ export default function CreateWalletScreen() {
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       amount: 0,
-      title: "",
+      title: "",  //Change to Name
       lower_limit: 0
     },
   });
@@ -29,13 +29,11 @@ export default function CreateWalletScreen() {
 
   const onWalletSubmit = async (data: any) => {
     try {
-      console.log("Wallet Data:", data);
       const response = await createWallet({
         amount: data.amount,
         lower_limit: data.lowerLimit,
         wallet_title: data.Name
       }).unwrap();
-      console.log("New wallet response: ", response);
       reset();
       router.replace("/(tabs)/wallets");
     } catch (error) {
@@ -49,6 +47,7 @@ export default function CreateWalletScreen() {
     }
   };
 
+  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -74,15 +73,15 @@ export default function CreateWalletScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
   },
   headerContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 30,
-    marginBottom: 20,
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 10
   },
   backButton: {
     padding: 10,

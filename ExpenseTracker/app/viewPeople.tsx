@@ -1,30 +1,47 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
-import { useGetUserByIdQuery } from "@/store/userApi";
+import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/userApi";
 
 const ViewPeopleScreen = () => {
     const {id, amount} = useLocalSearchParams();
+    let amountNumber = Number(amount);
   const { data, isLoading } = useGetUserByIdQuery(id);
+  const [remindBorrower, {isLoading: loadingBorrowReq}] = useRemindUserBorrowerMutation();
 
-  if (isLoading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#10B981" />
-      </View>
-    );
-  }
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (!data || !data.data) {
-    console.log(id);
-    console.log(data);
     return (
       <View style={styles.loaderContainer}>
         <Text style={styles.errorText}>User data not available</Text>
       </View>
     );
   }
+
+  const handleRemind = async () => {
+      try {
+        const response = await remindBorrower({borrower_id: id}).unwrap();
+        Alert.alert(
+          "Remainder Sent", 
+          "A remainder has been sent", 
+          [
+            { text: "ok", style: "cancel" },
+          ]
+        )
+      } catch (error) {
+        console.error("Error sending borrowers mail:", error);
+        const err = error as { data?: { message?: string } };
+        Alert.alert(
+          "Remainder Error", 
+          `${err?.data?.message}`, 
+          [
+            { text: "ok", style: "cancel" },
+          ]
+        )
+      }
+    };
 
   return (
     <View style={styles.container}>
@@ -43,10 +60,22 @@ const ViewPeopleScreen = () => {
           <Text style={styles.email}>{data.data.email}</Text>
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.remindButton}>
+          <TouchableOpacity 
+                    style={styles.remindButton}
+                    onPress={() => 
+                      Alert.alert(
+                        "Remind All", 
+                        `This will send a remainder email to ${data.data.name}!`, 
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          { text: "Yes", onPress: () => handleRemind()}
+                        ]
+                      )
+                    }
+                  >
             <Text style={styles.buttonText}>Remind</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/createSettlement", params: { fetched_amount:amount,receiver_id : id,name: data.data.name } })}>
+          <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/createSettlement", params: { fetched_amount:amountNumber,receiver_id : id,name: data.data.name } })}>
             <Text style={styles.buttonText}>Settle Up</Text>
           </TouchableOpacity>
         </View>
@@ -54,13 +83,17 @@ const ViewPeopleScreen = () => {
 
       {/* Debt Summary */}
       <View style={styles.summaryContainer}>
-        {amount >= 0 ? (
+        {amountNumber > 0 ? (
           <Text style={styles.summaryText}>
-            You lend <Text style={styles.greenAmount}>₹{amount}</Text> to {data.data.name}
+            You lend <Text style={styles.greenAmount}>₹{amountNumber.toFixed(2)}</Text> to {data.data.name}
+          </Text>
+        ) : amountNumber < 0 ? (
+          <Text style={styles.summaryText}>
+            You owe <Text style={styles.redAmount}>₹{Math.abs(amountNumber).toFixed(2)}</Text> to {data.data.name}
           </Text>
         ) : (
           <Text style={styles.summaryText}>
-            You owe <Text style={styles.redAmount}>₹{Math.abs(amount)}</Text> to {data.data.name}
+            You are settled with {data.data.name}
           </Text>
         )}
       </View>
@@ -124,14 +157,14 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   remindButton: {
-    backgroundColor: "#FBBF24",
+    backgroundColor: "#475569",
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 8,
     marginRight: 10,
   },
   settleButton: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#047857",
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 8,
