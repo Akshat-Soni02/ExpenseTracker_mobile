@@ -31,12 +31,10 @@ export default function SignUpScreen() {
 
   const onSubmit = async (data: any) => {
     try {
-      console.log("Form Data:", data);
       const response = await registerUser({
         email: data.email,
         password: data.confirmPassword,
       });
-      console.log("RTK Query Response:", response);
       if (response?.error) {
         console.error("Registration failed:", response.error);
         return;

@@ -19,8 +19,6 @@ interface TransactionCardProps {
 const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction, cardStyle, amountStyle }) => {
   const isDebit = (transactionType === "debit" || transactionType === "expense");
   const isCredit = (transactionType === "credit" || transactionType === "income");
-  console.log(isDebit);
-  console.log(isCredit);
   return (
     // <View style={styles.card}>
     //   {imageName&&<ImageIcon size={50} />}

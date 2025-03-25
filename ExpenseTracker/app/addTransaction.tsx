@@ -18,14 +18,12 @@ import { useEffect } from "react";
 export default function AddTransactionScreen() {
   let {detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
   let detectedAmountNumber = Number(detectedAmount);
-  console.log("Amount",detectedId);
 
   const date_time = new Date(detectedCreated_at_date_time);
   const parsedDate = new Date(date_time);
   const dateOnly = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
   const timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
   
-  console.log("date_time",date_time);
   
   const [createPersonalTransaction, {isLoading:isLoadingPersonal}] = useCreatePersonalTransactionMutation();
   const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
@@ -89,7 +87,6 @@ export default function AddTransactionScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
-      console.log("Transaction Data:", { ...data, transactionType });
       const formData = new FormData();
       formData.append("transaction_type", transactionType);
       formData.append("description", data.Description);
@@ -117,8 +114,9 @@ export default function AddTransactionScreen() {
       formData.append("created_at_date_time", String(created_at_date_time));
     
       const response = await createPersonalTransaction(formData).unwrap();
-      console.log("New personal transaction response: ", response);
-      await deleteTransaction(detectedId).unwrap();
+      if(detectedId){
+        await deleteTransaction(detectedId).unwrap();
+      }
       await refetch();
       reset();
       router.replace("/(tabs)");

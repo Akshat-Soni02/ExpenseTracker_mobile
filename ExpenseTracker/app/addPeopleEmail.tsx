@@ -29,7 +29,6 @@ const EmailInputScreen = () => {
       phone: contact.phoneNumbers[0]?.number || "",
       email: emailData[contact.recordID] || "",
     }));
-    console.log("Final Selected Friends with Emails:", finalData);
     try {
       const response = await addFriends({invitees: finalData}).unwrap();
       router.replace("/(tabs)");

@@ -29,7 +29,6 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
       return <Text>Error: {errorGroup?.message || JSON.stringify(errorGroup)}</Text>;
     }
   const groups = dataGroup.data;
-  console.log(groups);
   const numberOfGroups = groups.length; 
   return (
     <View style={styles.screen}>

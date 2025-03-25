@@ -26,7 +26,6 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
       return <Text>Error: {errorBudget?.message || JSON.stringify(errorBudget)}</Text>;
     }
   const budgets = dataBudget.data;
-  console.log(budgets);
   const numberOfBudgets = budgets.length; 
   return (
     <View style={styles.screen}>

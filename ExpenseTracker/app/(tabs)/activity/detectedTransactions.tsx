@@ -32,22 +32,18 @@ export default function DetectedTransactionsScreen() {
       return <Text>Error: {errorDetected?.message || JSON.stringify(errorDetected)}</Text>;
     }
   const detectedTransactions = dataDetected.data;
-  console.log(detectedTransactions);
   const numberOfDetectedTransactions = detectedTransactions.length; 
 
   const openModal = (transaction:any) => {
-    console.log("Transaction clicked:", transaction);
     setSelectedTransaction(transaction);
     setModalVisible(true);
   };
   //credit debit, 
   const handleSelection = (option:any) => {
     if (option === "to Split") {
-      console.log(selectedTransaction);
       router.push({ pathname: "../../addSplit", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type: selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
     } else if (option === "to Personal") {
       router.push({ pathname: "../../addTransaction", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type:selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
-      console.log("Edit");
     }
     setModalVisible(false);
   };

@@ -24,8 +24,6 @@ const BillDetailsScreen = () => {
   const bill = data?.data;
   const totalMembers = bill?.members.length;
   const members = bill?.members;
-  console.log(members);
-  console.log(totalMembers);
 //   {billId: id, body: }
 
   useEffect(() => {
@@ -88,11 +86,9 @@ const BillDetailsScreen = () => {
       };
       
       const markAsPaid = async () => {
-        console.log("Marking as paid...");
         try {
             // setLocalLoading(true);
             const res = await updateUserStatus({billId: id, body: {status: "paid"}}).unwrap();
-            console.log("Bill status update response: ", res);
         } catch (error) {
             console.log("Error updating bill status");
         } finally {
@@ -101,11 +97,9 @@ const BillDetailsScreen = () => {
       };
       
       const markAsPending = async () => {
-        console.log("Marking as pending...");
         try {
             // setLocalLoading(true);
             const res = await updateUserStatus({billId: id, body: {status: "pending"}}).unwrap();
-            console.log("Bill status update response: ", res);
         } catch (error) {
             console.log("Error updating bill status");
         } finally {

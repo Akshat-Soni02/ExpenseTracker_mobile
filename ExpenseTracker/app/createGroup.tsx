@@ -31,14 +31,12 @@ export default function CreateGroupScreen() {
 
   const onGroupSubmit = async (data: any) => {
     try {
-      console.log("Group Data:", data);
       const response = await createGroup({
         group_title: data.title,
         memberIds: data.selectedUsers,
         initial_budget: data?.initialBudget,
         settle_up_date: data.settleUpDate
       }).unwrap();
-      console.log("New group response: ", response);
       reset();
       router.replace("/(tabs)/activity/groups");
     } catch (error) {

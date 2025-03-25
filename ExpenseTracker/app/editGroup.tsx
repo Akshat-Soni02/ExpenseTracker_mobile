@@ -13,14 +13,12 @@ import { useUpdateGroupMutation,useGetGroupQuery } from "@/store/groupApi";
 export default function CreateGroupScreen() {
     const {id} = useLocalSearchParams();
     const { data:groupData, isLoading:groupIsLoading, error:groupError, refetch } = useGetGroupQuery(id);
-    console.log("GroupData",groupData.data.initial_budget);
   const [updateGroup, {isLoading}] = useUpdateGroupMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const membersArray = groupData.data.members.map(m => ({
     amount: m.amount,
     user_id: m.user_id
   }));
-  console.log("Group members",groupData.data.members);
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       title: groupData.data.group_title,
@@ -38,25 +36,20 @@ export default function CreateGroupScreen() {
 
   const onGroupSubmit = async (data: any) => {
     try {
-      console.log("Group Data:", data);
 
       let dataObj: {group_title?:string;initial_budget?:Number;settle_up_date?:any} = {};
       if(data.title!==groupData.data.group_title){
-        console.log("Heregrouptitle");
         dataObj.group_title = data.title;
       }
       if(data.initialBudget!==groupData.data.initial_budget){
-        console.log("HereInitialBudget");
         dataObj.initial_budget = data.initialBudget;
       }
       if(data.settleUpDate!==groupData.data.settle_up_date){
-        console.log("HereSettleupdate");
         dataObj.settle_up_date= data.settleUpDate;
       }
       
 
       const response = await updateGroup({id:id,body:dataObj}).unwrap();
-      console.log("Update group response: ", response);
       router.back();
     } catch (error) {
       console.error("group failed to update:", error);

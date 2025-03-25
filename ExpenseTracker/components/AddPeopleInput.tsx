@@ -72,7 +72,6 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
                 const selectedUser = data?.data?.find((u) => u._id === userId) || 
                                      (user?.user_id === userId ? user : null);
                 
-                console.log("this is how user looks like", user);
                 return (
                   selectedUser && (
                     <View key={selectedUser.user_id} style={styles.splitItem}>

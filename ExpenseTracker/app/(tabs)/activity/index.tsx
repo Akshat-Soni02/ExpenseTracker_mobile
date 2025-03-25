@@ -66,18 +66,16 @@ export default function ActivityScreen() {
   }
 
   const groupedSettlements = tempGroupTransactionsByDate(settlements);
-  const settlementDates = Object.keys(groupedSettlements);
+  const settlementDates = Object.keys(groupedSettlements).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
   const groupedPersonalTransactions = groupTransactionsByDate(personalTransactions);
-  const personalTransactionDates = Object.keys(groupedPersonalTransactions);
+  const personalTransactionDates = Object.keys(groupedPersonalTransactions).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
   const groupedExpenses = groupTransactionsByDate(Expenses);
-  const expenseDates = Object.keys(groupedExpenses);
-  console.log(personalTransactions);
+  const expenseDates = Object.keys(groupedExpenses).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
 
     if(page === "splits") {
-      console.log(page);
       return (
         <View style={styles.screen}>
             <ScrollView style={styles.container}>
@@ -130,7 +128,6 @@ export default function ActivityScreen() {
         </View>
       );
     } else if (page === "spends") {
-      console.log(dataPersonalTransaction);
       return (
         <View style={styles.screen}>
         <ScrollView style={styles.container}>
@@ -183,7 +180,6 @@ export default function ActivityScreen() {
         </View>
       );
     } else {
-      console.log(page);
       return (
         <View style={styles.screen}>
         <ScrollView style={styles.container}>

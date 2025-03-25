@@ -22,9 +22,7 @@ import _ from "lodash";
 export default function EditExpenseScreen() {
 
     let {id,paidByName} = useLocalSearchParams();
-    console.log("ID",id);
     const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
-    console.log("ID",id);
 
     const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
     const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
@@ -37,15 +35,9 @@ export default function EditExpenseScreen() {
     if (data?.data.wallet_id) {
         ({ data: walletData, isLoading: walletIsLoading, error: walletError } = useGetWalletQuery(data.data.wallet_id));
     }
-    console.log("WalletData",walletData);
     // const {data:lenderData,isLoading:lenderIsLoading,error:lenderError} = getUserById(expense.lenders.user_id);
-    console.log("ExpenseData",data);
     const expense = data?.data;
-    console.log(expense);
-    console.log("ExpenseLenders",expense.lenders[0].user_id);
-    // console.log("Lender:",lenderData);
     const lender = {"name" : paidByName,"profile_photo":undefined,"user_id":expense.lenders[0].user_id};
-    console.log(lender);
     // const borrowers = [{}];
     const [updateExpense, {isLoading:isLoadingExpense}] = useUpdateExpenseMutation();
     const splitWithArray = expense.borrowers.map(b => ({
@@ -68,7 +60,6 @@ export default function EditExpenseScreen() {
         },
   });
   
-  console.log("ID",id);
 
   const router = useRouter();
   const amount = watch("amount");
@@ -88,17 +79,11 @@ export default function EditExpenseScreen() {
   // created_at_date_time,
   const onSubmit = async (data: any) => {
     try {
-      console.log("ID",id);
-
-      console.log("submittinggg");
       const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
-      console.log("SplitWith",data.splitWith);
-      console.log("PaidBY:",data.paidBy);
       if (Math.abs(totalSplit - amount) > TOLERANCE) {
         alert("Total split amount must match the entered amount");
         return;
       }
-      console.log("here");
   
       // Constructing the datetime properly
       const selectedDate = new Date(data.date);
@@ -112,28 +97,20 @@ export default function EditExpenseScreen() {
         selectedTime.getSeconds()
       );
 
-      console.log("now here");
-      console.log("Expense Data:", data);
-      console.log(data.paidBy);
-      console.log(data.splitWith);
   
       let amt = 0;
       data.splitWith.forEach((user) => {
         if (user.user_id === data.paidBy.user_id) amt = user.amount;
       });
-      console.log("dataSplitWith",data.splitWith);
       const filteredSplit = data.splitWith.filter((user) => user.user_id !== data.paidBy.user_id);
       const selectedImage = data?.photo;
 
-      console.log("here as well")
   
-      console.log("selectedImage: ", selectedImage);
   
       const formData = new FormData();
       if(data.Description!==expense.description){
         formData.append("description", data.Description);
       }
-      console.log("FilteredSplit",filteredSplit);
       const lendersData = [{ ...data.paidBy, amount: data.amount - amt }];
       const borrowersData = filteredSplit.map((user) => ({ ...user, amount: Number(user.amount) }));
       const simplifiedLenders = lendersData.map(({ user_id, amount }) => ({ user_id, amount }));
@@ -178,15 +155,11 @@ export default function EditExpenseScreen() {
       //   } as any);
       // }
 
-      console.log("FormData:",formData);
-      console.log("ExpenseID",id);
       const isEmpty = ![...formData.entries()].length;
       if(isEmpty) {
-        console.log("no data to update");
         router.back();
       }
       const response = await updateExpense({expense_id:id,body:formData}).unwrap();
-      console.log("updating expense response:", response);
       router.back();
     } catch (error) {
       console.error("new expense failed to create:", error);

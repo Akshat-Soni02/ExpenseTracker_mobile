@@ -47,7 +47,6 @@ export default function OTPVerificationScreen() {
     try {
       const otpString = otp[0]+otp[1]+otp[2]+otp[3];
       const response = await verifyOtp({email, otp:otpString}).unwrap();
-      console.log("otp verified: ", response);
       router.push({ pathname: "/reset", params: { email } });
     } catch (error) {
       console.error("OTP failed to verify:", error);
@@ -65,7 +64,6 @@ export default function OTPVerificationScreen() {
     try {
       const response = await sendOtp({ email }).unwrap();
       setTimer(20);
-      console.log("OTP sent:", response);
     } catch (error) {
       console.error("OTP failed to send:", error);
       const err = error as { data?: { message?: string } };

@@ -25,19 +25,18 @@ export default function EditTransactionScreen() {
       ({ data: walletData, isLoading: walletIsLoading, error: walletError } = useGetWalletQuery(fetchedData.data.wallet_id));
   }
   const [updatePersonalTransaction, {isLoading:isLoadingPersonal}] = useUpdatePersonalTransactionMutation();
-  console.log(walletData.data.wallet_title);
 //   const { refetch } = useGetUserWalletsQuery();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues:{
-      amount: fetchedData.data.amount,
-      Description: fetchedData.data.description,
-      transactionType: fetchedData.data.transaction_type,
-      notes: fetchedData.data.notes,
-      wallet: walletData.data,
-      category: fetchedData.data.transaction_category,
-      date: new Date(fetchedData.data.created_at_date_time),
-      time: new Date(fetchedData.data.created_at_date_time),
+      amount: fetchedData?.data.amount,
+      Description: fetchedData?.data.description,
+      transactionType: fetchedData?.data.transaction_type,
+      notes: fetchedData?.data.notes,
+      wallet: walletData?.data,
+      category: fetchedData?.data.transaction_category,
+      date: new Date(fetchedData?.data.created_at_date_time),
+      time: new Date(fetchedData?.data.created_at_date_time),
       photo: null,
     }
   });
@@ -73,44 +72,32 @@ export default function EditTransactionScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
-      console.log("Transaction Data:", { ...data, transactionType });
-      console.log(data.wallet);
       let dataObj: { amount?: number; transaction_type?:string;description?:string;wallet_id?:string;media?:any;transaction_category?:string;notes?:string;created_at_date_time?:any } = {};
       if(data.amount!==fetchedData.data.amount){
-        console.log("Hereamount");
         dataObj.amount = data.amount;
       }
       if(transactionType!==fetchedData.data.transaction_type){
-        console.log("HereLowerLimit");
         dataObj.transaction_type = transactionType;
       }
       if(data.Description!==fetchedData.data.description){
-        console.log("HereName");
         dataObj.description = data.Description;
       }
       if(data.wallet.wallet_title!==fetchedData.data.wallet_title){
-        console.log("HereWallet");
         dataObj.wallet_id = data.wallet._id;
       }
     //   if(data.photo!==fetchedData.data.media){
-    //     console.log("HerePhoto");
     //     dataObj.media = data.photo;
     //   }
       if(data.category!==fetchedData.data.transaction_category){
-        console.log("HereCategory");
         dataObj.transaction_category=data.category;
       }
       if(data.notes!==fetchedData.data.notes){
-        console.log("HereNotes");
         dataObj.notes = data.notes;
       }
       if(created_at_date_time!==fetchedData.data.created_at_date_time){
-        console.log("hereDate");
         dataObj.created_at_date_time=created_at_date_time;
       }
-      console.log(dataObj);
       const response = await updatePersonalTransaction({id:fetchedId,body:dataObj}).unwrap();
-      console.log("New personal transaction response: ", response);
       router.back();
     } catch (error) {
       console.error("new personal transaction failed to create:", error);

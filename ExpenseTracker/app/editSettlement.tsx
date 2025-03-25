@@ -22,10 +22,8 @@ export default function AddSettlementScreen() {
 //     status = "sent";
 //   }
 
-//   console.log(fetched_amount);
 
     const { data:settlementData, isLoading:settlementIsLoading, error:settlementError, refetch } = useGetSettlementQuery(id);
-    console.log("SettlementData",settlementData);
     let walletData, walletIsLoading, walletError;
 
     if(settlementData.data.payer_wallet_id){
@@ -54,52 +52,6 @@ export default function AddSettlementScreen() {
 const onSubmit = async (data: any) => {
 
   try {
-
-    // let type = "";
-
-    // let dataObj: { settlement_description?:string;} = {};
-    // if(data.amount!==billData.data.amount){
-    //   console.log("Hereamount");
-    //   dataObj.amount = data.amount;
-    // }
-    // if(data.Title!==billData.data.bill_title){
-    //   console.log("HereLowerLimit");
-    //   dataObj.bill_title = data.Title;
-    // }
-    // if(data.category!==billData.data.bill_category){
-    //   console.log("HereName");
-    //   dataObj.bill_category= data.category;
-    // }
-    // if(due_date_time!==billData.data.due_date_time){
-    //   console.log("HereWallet");
-    //   dataObj.due_date_time = data.due_date_time;
-    // }
-    // if(data.recurring!==billData.data.recurring){
-    //   console.log("HereRecurring");
-    //   dataObj.recurring=data.recurring;
-    // }
-//     if(status=="sent"){
-      
-//       const response = await createSettlement({
-//           settlement_description: data.Description,
-//           payer_wallet_id: data?.wallet,
-//           receiver_id:receiver_id,
-//           amount: fetched_amount,
-//         //   status:status,
-//         // filePath: data?.photo?._j
-
-//       }).unwrap();
-//     }
-//     else{
-//       const response = await createSettlement({
-//           settlement_description: data.Description,
-//           receiver_wallet_id: data?.wallet,
-//           payer_id:receiver_id,
-//           amount: fetched_amount,
-//         //   status:status,
-//           // filePath: data?.photo?._j
-//       }).unwrap();
-//     }
     if(settlementData.data.settlement_description!==data.Description){
       const response = await updateSettlement({id:id,body:{
         settlement_description: data.Description,

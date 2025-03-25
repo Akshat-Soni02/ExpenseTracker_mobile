@@ -46,7 +46,6 @@ export default function CreateBillScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
-      console.log("Bill Data:", data);
       let members = [];
       data?.splitWith.forEach((split) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
@@ -60,7 +59,6 @@ export default function CreateBillScreen() {
         recurring: data?.recurring,
         members
       }).unwrap();
-      console.log("New Bill create response: ", response);
       reset();
       router.replace("/(tabs)/activity/bills");
     } catch (error) {

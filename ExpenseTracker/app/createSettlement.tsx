@@ -21,7 +21,6 @@ export default function AddSettlementScreen() {
     fetched_amount_number=fetched_amount_number*-1;
     status = "sent";
   }
-  console.log(fetched_amount_number);
   const [createSettlement, {isLoading}] = useCreateSettlementMutation();
   const [errorMessage, setErrorMessage] = useState("");
   const { control, handleSubmit, watch, setValue, reset } = useForm({
@@ -52,7 +51,6 @@ export default function AddSettlementScreen() {
 const onSubmit = async (data: any) => {
 
   try {
-    console.log("Type of fetchedamount",typeof fetched_amount_number);
     if(status=="sent"){
       const response = await createSettlement({
           settlement_description: data.Description,
