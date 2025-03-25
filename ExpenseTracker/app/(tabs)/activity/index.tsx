@@ -48,6 +48,10 @@ export default function ActivityScreen() {
       grouped[date].push(transaction);
     });
   
+    Object.keys(grouped).forEach((date) => {
+      grouped[date].sort((a, b) => new Date(b.created_at_date_time).getTime() - new Date(a.created_at_date_time).getTime());
+    });
+    
     return grouped;
   };
   
