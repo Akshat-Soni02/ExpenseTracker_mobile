@@ -54,7 +54,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
               amount={`₹${item.initial_budget}`}
               subtitle={item?.settle_up_date && `Settle Up: ${moment(item?.settle_up_date).format("DD MMM, YYYY")}`}
               transactionType={undefined}
-              optionText={"inital budget"}
+              optionText={"Inital budget"}
               />
               
             )}
@@ -64,7 +64,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
             contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
 
           />):
-          <Text style={styles.noBudgetsText}>No Groups Found</Text>
+          <Text style={styles.noBudgetsText}>No groups found</Text>
           }
           
         </ScrollView>

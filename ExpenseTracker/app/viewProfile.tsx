@@ -157,7 +157,7 @@ const ProfileScreen = () => {
               style={styles.input}
               keyboardType="numeric"
               value={userData.phone_number}
-              placeholder="Enter phone number"
+              placeholder={dataUser?.data.phone_number.toString() || "Enter phone number"}
               onChangeText={(text) => setUserData({ ...userData, phone_number: text })}
             />
           ) : (
@@ -177,7 +177,7 @@ const ProfileScreen = () => {
               style={styles.input}
               keyboardType="numeric"
               value={userData.daily_limit}
-              placeholder="Enter daily limit"
+              placeholder={dataUser?.data.daily_limit.toString() || "Enter daily limit"}
               onChangeText={(text) => setUserData({ ...userData, daily_limit: text })}
             />
           ) : (

@@ -52,7 +52,7 @@ const TransactionDetailScreen = () => {
         console.log(error);
         // setMenuVisible(false);
       }
-      router.replace("/(tabs)/activity")
+      router.back();
     } catch (error) {
       
     }
@@ -81,7 +81,7 @@ const TransactionDetailScreen = () => {
                                 `Are you sure you want to delete ${transaction.description}`, 
                                 [
                                   { text: "Cancel", style: "cancel" },
-                                  { text: "Yes", onPress: () => handle()}
+                                  { text: "Yes", onPress: () => handleTransactionDelete()}
                                 ]
                               )} title="Delete" />
         </Menu>

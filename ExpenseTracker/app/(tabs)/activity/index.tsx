@@ -121,7 +121,7 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                  <Text style= {styles.noText}>No Expenses Found</Text>
+                  <Text style= {styles.noText}>No expenses found</Text>
                 }
             </ScrollView>
             <FAB
@@ -172,7 +172,7 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                 <Text style= {styles.noText}>No Personal Transactions Found</Text>
+                 <Text style= {styles.noText}>No personal transactions found</Text>
                 }
     
             </ScrollView>
@@ -223,7 +223,7 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                 <Text style= {styles.noText}>No Settlements Found</Text>
+                 <Text style= {styles.noText}>No settlements found</Text>
                 }
             </ScrollView>
           </View>

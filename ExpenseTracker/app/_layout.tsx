@@ -113,6 +113,7 @@ function RootLayoutNav() {
         <Stack.Screen name="editBill" options={{headerShown:false}}/>
         <Stack.Screen name="editTransaction" options={{headerShown:false}}/>
         <Stack.Screen name="editWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="editBudget" options={{headerShown:false}}/>
         <Stack.Screen name="editGroup" options={{headerShown:false}}/>
         <Stack.Screen name="groupSettlements" options={{headerShown:false}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

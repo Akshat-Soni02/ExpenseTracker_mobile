@@ -64,7 +64,7 @@ export default function WalletsScreen() {
 
           />)
           :
-          <Text style= {styles.noWalletsText}>No Wallets Found</Text>
+          <Text style= {styles.noWalletsText}>No wallets found</Text>
           }
           
         </ScrollView>

@@ -69,7 +69,7 @@ export default function BillsScreen() {
                 contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
                 nestedScrollEnabled={true}
               />):
-                <Text style={styles.noText}>No Pending Bills!</Text>
+                <Text style={styles.noText}>No pending bills</Text>
               }
               
             </ScrollView>
@@ -112,7 +112,7 @@ export default function BillsScreen() {
                     contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
                     nestedScrollEnabled={true}
                   />):
-                    <Text style={styles.noText}>No Missed Bills!</Text>
+                    <Text style={styles.noText}>No missed bills</Text>
                   }
                   
                 </ScrollView>
@@ -155,7 +155,7 @@ export default function BillsScreen() {
                     contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
                     nestedScrollEnabled={true}
                   />):
-                    <Text style={styles.noText}>No Completed Bills!</Text>
+                    <Text style={styles.noText}>No completed bills</Text>
                   }
                   
                 </ScrollView>

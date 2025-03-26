@@ -77,7 +77,7 @@ const handleRemind = async (id) => {
                 />
                 {(item.exchange_status === "lended" || item.exchange_status === "borrowed") && (
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity 
+                        {item.exchange_status==="lended" &&(<TouchableOpacity 
                         style={styles.remindButton}
                         onPress={() => 
                             Alert.alert(
@@ -91,7 +91,7 @@ const handleRemind = async (id) => {
                         }
                         >
                         <Text style={styles.buttonText}>Remind</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>)}
                         <TouchableOpacity 
                         style={styles.settleButton} 
                         onPress={() => router.push({ 
@@ -117,7 +117,7 @@ const handleRemind = async (id) => {
               contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
 
             />):
-            <Text style = {styles.noPeopleText}>No People Found</Text>
+            <Text style = {styles.noPeopleText}>No people found</Text>
             }
           </View>
         </ScrollView>

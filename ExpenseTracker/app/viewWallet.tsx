@@ -22,7 +22,7 @@ const WalletDetailsScreen = () => {
   }, [id]);
 
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  if (error) return <Text>Error loading Wallet details</Text>;
+  if (error) return <Text>Error loading wallet details</Text>;
   if (!data?.data) return <Text>No wallet found</Text>;
 
 

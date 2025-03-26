@@ -56,7 +56,7 @@ export default function PeopleScreen() {
               contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
 
             />):
-            <Text style = {styles.noPeopleText}>No People Found</Text>
+            <Text style = {styles.noPeopleText}>No people found</Text>
             }
           </View>
         </ScrollView>
