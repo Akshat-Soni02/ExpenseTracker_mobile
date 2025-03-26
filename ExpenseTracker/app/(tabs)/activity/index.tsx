@@ -48,6 +48,10 @@ export default function ActivityScreen() {
       grouped[date].push(transaction);
     });
   
+    Object.keys(grouped).forEach((date) => {
+      grouped[date].sort((a, b) => new Date(b.created_at_date_time).getTime() - new Date(a.created_at_date_time).getTime());
+    });
+    
     return grouped;
   };
   
@@ -117,7 +121,7 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                  <Text style= {styles.noText}>No Expenses Found</Text>
+                  <Text style= {styles.noText}>No expenses found</Text>
                 }
             </ScrollView>
             <FAB
@@ -168,7 +172,7 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                 <Text style= {styles.noText}>No Personal Transactions Found</Text>
+                 <Text style= {styles.noText}>No personal transactions found</Text>
                 }
     
             </ScrollView>
@@ -219,7 +223,7 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                 <Text style= {styles.noText}>No Settlements Found</Text>
+                 <Text style= {styles.noText}>No settlements found</Text>
                 }
             </ScrollView>
           </View>
@@ -256,15 +260,15 @@ const styles = StyleSheet.create({
   },
   navbar: {
     marginBottom: 20,
-    backgroundColor: '#f8f8f8',
-    borderBottomColor: '#ddd',
-    borderRadius: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    // backgroundColor: '#f8f8f8',
+    // borderBottomColor: '#ddd',
+    // borderRadius: 20,
+    // elevation: 2,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
     marginTop: 25,
-    shadowRadius: 2,
+    // shadowRadius: 2,
     left : 2,
   },
   navItem: {

@@ -31,7 +31,7 @@ export default function PeopleScreen() {
     <View style={[{flex:1}]}>
         <ScrollView style={styles.container}>   
           <View style = {styles.header}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style={styles.backButton}/>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style={styles.backButton}/>
             <Text style={styles.headerText}>Friends</Text>
           </View>
           <View style={styles.transactionsContainer}>
@@ -56,7 +56,7 @@ export default function PeopleScreen() {
               contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
 
             />):
-            <Text style = {styles.noPeopleText}>No People Found</Text>
+            <Text style = {styles.noPeopleText}>No people found</Text>
             }
           </View>
         </ScrollView>

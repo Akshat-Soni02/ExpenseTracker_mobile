@@ -1,19 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import { useGetGroupQuery, useGetGroupHistoryQuery } from "@/store/groupApi";
+import { FontAwesome, Ionicons, Entypo } from "@expo/vector-icons";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useGetGroupQuery, useGetGroupHistoryQuery, useAddPeopleInGroupMutation } from "@/store/groupApi";
 import moment from "moment";
 import { useRemindAllGroupBorrowersMutation ,useLazyLeaveGroupQuery,  useSimplifyDebtsMutation} from "@/store/groupApi";
-import { FAB, Portal, PaperProvider } from 'react-native-paper';
+import { FAB, Portal, PaperProvider, Menu, Divider } from 'react-native-paper';
+import { useLazyGetUserFriendsQuery } from "@/store/userApi";
 
 const GroupDetailsScreen = () => {
   const { id } = useLocalSearchParams();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [getFriends, { isFetching: friendsFetching, error:FriendError }] = useLazyGetUserFriendsQuery();
+  const [searchQuery, setSearchQuery] = useState("");
   const { data, isLoading, error, refetch } = useGetGroupQuery(id);
   const { data: history, isLoading: loading, error: historyError } = useGetGroupHistoryQuery(id);
   const [remindAll, {isLoading: loadingBorrowReq}] = useRemindAllGroupBorrowersMutation();
+  const [addPeople, {isLoading: loadingAddPeople}] = useAddPeopleInGroupMutation();
   const [leaveGroup, { isFetching, error:leaveError }] = useLazyLeaveGroupQuery();
   const [simplifyDebts, {isLoading: loadingSimplify}] = useSimplifyDebtsMutation();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [editedFriends, setEditedFriends] = useState(null);
 
   const [state, setState] = React.useState({ open: false });
 
@@ -76,6 +83,24 @@ const GroupDetailsScreen = () => {
      }
    };
 
+  const handleAddPeople = async () => {
+    Alert.alert(
+      "Add people", 
+      "Feature on hold!", 
+      [
+        { text: "Ok", style: "cancel" },
+        // { text: "Yes", onPress: () => handleRemindAll()}
+      ]
+    )
+    // try {
+    //   await addPeople({ id, body: newPeople }).unwrap();
+    //   console.log("Successfully added to the group");
+    //   router.back();
+    // } catch (err) {
+    //   console.error("Error adding to group:", err);
+    // }
+  };
+
 
    const onSimplifyDebts = async () => {
     try {
@@ -98,9 +123,30 @@ const GroupDetailsScreen = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push({pathname:"/editGroup",params:{id:id}})}>
+        {/* Menu Component */}
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            anchor={
+              <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+                <Entypo name="dots-three-vertical" size={20} color="black" />
+              </TouchableOpacity>
+            }
+          >
+            <Menu.Item onPress={() => router.push({pathname:"/editGroup",params:{id:id}})} title="Edit" />
+            <Divider />
+            <Menu.Item onPress={() => Alert.alert(
+              "Leave Group", 
+              "Are you sure you want to leave group?", 
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Yes", onPress: () => handleLeaveGroup()}
+              ]
+            )} title="Leave Group" />
+          </Menu>
+        {/* <TouchableOpacity onPress={() => router.push({pathname:"/editGroup",params:{id:id}})}>
           <Ionicons name="settings-outline" size={22} color="black" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Group Info */}
@@ -227,14 +273,21 @@ const GroupDetailsScreen = () => {
             onPress: () => router.push({ pathname: "/addSplit", params: { group_id: group._id, group_name: group.group_title } }),
           },
           {
-            icon: 'account-minus',
-            label: 'Leave Group',
-            onPress:handleLeaveGroup,
+            icon: 'account-plus',
+            label: 'Add People',
+            onPress:handleAddPeople,
           },
           {
             icon: 'graphql',
             label: 'Simplify Debts',
-            onPress: onSimplifyDebts,
+            onPress: () =>  Alert.alert(
+              "Simplify Group", 
+              "Are you sure you want to simplify debts in this group?", 
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Yes", onPress: () => onSimplifyDebts()}
+              ]
+            ),
           },
         ]}
         onStateChange={onStateChange}

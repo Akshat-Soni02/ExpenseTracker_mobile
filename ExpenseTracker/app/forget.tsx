@@ -83,7 +83,7 @@ export default function ForgotPasswordScreen() {
           style={styles.sendCodeButton}
           disabled={isLoading}
         >
-          Send Code
+          Send code
         </CustomButton>
       </View>
 

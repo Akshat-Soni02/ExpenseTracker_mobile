@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert} from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -23,7 +23,7 @@ export default function AddTransactionScreen() {
   const parsedDate = new Date(date_time);
   const dateOnly = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
   const timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
-  
+  const [childErrors, setChildErrors] = useState({});
   
   const [createPersonalTransaction, {isLoading:isLoadingPersonal}] = useCreatePersonalTransactionMutation();
   const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
@@ -55,6 +55,17 @@ export default function AddTransactionScreen() {
       photo: null,
     },
   });
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Description?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
 
   const [transactionType, setTransactionType] = useState("expense");
@@ -169,7 +180,7 @@ export default function AddTransactionScreen() {
         ))}
       </View>
 
-      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>):<AmountDescriptionInput control={control} label="Description"/>}
+      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>):<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>}
       <NotesInput control={control} name="notes" />
       
       <View style={styles.walletPhotoContainer}>
@@ -177,7 +188,7 @@ export default function AddTransactionScreen() {
         <PhotoSelector control={control} />
       </View>
 
-      <CategorySelector control={control} />
+        {transactionType === "expense" && (<CategorySelector control={control} />)}
       <View style={styles.dateTimeContainer}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>

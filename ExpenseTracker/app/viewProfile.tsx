@@ -38,6 +38,7 @@ const ProfileScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
+    console.log("data",dataUser);
     if (dataUser?.data) {
       setUserData({
         name: dataUser.data.name,
@@ -146,7 +147,8 @@ const ProfileScreen = () => {
           {isEditing ? (
             <TextInput
               style={styles.inputName}
-              placeholder={dataUser?.data.name || "Enter your name"}
+              defaultValue={dataUser?.data.name || ""}
+              placeholder={"Enter your name"}
               placeholderTextColor="gray"
               onChangeText={(text) => setUserData({ ...userData, name: text })}
             />
@@ -165,6 +167,7 @@ const ProfileScreen = () => {
                 style={styles.phoneInput}
                 keyboardType="numeric"
                 maxLength={10} // Ensures only 10 digits can be entered
+                defaultValue={userData?.phone_number.toString() || ""}
                 value={userData.phone_number}
                 placeholder="Enter phone number"
                 onChangeText={(text) => {
@@ -195,7 +198,8 @@ const ProfileScreen = () => {
               style={styles.input}
               keyboardType="numeric"
               value={userData.daily_limit}
-              placeholder="Enter daily limit"
+              defaultValue={dataUser?.data.daily_limit.toString() || ""}
+              placeholder={dataUser?.data.daily_limit.toString() || "Enter daily limit"}
               onChangeText={(text) => setUserData({ ...userData, daily_limit: text })}
             />
           ) : (

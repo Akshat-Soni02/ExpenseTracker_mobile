@@ -64,7 +64,7 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
             contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
             nestedScrollEnabled={true}
           />):
-          <Text style={styles.noBudgetsText}>No Budgets Found</Text>
+          <Text style={styles.noBudgetsText}>No budgets found</Text>
           }
           
         </ScrollView>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
@@ -22,7 +22,7 @@ const WalletDetailsScreen = () => {
   }, [id]);
 
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  if (error) return <Text>Error loading Wallet details</Text>;
+  if (error) return <Text>Error loading wallet details</Text>;
   if (!data?.data) return <Text>No wallet found</Text>;
 
 
@@ -63,7 +63,14 @@ const WalletDetailsScreen = () => {
         >
           <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/editWallet",params:{fetchedId:id,fetchedAmount:wallet.amount,fetchedName:wallet.wallet_title,fetchedLowerLimit:wallet.lower_limit}})}} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => onDelete()} title="Delete" />
+          <Menu.Item onPress={() => Alert.alert(
+                                "Delete wallet", 
+                                `Are you sure you want to delete ${wallet.wallet_title}`, 
+                                [
+                                  { text: "Cancel", style: "cancel" },
+                                  { text: "Yes", onPress: () => onDelete()}
+                                ]
+                              )} title="Delete" />
         </Menu>
       </View>
 

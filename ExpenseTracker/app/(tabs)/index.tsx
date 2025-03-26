@@ -1,4 +1,4 @@
-import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar} from 'react-native';
+import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar,Pressable} from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 // import {  View } from '@/components/Themed';
 import { useRouter } from "expo-router";
@@ -7,7 +7,7 @@ import * as React from 'react';
 // import { Card, Text } from 'react-native-paper';
 import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Divider} from 'react-native-paper';
+import { Divider, PaperProvider, Portal, Modal} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
@@ -28,6 +28,9 @@ const transactions = [
 
 export default function HomeScreen() {
   const router = useRouter();
+    const [modalVisible, setModalVisible] = React.useState(false);
+    const [selectedTransaction, setSelectedTransaction] = React.useState(null);
+  
   const { authToken, loading, logout } = useAuth();
   const [user, setUser] = useState();
 
@@ -59,7 +62,21 @@ export default function HomeScreen() {
   const groups = dataGroup.data;
   const numberofGroups = groups.length;
   const numberOfTransactions = dataDetected.data.length;
+
+  const openModal = (transaction:any) => {
+    setSelectedTransaction(transaction);
+    setModalVisible(true);
+  };
+  const handleSelection = (option:any) => {
+    if (option === "to Split") {
+      router.push({ pathname: "../addSplit", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type: selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
+    } else if (option === "to Personal") {
+      router.push({ pathname: "../addTransaction", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type:selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
+    }
+    setModalVisible(false);
+  };
   return (
+    <PaperProvider>
   <View style={styles.page}>
     <View style={styles.container}>
       {/* Profile Card */}
@@ -75,7 +92,7 @@ export default function HomeScreen() {
         
           <View style={styles.totalSpend}>
             <View>
-              <Text style={styles.label}>Today's Spend</Text>
+              <Text style={styles.label}>Today's spend</Text>
               <Text style={styles.spend}>₹0</Text>
             </View>
           </View>
@@ -124,6 +141,7 @@ export default function HomeScreen() {
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <TransactionCard 
+          pressFunction = {() => openModal(item)}
           title = {item.description}
           imageType = {item.transaction_type}
           amount={`₹${item.amount}`}
@@ -138,7 +156,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
 
       />) :
-      <Text style={styles.noTransactionsText}>No Transactions for Today</Text>}
+      <Text style={styles.noTransactionsText}>No transactions for today</Text>}
       
 
       {/* Groups */}
@@ -165,7 +183,26 @@ export default function HomeScreen() {
         </View>
       </View>
     </View>
+    <Portal>
+          <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
+            <Text style={styles.modalText}>Choose an action</Text>
+            
+            {selectedTransaction?.transaction_type.toString()==="credit" &&<Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
+              <Text style={styles.buttonText}>to Split</Text>
+            </Pressable>
+            } 
+
+            <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
+              <Text style={styles.buttonText}>to Personal</Text>
+            </Pressable>
+
+            <Pressable style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </Pressable>
+          </Modal>
+        </Portal>
   </View>
+  </PaperProvider>
   );
 }
 
@@ -336,5 +373,51 @@ const styles = StyleSheet.create({
     color: 'gray', // Change color to indicate no transactions
     padding: 16, // Add some padding for better spacing
     textAlignVertical: "center"
+},
+
+modalView: {
+  position: "absolute",
+  top: "50%", // Position in the middle of the screen
+  left: "50%", // Position in the middle horizontally
+  transform: [{ translateX: -150 }, { translateY: -100 }], // Shift back by half width/height
+  width: 300, // Fixed width to avoid stretching
+  backgroundColor: "white",
+  padding: 25,
+  borderRadius: 15,
+  alignItems: "center",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.3,
+  shadowRadius: 5,
+  elevation: 6,
+},
+modalContainer: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.4)", // Dark overlay for better focus
+},
+
+modalText: {
+  fontSize: 20,
+  fontWeight: "bold",
+  marginBottom: 15,
+  textAlign: "center",
+},
+button: {
+  width: "100%",
+  padding: 14,
+  marginVertical: 8,
+  backgroundColor: "#007bff",
+  borderRadius: 10,
+  alignItems: "center",
+},
+cancelButton: {
+  backgroundColor: "#d9534f", // Red for cancel to indicate action
+},
+buttonText: {
+  color: "white",
+  fontSize: 16,
+  fontWeight: "600",
 },
 });

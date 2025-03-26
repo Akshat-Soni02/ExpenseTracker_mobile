@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -15,6 +15,7 @@ export default function CreateGroupScreen() {
     const { data:groupData, isLoading:groupIsLoading, error:groupError, refetch } = useGetGroupQuery(id);
   const [updateGroup, {isLoading}] = useUpdateGroupMutation();
   const [errorMessage, setErrorMessage] = useState("");
+  const [childErrors, setChildErrors] = useState({});
   const membersArray = groupData.data.members.map(m => ({
     amount: m.amount,
     user_id: m.user_id
@@ -28,6 +29,16 @@ export default function CreateGroupScreen() {
   });
 
   const router = useRouter();
+
+  useEffect(() => {
+      if (Object.keys(childErrors).length !== 0) {
+        const messages = [
+          childErrors.Title?.message
+        ].filter(Boolean).join("\n");
+    
+        Alert.alert("Invalid data", messages);
+      }
+    }, [childErrors]);
 
 //   group_title,
 //     memberIds = [],
@@ -72,7 +83,7 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Group Title */}
-      <TitleInput control={control} />
+      <TitleInput control={control} onErrorsChange={setChildErrors}/>
 
       {/* Add Members */}
 
@@ -83,7 +94,7 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Save Button */}
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onGroupSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

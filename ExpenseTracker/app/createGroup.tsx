@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -13,7 +13,8 @@ import { useCreateGroupMutation } from "@/store/groupApi";
 export default function CreateGroupScreen() {
   const [createGroup, {isLoading}] = useCreateGroupMutation();
   const [errorMessage, setErrorMessage] = useState("");
-  const { control, handleSubmit, setValue, reset } = useForm({
+  const [childErrors, setChildErrors] = useState({});
+  const { control, handleSubmit, setValue, reset, formState: {errors} } = useForm({
     defaultValues: {
       title: "",
       members: [],
@@ -23,6 +24,17 @@ export default function CreateGroupScreen() {
   });
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      console.log("errors",errors)
+      const messages = [
+        childErrors.Title?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
 //   group_title,
 //     memberIds = [],
@@ -61,7 +73,7 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Group Title */}
-      <TitleInput control={control} />
+      <TitleInput control={control} onErrorsChange={setChildErrors}/>
 
       {/* Add Members */}
       <AddPeopleInput control={control} />
@@ -73,7 +85,7 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Save Button */}
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onGroupSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

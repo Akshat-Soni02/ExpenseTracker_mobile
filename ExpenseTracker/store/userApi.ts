@@ -217,6 +217,7 @@ export const {
   useGetUserPersonalTransactionsQuery,
   useGetUserDetectedTransactionsQuery,
   useGetUserFriendsQuery,
+  useLazyGetUserFriendsQuery,
   useGetUserCurrentExchangeStatusQuery,
   useRemindUserBorrowerMutation,
   useRemindUserBorrowersMutation,

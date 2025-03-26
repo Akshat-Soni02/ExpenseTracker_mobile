@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -27,6 +27,7 @@ export default function EditTransactionScreen() {
   const [updatePersonalTransaction, {isLoading:isLoadingPersonal}] = useUpdatePersonalTransactionMutation();
 //   const { refetch } = useGetUserWalletsQuery();
   const [errorMessage, setErrorMessage] = useState("");
+  const [childErrors, setChildErrors] = useState({});
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues:{
       amount: fetchedData?.data.amount,
@@ -44,6 +45,22 @@ export default function EditTransactionScreen() {
 
   const [transactionType, setTransactionType] = useState("expense");
   const router = useRouter();
+  useEffect(() => {
+    if(!isLoading && fetchedData.data.transaction_type) {
+      setTransactionType(fetchedData.data.transaction_type);
+    }
+  }, [fetchedData]);
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Description?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 //   useEffect(() => {
 //     if (detectedId) {
 //       if(detectedTransaction_type==="credit"){
@@ -82,7 +99,7 @@ export default function EditTransactionScreen() {
       if(data.Description!==fetchedData.data.description){
         dataObj.description = data.Description;
       }
-      if(data.wallet.wallet_title!==fetchedData.data.wallet_title){
+      if(data?.wallet?.wallet_title!==fetchedData?.data?.wallet_title){
         dataObj.wallet_id = data.wallet._id;
       }
     //   if(data.photo!==fetchedData.data.media){
@@ -140,7 +157,7 @@ export default function EditTransactionScreen() {
         ))}
       </View>
 
-      <AmountDescriptionInput control={control} label="Description"/>
+      <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
       <NotesInput control={control} name="notes" />
       
       <View style={styles.walletPhotoContainer}>
@@ -154,7 +171,7 @@ export default function EditTransactionScreen() {
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
 
-       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+       {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

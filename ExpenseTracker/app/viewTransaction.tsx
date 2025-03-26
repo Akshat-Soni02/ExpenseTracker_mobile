@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetPersonalTransactionQuery } from "@/store/personalTransactionApi";
+import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
 import FastImage from 'react-native-fast-image';
 
 
@@ -12,6 +12,7 @@ const TransactionDetailScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetPersonalTransactionQuery(id);
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
+    const [deleteTransaction, {isLoading: deleteLoading, error: deleteError}] = useDeletePersonalTransactionMutation();
   
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -44,7 +45,18 @@ const TransactionDetailScreen = () => {
 
 
   const themeColor = transaction.transaction_type === "income" ? "#10B981" : "#EF4444";
-
+  const handleTransactionDelete = async () => {
+    try {
+      const response = await deleteTransaction(id);
+      if(!response || deleteError) {
+        console.log(error);
+        // setMenuVisible(false);
+      }
+      router.back();
+    } catch (error) {
+      
+    }
+  }
   return (
     <View style={[styles.container]}>
       <View style={styles.header}>
@@ -62,9 +74,16 @@ const TransactionDetailScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => router.push({pathname:"/editTransaction",params:{fetchedId:id}})} title="Edit" />
+          <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/editTransaction",params:{fetchedId:id}})}} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => console.log("Delete Spend")} title="Delete" />
+          <Menu.Item onPress={() => Alert.alert(
+                                "Delete spend", 
+                                `Are you sure you want to delete ${transaction.description}`, 
+                                [
+                                  { text: "Cancel", style: "cancel" },
+                                  { text: "Yes", onPress: () => handleTransactionDelete()}
+                                ]
+                              )} title="Delete" />
         </Menu>
       </View>
 

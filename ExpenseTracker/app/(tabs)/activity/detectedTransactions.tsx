@@ -56,7 +56,7 @@ export default function DetectedTransactionsScreen() {
           <TouchableOpacity onPress={() => router.replace("/(tabs)")} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      
-          <Text style={styles.headerText}>All Detected Transactions</Text>
+          <Text style={styles.headerText}>All detected transactions</Text>
           
           {/* <View style={styles.navbar}>
             <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
@@ -88,7 +88,7 @@ export default function DetectedTransactionsScreen() {
 
           />)
           :
-          <Text style= {styles.noWalletsText}>No Transactions Detected</Text>
+          <Text style= {styles.noWalletsText}>No transactions detected</Text>
           }
           
         </ScrollView>

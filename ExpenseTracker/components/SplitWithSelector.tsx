@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Modal, Image, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Modal, Image, FlatList, Dimensions } from "react-native";
 import { Control, Controller, useWatch ,useController} from "react-hook-form";
 import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,6 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import CustomButton from "./button/CustomButton";
 import { Ionicons } from "@expo/vector-icons";
 import { useLazyGetGroupQuery } from "@/store/groupApi";
+const { width } = Dimensions.get("window");
 
 interface Props {
   control: Control<any>;
@@ -329,7 +330,7 @@ const styles = StyleSheet.create({
   // flashList: {gap: 1},
   selectedUsersContainer: { padding: 10, borderRadius: 10 },
   splitItem: { flexDirection: "row", alignItems: "center", marginVertical: 5, padding: 10, borderRadius: 10, backgroundColor: "rgba(200, 230, 255, 0.7)" },
-  amountInput: { width: 60, padding: 5, textAlign: "center", backgroundColor: "#F3F4F6", borderRadius: 5, marginLeft: 10 },
+  amountInput: { width: width * 0.25, padding: 5, textAlign: "center", backgroundColor: "#F3F4F6", borderRadius: 5, marginLeft: 10 },
   addButton: { backgroundColor: "#355C7D", padding: 10, borderRadius: 8, alignItems: "center", marginTop: 10 },
   addButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
   modalContainer: { flex: 1, backgroundColor: "#fff", padding: 20,},

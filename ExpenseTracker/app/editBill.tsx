@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -25,6 +25,7 @@ export default function CreateBillScreen() {
       }));
   const [updateBill, {isLoading}] = useUpdateBillMutation();
   const [errorMessage, setErrorMessage] = useState("");
+  const [childErrors, setChildErrors] = useState({});
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
@@ -42,6 +43,17 @@ export default function CreateBillScreen() {
   });
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Title?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
 //   bill_title, amount, bill_category, due_date_time, recurring, members
   const onBillSubmit = async (data: any) => {
@@ -118,7 +130,7 @@ export default function CreateBillScreen() {
       </View>
 
       {/* Bill Title and amount */}
-      <AmountDescriptionInput control={control} label = "Title"/>
+      <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors}/>
 
       {/* Add Members to share */}
       {/* <AddPeopleInput control={control} /> */}
@@ -133,7 +145,7 @@ export default function CreateBillScreen() {
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
       {/* Save Button */}
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onBillSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

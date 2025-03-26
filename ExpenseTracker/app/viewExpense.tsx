@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
@@ -93,7 +93,7 @@ const ExpenseDetailScreen = () => {
         console.log(error);
         // setMenuVisible(false);
       }
-      router.replace("/(tabs)/activity")
+      router.back();
     } catch (error) {
       
     }
@@ -127,13 +127,20 @@ const ExpenseDetailScreen = () => {
         >
           <Menu.Item onPress={() => router.push({ pathname: "/editExpense", params: {id:id,paidByName:paidByName} })} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => handleExpenseDelete()} title="Delete" />
+          <Menu.Item onPress={() => Alert.alert(
+                                  "Delete split", 
+                                  `Are you sure you want to delete ${expense.description}`, 
+                                  [
+                                    { text: "Cancel", style: "cancel" },
+                                    { text: "Yes", onPress: () => handleExpenseDelete()}
+                                  ]
+                                )} title="Delete" />
         </Menu>
       </View>
 
       <View style={styles.detailContainer}>
         <Text style={styles.title}>{expense.description}</Text>
-        <Text style={[styles.amount, { color: themeColor }]}>₹{userState?.toFixed(2)}</Text>
+        <Text style={[styles.amount, { color: themeColor }]}>₹{userState?.toFixed(2) || 0}</Text>
         {isLender && expense.wallet_id && (
           <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )}
