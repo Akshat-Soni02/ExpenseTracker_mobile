@@ -43,7 +43,7 @@ export default function BillsScreen() {
             <ScrollView style={styles.container}>
               
               <View style = {styles.header}>
-                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>     
+                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
                 <Text style={styles.headerText}>Bills</Text>
               </View>
               <View style={styles.navbar}>
