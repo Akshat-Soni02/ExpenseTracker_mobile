@@ -39,7 +39,7 @@ export const billApi = api.injectEndpoints({
         url: `/bills/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (_result, _error, id) => [{ type: "bill", id }],
+      invalidatesTags: ["bill"],
     }),
   }),
 });

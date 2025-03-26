@@ -85,7 +85,7 @@ export default function ActivityScreen() {
             <ScrollView style={styles.container}>
               
             <View style = {styles.header}>
-              <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>     
+              <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
               <Text style={styles.headerText}>Activity</Text>
             </View>
               <View style={styles.navbar}>
@@ -137,7 +137,7 @@ export default function ActivityScreen() {
         <ScrollView style={styles.container}>
               
             <View style = {styles.header}>
-                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()}/>     
+                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
                   <Text style={styles.headerText}>Activity</Text>
               </View>
               <View style={styles.navbar}>
@@ -188,7 +188,7 @@ export default function ActivityScreen() {
         <View style={styles.screen}>
         <ScrollView style={styles.container}>
           <View style = {styles.header}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()}/>     
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
               <Text style={styles.headerText}>Activity</Text>
           </View>
               <View style={styles.navbar}>
@@ -260,15 +260,15 @@ const styles = StyleSheet.create({
   },
   navbar: {
     marginBottom: 20,
-    backgroundColor: '#f8f8f8',
-    borderBottomColor: '#ddd',
-    borderRadius: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    // backgroundColor: '#f8f8f8',
+    // borderBottomColor: '#ddd',
+    // borderRadius: 20,
+    // elevation: 2,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
     marginTop: 25,
-    shadowRadius: 2,
+    // shadowRadius: 2,
     left : 2,
   },
   navItem: {

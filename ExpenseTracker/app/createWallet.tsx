@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,Alert } from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -15,6 +15,7 @@ import { useCreateWalletMutation } from "@/store/walletApi";
 export default function CreateWalletScreen() {
   const [createWallet, {isLoading}] = useCreateWalletMutation();
   const [errorMessage, setErrorMessage] = useState("");
+  const [childErrors, setChildErrors] = useState({});
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       amount: 0,
@@ -25,6 +26,16 @@ export default function CreateWalletScreen() {
 
   const router = useRouter();
 
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Name?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 // amount, wallet_title, lower_limit
 
   const onWalletSubmit = async (data: any) => {
@@ -58,13 +69,13 @@ export default function CreateWalletScreen() {
       </View>
 
       {/* wallet Title and Amount */}
-      <AmountDescriptionInput control={control} label = "Name"/>
+      <AmountDescriptionInput control={control} label = "Name" onErrorsChange={setChildErrors}/>
 
       {/* lower limit */}
       <LowerLimit control={control}/>
 
       {/* Save Button */}
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onWalletSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

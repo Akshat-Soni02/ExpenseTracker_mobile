@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useMemo } from "react";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Controller, Control } from "react-hook-form";
 
 interface Props {
@@ -7,10 +7,11 @@ interface Props {
   label: string;
   update?: boolean;
   isAmountFrozen?: boolean; // New prop to freeze amount input
+  onErrorsChange: any;
 
 }
 
-const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmountFrozen = false }) => {
+const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmountFrozen = false, onErrorsChange}) => {
   return (
     <View style={styles.container}>
       {/* Amount Section */}
@@ -21,31 +22,49 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmo
           control={control}
           name="amount"
           defaultValue={0}
-          render={({ field: { onChange, value } }) => {
+          rules={{
+            required: "Amount is required",
+            validate: (value) => (value > 0 ? true : "Amount must be greater than zero"),
+          }}
+          render={({ field: { onChange, value }, fieldState: { error } }) => {
+            useEffect(() => {
+              if(error) {
+                onErrorsChange((prevErrors) => ({
+                  ...prevErrors,
+                  amount: error || undefined,
+                }));
+              }
+            }, [error]);
+
             const displayValue = useMemo(() => (value ? String(value) : ""), [value]);
 
             return (
-              <TextInput
-              style={[styles.amountInput, isAmountFrozen && styles.disabledText]}
-              keyboardType="numeric"
-                value={displayValue}
-                placeholder="0"
-                onChangeText={(text) => {
-                  if (isAmountFrozen) return;
-                  if (text === "") {
-                    onChange("");
-                    return;
-                  }
-                  const numericValue = parseFloat(text);
-                  if (!isNaN(numericValue)) {
-                    onChange(numericValue);
-                  }
-                }}
-                editable={!isAmountFrozen} // Freezing the input
-                selectTextOnFocus={!isAmountFrozen} // Prevent selection if frozen
-                accessibilityLabel="Amount input"
-                accessibilityHint={isAmountFrozen ? "Amount is locked" : "Enter the amount in rupees"}
-              />
+              <>
+                <TextInput
+                  style={[
+                    styles.amountInput,
+                    isAmountFrozen && styles.disabledText,
+                  ]}
+                  keyboardType="numeric"
+                  value={displayValue}
+                  placeholder="0"
+                  onChangeText={(text) => {
+                    if (isAmountFrozen) return;
+                    if (text === "") {
+                      onChange("");
+                      return;
+                    }
+                    const numericValue = parseFloat(text);
+                    if (!isNaN(numericValue)) {
+                      onChange(numericValue);
+                    }
+                  }}
+                  editable={!isAmountFrozen} // Freezing the input
+                  selectTextOnFocus={!isAmountFrozen} // Prevent selection if frozen
+                  accessibilityLabel="Amount input"
+                  accessibilityHint={isAmountFrozen ? "Amount is locked" : "Enter the amount in rupees"}
+                />
+              </>
             );
           }}
         />
@@ -58,25 +77,43 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmo
         control={control}
         name={label}
         defaultValue=""
-        render={({ field: { onChange, value } }) => (
-          <TouchableOpacity activeOpacity={0.8}>
-            <TextInput
-              style={[styles.descriptionInput, !value && styles.placeholderText]}
-              placeholder="Tap to add"
-              placeholderTextColor="#A0AEC0"
-              value={value}
-              onChangeText={onChange}
-              accessibilityLabel={`${label} input`}
-              accessibilityHint={`Tap to enter a ${label}`}
-            />
-          </TouchableOpacity>
-        )}
+        rules={{ required: `${label} is required` }}
+        render={({ field: { onChange, value }, fieldState: { error } }) => {
+          useEffect(() => {
+            if(error) {
+              onErrorsChange((prevErrors) => ({
+                ...prevErrors,
+                [label]: error || undefined,
+              }));
+            }
+          }, [error]);
+
+          return (
+            <TouchableOpacity activeOpacity={0.8}>
+              <TextInput
+                style={[
+                  styles.descriptionInput,
+                  !value && styles.placeholderText,
+                ]}
+                placeholder="Tap to add"
+                placeholderTextColor="#A0AEC0"
+                value={value}
+                onChangeText={onChange}
+                accessibilityLabel={`${label} input`}
+                accessibilityHint={`Tap to enter a ${label}`}
+              />
+            </TouchableOpacity>
+          );
+        }}
       />
     </View>
   );
 };
 
 export default AmountDescriptionInput;
+
+
+// export default AmountDescriptionInput;
 
 const styles = StyleSheet.create({
   container: {

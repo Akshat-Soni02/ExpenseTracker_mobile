@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -23,6 +23,7 @@ export default function AddSettlementScreen() {
   }
   const [createSettlement, {isLoading}] = useCreateSettlementMutation();
   const [errorMessage, setErrorMessage] = useState("");
+  const [childErrors, setChildErrors] = useState({});
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
       amount:fetched_amount_number,
@@ -37,6 +38,17 @@ export default function AddSettlementScreen() {
   const splitWith = watch("splitWith");
 
   const TOLERANCE = 0.1;
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Description?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
 
   // description,
@@ -99,7 +111,7 @@ return (
         {status==="sent"?<Text style={styles.header}>Paid to {name}</Text>:<Text style={styles.header}>Received from {name}</Text>}
       </View>
       {group_name && <Text style={styles.groupName}> in {group_name}</Text>}
-      <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>
+      <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>
       {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
       
       <View style={styles.walletPhotoContainer}>
@@ -107,7 +119,7 @@ return (
         <PhotoSelector control={control} />
       </View>
       
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Settle</CustomButton>
     </ScrollView>
     

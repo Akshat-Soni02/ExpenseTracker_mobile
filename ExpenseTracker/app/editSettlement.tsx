@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -35,6 +35,7 @@ export default function AddSettlementScreen() {
     }
   const [updateSettlement, {isLoading}] = useUpdateSettlementMutation();
   const [errorMessage, setErrorMessage] = useState("");
+  const [childErrors, setChildErrors] = useState({});
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
       amount:settlementData.data.amount,
@@ -48,6 +49,17 @@ export default function AddSettlementScreen() {
   const amount = watch("amount");
 
   const TOLERANCE = 0.1;
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Description?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
 const onSubmit = async (data: any) => {
 
@@ -81,7 +93,7 @@ return (
             <Text style={styles.header}>Edit Settlement</Text>
       </View>
 
-      <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true}/>
+      <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>
       {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
       
       <View style={styles.walletPhotoContainer}>
@@ -89,7 +101,7 @@ return (
         <PhotoSelector control={control} />
       </View>
       
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>          
   );
