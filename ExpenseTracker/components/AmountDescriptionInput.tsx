@@ -174,11 +174,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     padding: 10,
     borderRadius: 8,
-    textAlign: "center",
+    // textAlign: "center",
   },
   placeholderText: {
     color: "#A0AEC0",
     fontStyle: "italic",
+    // textAlign: "center"
+
   },
   disabledInputWrapper: {
     backgroundColor: "#E0E0E0", // Light gray background when disabled

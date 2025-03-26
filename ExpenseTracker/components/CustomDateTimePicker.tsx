@@ -10,6 +10,7 @@ interface CustomDateTimePickerProps {
   label: "Date" | "Time";
   useDefaultToday?: boolean;
   heading: string;
+  disableFutureDates?: boolean;
 }
 
 const formatDate = (dateString: string | null, label: "Date" | "Time") => {
@@ -27,6 +28,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
   label,
   useDefaultToday,
   heading,
+  disableFutureDates
 }) => {
   const [showPicker, setShowPicker] = useState(false);
 
@@ -50,6 +52,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
                 value={value ? new Date(value) : new Date()}
                 mode={label === "Time" ? "time" : "date"}
                 display="default"
+                maximumDate={label === "Date" && disableFutureDates ? new Date() : undefined}
                 onChange={(event, selectedDate) => {
                   setShowPicker(false);
                   if (selectedDate) {

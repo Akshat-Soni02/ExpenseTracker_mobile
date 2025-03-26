@@ -85,17 +85,18 @@ const SettlementDetailsScreen = () => {
   }, [settlement?.payer_wallet_id, settlement?.receiver_wallet_id]);
 
   const handleSettlementDelete = async () => {
-      try {
-        const response = await deleteSettlement(id);
-        if(!response || deleteError) {
-          console.log(error);
-          // setMenuVisible(false);
-        }
-        router.replace("/(tabs)/activity")
-      } catch (error) {
-        
+    try {
+      const response = await deleteSettlement(id);
+      console.log("settlement deleting response",response);
+      if(!response || deleteError) {
+        console.log(error);
+        // setMenuVisible(false);
       }
+      router.replace("/(tabs)/activity")
+    } catch (error) {
+      
     }
+  }
 
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading settlement details</Text>;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { 
-  View, Text, FlatList, PermissionsAndroid, Platform, TextInput, TouchableOpacity 
+  View, Text, FlatList, PermissionsAndroid, Platform, TextInput, TouchableOpacity, 
+  Alert
 } from "react-native";
 import Contacts from "react-native-contacts";
 import { useRouter } from "expo-router";
@@ -22,28 +23,39 @@ const ContactsScreen = () => {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
           {
-            title: "Contacts Permission",
-            message: "This app needs access to your contacts to find friends.",
-            buttonPositive: "OK",
-            buttonNegative: "Cancel",
+            title: "Access Contacts",
+            message: "This app requires access to your contacts to continue.",
+            buttonPositive: "Allow",
           }
         );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn("Permission request error:", err);
+  
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          return true;
+        } else {
+          Alert.alert("Permission Denied", "Contacts access is required.");
+          return false;
+        }
+      } catch (error) {
+        console.error("Permission request error:", error);
         return false;
       }
     }
-    return true; // iOS handles permission via Info.plist
+    return true;
   };
 
-  const loadContacts = async () => {
-    const hasPermission = await requestContactsPermission();
-    if (!hasPermission) {
-      console.warn("Permission denied");
-      return;
-    }
+  const checkPermission = async () => {
+    const hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_CONTACTS);
+    return hasPermission;
+  };
+  
 
+  const loadContacts = async () => {
+    const hasPermission = await checkPermission();
+    if (!hasPermission) {
+      const granted = await requestContactsPermission();
+      if (!granted) return;
+    }
+  
     Contacts.getAll()
       .then((contactList) => {
         setContacts(contactList);
@@ -51,6 +63,7 @@ const ContactsScreen = () => {
       })
       .catch((err) => console.warn("Error fetching contacts", err));
   };
+  
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -74,7 +87,7 @@ const ContactsScreen = () => {
       }
       return newSet;
     });
-  }, []);
+  }, []);  
 
   const navigateToEmailInput = () => {
     const selected = contacts.filter((contact) => selectedContacts.has(contact.recordID));

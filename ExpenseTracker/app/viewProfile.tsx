@@ -65,15 +65,20 @@ const ProfileScreen = () => {
 
   const handleEditToggle = async () => {
     if (isEditing) {
+      if (userData.phone_number.length !== 10) {
+        Alert.alert("Invalid Phone Number", "Phone number must be exactly 10 digits.");
+        return;
+      }
+  
       try {
         const formData = new FormData();
-        if(userData.name && userData.name.length !== 0) formData.append("name", userData.name);
-        if(userData.phone_number && userData.phone_number.length !== 0) formData.append("phone_number", userData.phone_number);
-        if(userData.daily_limit && userData.daily_limit.length !== 0) formData.append("daily_limit", userData.daily_limit);
+        if(userData.name.length !== 0) formData.append("name", userData.name);
+        if(userData.phone_number.length !== 0) formData.append("phone_number", userData.phone_number);
+        if(userData.daily_limit.length !== 0) formData.append("daily_limit", userData.daily_limit);
         if(selectedImage) {
           const fileExtension = selectedImage.split(".").pop();
           const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
-    
+  
           formData.append("media", {
             uri: selectedImage,
             type: mimeType,
@@ -89,6 +94,7 @@ const ProfileScreen = () => {
     setIsEditing(!isEditing);
     refetch();
   };
+  
 
   if (localLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
@@ -153,17 +159,29 @@ const ProfileScreen = () => {
         <View style={styles.card}>
           <Text style={styles.label}>Phone Number:</Text>
           {isEditing ? (
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={userData.phone_number}
-              placeholder={dataUser?.data.phone_number.toString() || "Enter phone number"}
-              onChangeText={(text) => setUserData({ ...userData, phone_number: text })}
-            />
+            <View style={styles.phoneInputContainer}>
+              <Text style={styles.phonePrefix}>+91</Text>
+              <TextInput
+                style={styles.phoneInput}
+                keyboardType="numeric"
+                maxLength={10} // Ensures only 10 digits can be entered
+                value={userData.phone_number}
+                placeholder="Enter phone number"
+                onChangeText={(text) => {
+                  // Remove any non-digit characters
+                  const cleanedText = text.replace(/\D/g, "");
+                  // Limit input to 10 digits
+                  if (cleanedText.length <= 10) {
+                    setUserData({ ...userData, phone_number: cleanedText });
+                  }
+                }}
+              />
+            </View>
           ) : (
-            <Text style={styles.value}>{userData.phone_number}</Text>
+            <Text style={styles.value}>{userData.phone_number ? `+91 ${userData.phone_number}` : "-"}</Text>
           )}
         </View>
+
 
         <View style={styles.card}>
           <Text style={styles.label}>Email ID:</Text>
@@ -219,6 +237,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 20,
   },
+  phoneInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    paddingVertical: 5,
+  },
+  
+  phonePrefix: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "black",
+    marginRight: 5,
+  },
+  
+  phoneInput: {
+    fontSize: 16,
+    flex: 1,
+    color: "black",
+  },  
   backButton: {
     padding: 10,
   },

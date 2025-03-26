@@ -126,7 +126,7 @@ export default function AddExpenseScreen() {
       if(group_id) {
         formData.append("group_id", group_id);
       }
-      formData.append("total_amount", String(data.amount.toFixed(2)));
+      formData.append("total_amount", String(data.amount));
       if (data?.category) {
         formData.append("expense_category", data.category);
       }
@@ -178,7 +178,7 @@ export default function AddExpenseScreen() {
       <CategorySelector control={control} />
 
       <View style={styles.dateTimeContainer}>
-        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date"/>
+        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
       
