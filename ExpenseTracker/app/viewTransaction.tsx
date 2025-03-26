@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetPersonalTransactionQuery } from "@/store/personalTransactionApi";
+import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
 import FastImage from 'react-native-fast-image';
 
 
@@ -12,6 +12,7 @@ const TransactionDetailScreen = () => {
   const { id } = useLocalSearchParams();
   const { data, isLoading, error, refetch } = useGetPersonalTransactionQuery(id);
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
+    const [deleteTransaction, {isLoading: deleteLoading, error: deleteError}] = useDeletePersonalTransactionMutation();
   
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -44,7 +45,18 @@ const TransactionDetailScreen = () => {
 
 
   const themeColor = transaction.transaction_type === "income" ? "#10B981" : "#EF4444";
-
+  const handleTransactionDelete = async () => {
+    try {
+      const response = await deleteTransaction(id);
+      if(!response || deleteError) {
+        console.log(error);
+        // setMenuVisible(false);
+      }
+      router.replace("/(tabs)/activity")
+    } catch (error) {
+      
+    }
+  }
   return (
     <View style={[styles.container]}>
       <View style={styles.header}>
@@ -64,7 +76,7 @@ const TransactionDetailScreen = () => {
         >
           <Menu.Item onPress={() => router.push({pathname:"/editTransaction",params:{fetchedId:id}})} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => console.log("Delete Spend")} title="Delete" />
+          <Menu.Item onPress={() => handleTransactionDelete()} title="Delete" />
         </Menu>
       </View>
 
