@@ -179,7 +179,7 @@ export default function AddTransactionScreen() {
 
       <CategorySelector control={control} />
       <View style={styles.dateTimeContainer}>
-        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date"/>
+        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
 

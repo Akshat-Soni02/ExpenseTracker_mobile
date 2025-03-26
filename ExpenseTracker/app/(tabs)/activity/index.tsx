@@ -81,7 +81,7 @@ export default function ActivityScreen() {
             <ScrollView style={styles.container}>
               
             <View style = {styles.header}>
-              <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>     
+              <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
               <Text style={styles.headerText}>Activity</Text>
             </View>
               <View style={styles.navbar}>
@@ -133,7 +133,7 @@ export default function ActivityScreen() {
         <ScrollView style={styles.container}>
               
             <View style = {styles.header}>
-                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()}/>     
+                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
                   <Text style={styles.headerText}>Activity</Text>
               </View>
               <View style={styles.navbar}>
@@ -184,7 +184,7 @@ export default function ActivityScreen() {
         <View style={styles.screen}>
         <ScrollView style={styles.container}>
           <View style = {styles.header}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()}/>     
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
               <Text style={styles.headerText}>Activity</Text>
           </View>
               <View style={styles.navbar}>
