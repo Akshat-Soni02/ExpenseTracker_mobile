@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -45,6 +45,7 @@ export default function EditExpenseScreen() {
       user_id: b.user_id
     }));
   const [errorMessage, setErrorMessage] = useState("");
+  const [childErrors, setChildErrors] = useState({});
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues:{
           amount: expense.total_amount,
@@ -66,6 +67,17 @@ export default function EditExpenseScreen() {
   const splitWith = watch("splitWith");
 
   const TOLERANCE = 0.1;
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Description?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
 
   // description,
@@ -181,7 +193,7 @@ export default function EditExpenseScreen() {
         <Text style={styles.header}>Edit Split</Text>
       </View>
 
-      <AmountDescriptionInput control={control} label="Description"/>
+      <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy edit={true}/>
       <NotesInput control={control} name="notes" />
 
@@ -197,7 +209,7 @@ export default function EditExpenseScreen() {
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
       
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

@@ -53,7 +53,7 @@ export default function DetectedTransactionsScreen() {
       
         <ScrollView style={styles.container}>
           
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => router.replace("/(tabs)")} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      
           <Text style={styles.headerText}>All Detected Transactions</Text>

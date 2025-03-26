@@ -32,7 +32,7 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
         <ScrollView style={styles.container}>
           
           <View style = {styles.header}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>     
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
             <Text style={styles.headerText}>Budgets</Text>
           </View>
           

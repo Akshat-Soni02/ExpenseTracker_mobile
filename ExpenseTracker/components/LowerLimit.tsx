@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "semibold",
     fontFamily: "Poppins_700Bold",
     color: "#1F2937",
     marginRight: 12,

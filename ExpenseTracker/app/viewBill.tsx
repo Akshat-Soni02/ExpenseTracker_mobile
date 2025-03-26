@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { FontAwesome, Ionicons, Entypo } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useDeleteBillMutation, useGetBillQuery, useUpdateUserStatusOfBillMutation } from "@/store/billApi";
@@ -146,7 +146,14 @@ const BillDetailsScreen = () => {
         >
           <Menu.Item onPress={() => router.push({pathname:"/editBill",params : {id:id}})} title="Edit" />
           <Divider />
-          <Menu.Item onPress={() => handleBillDelete()} title="Delete" />
+          <Menu.Item onPress={() => Alert.alert(
+                        "Delete bill", 
+                        `Are you sure you want to delete ${bill.bill_title}`, 
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          { text: "Yes", onPress: () => handleBillDelete()}
+                        ]
+                      )} title="Delete" />
         </Menu>
         {/* <TouchableOpacity onPress={()=> router.push({pathname:"/editBill",params : {id:id}})}>
           <Ionicons name="settings-outline" size={22} color="black" />

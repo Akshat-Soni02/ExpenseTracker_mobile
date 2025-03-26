@@ -1,12 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Controller, Control } from "react-hook-form";
 
 interface Props {
   control: Control<any>;
+  onErrorsChange: any;
 }
 
-const TitleInput: React.FC<Props> = ({ control }) => {
+const TitleInput: React.FC<Props> = ({ control, onErrorsChange }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Title</Text>
@@ -14,9 +15,17 @@ const TitleInput: React.FC<Props> = ({ control }) => {
         control={control}
         name="title"
         defaultValue=""
-        render={({ field: { onChange, value } }) => {
+        rules={{ required: `Title is required` }}
+        render={({ field: { onChange, value }, fieldState: {error} }) => {
           const memoizedValue = useMemo(() => value, [value]);
-
+          useEffect(() => {
+          if(error) {
+            onErrorsChange((prevErrors) => ({
+              ...prevErrors,
+              Title: error || undefined,
+            }));
+          }
+        }, [error]);
           return (
             <TextInput
               style={styles.titleInput}

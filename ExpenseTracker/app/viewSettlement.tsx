@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
@@ -122,7 +122,14 @@ const SettlementDetailsScreen = () => {
           >
             <Menu.Item onPress={() => {setMenuVisible(false);router.push({ pathname: "/editSettlement", params: {id} })}} title="Edit" />
             <Divider />
-            <Menu.Item onPress={() => {setMenuVisible(false);handleSettlementDelete()}} title="Delete" />
+            <Menu.Item onPress={() => Alert.alert(
+                                              "Delete settlement", 
+                                              `Are you sure you want to delete ${settlement.settlement_description}`, 
+                                              [
+                                                { text: "Cancel", style: "cancel" },
+                                                { text: "Yes", onPress: () => handleSettlementDelete()}
+                                              ]
+                                            )} title="Delete" />
           </Menu>
         </View>
       </View>

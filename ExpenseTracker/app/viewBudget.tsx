@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useUpdateBudgetMutation, useGetBudgetQuery } from "@/store/budgetApi";
@@ -18,7 +18,7 @@ export default function ViewBudgetScreen() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [childErrors, setChildErrors] = useState({});
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       amount: "",
@@ -39,6 +39,17 @@ export default function ViewBudgetScreen() {
       });
     }
   }, [isEditing, dataBudget, reset]);
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.amount?.message,
+        childErrors.Description?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
   const onSubmit = async (data: any) => {
     if (isEditing) {
@@ -113,13 +124,13 @@ export default function ViewBudgetScreen() {
         </View>
       ) : (
         <>
-          <AmountDescriptionInput control={control} label="Description" />
+          <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
           <CategorySelector control={control}/>
           <PeriodSelector control={control}/>
         </>
       )}
 
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {errorMessage && (Alert.alert("Error",errorMessage))}
     </ScrollView>
   );
 }

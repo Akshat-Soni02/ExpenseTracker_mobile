@@ -34,7 +34,7 @@ export default function WalletsScreen() {
         <ScrollView style={styles.container}>
           
           <View style = {styles.header}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style={styles.backButton}/>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style={styles.backButton}/>
             <Text style={styles.headerText}>Wallets</Text>
           </View>
           
