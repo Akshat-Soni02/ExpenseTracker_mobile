@@ -9,6 +9,8 @@ import { TouchableOpacity } from "react-native";
 import { SegmentedButtons,FAB,Modal,Portal } from 'react-native-paper';
 import * as React from 'react';
 import { Provider as PaperProvider } from 'react-native-paper';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Make sure to install this
+
 
 import {useGetUserDetectedTransactionsQuery} from '@/store/userApi'; 
 const transactions = [
@@ -82,9 +84,9 @@ export default function DetectedTransactionsScreen() {
               // </Pressable>
             )}
             ItemSeparatorComponent={() => (
-              <View style={{  height: 15, backgroundColor: 'white'}} />
+              <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 0 }}  // Ensure no extra padding
+            contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
 
           />)
           :
@@ -94,19 +96,17 @@ export default function DetectedTransactionsScreen() {
         </ScrollView>
         <Portal>
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
-            <Text style={styles.modalText}>Choose an action</Text>
-            
-            {selectedTransaction?.transaction_type.toString()==="credit" &&<Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
-              <Text style={styles.buttonText}>to Split</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalText}>Choose an action</Text>
+              <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/>
+            </View>
+            {selectedTransaction?.transaction_type.toString()==="debit" &&<Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
+              <Text style={styles.buttonText}>Convert to split</Text>
             </Pressable>
             } 
 
             <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
-              <Text style={styles.buttonText}>to Personal</Text>
-            </Pressable>
-
-            <Pressable style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={styles.buttonText}>Convert to spend</Text>
             </Pressable>
           </Modal>
         </Portal>
@@ -119,6 +119,16 @@ export default function DetectedTransactionsScreen() {
 const styles = StyleSheet.create({
     screen:{
         flex:1
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      // alignItems: "center",
+      // paddingHorizontal: 16,
+      paddingLeft: 16,
+      // paddingVertical: 10,
+      width: "100%",
+      // backgroundColor: "red",
     },
   container: {
     flex: 1,
@@ -240,12 +250,12 @@ button: {
   width: "100%",
   padding: 14,
   marginVertical: 8,
-  backgroundColor: "#007bff",
+  backgroundColor: "#475569",
   borderRadius: 10,
   alignItems: "center",
 },
 cancelButton: {
-  backgroundColor: "#d9534f", // Red for cancel to indicate action
+  backgroundColor: "#b52b27", // Red for cancel to indicate action
 },
 buttonText: {
   color: "white",

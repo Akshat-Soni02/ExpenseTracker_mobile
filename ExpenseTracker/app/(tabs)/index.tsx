@@ -17,6 +17,8 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthProvider';
 import { LinearGradient } from 'expo-linear-gradient';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Make sure to install this
+
 
 const transactions = [
   { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
@@ -185,20 +187,20 @@ export default function HomeScreen() {
     </View>
     <Portal>
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
-            <Text style={styles.modalText}>Choose an action</Text>
-            
-            {selectedTransaction?.transaction_type.toString()==="credit" &&<Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
-              <Text style={styles.buttonText}>to Split</Text>
+            {/* <Text style={styles.modalText}>Choose an action</Text> */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalText}>Choose an action</Text>
+              <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/>
+            </View>
+            {selectedTransaction?.transaction_type.toString()==="debit" &&<Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
+              <Text style={styles.buttonText}>Convert to split</Text>
             </Pressable>
             } 
 
             <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
-              <Text style={styles.buttonText}>to Personal</Text>
+              <Text style={styles.buttonText}>Convert to spend</Text>
             </Pressable>
 
-            <Pressable style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>
-              <Text style={styles.buttonText}>Cancel</Text>
-            </Pressable>
           </Modal>
         </Portal>
   </View>
@@ -214,6 +216,16 @@ const styles = StyleSheet.create({
   container: { 
     justifyContent:"space-between",
     padding: 20,      
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    // alignItems: "center",
+    // paddingHorizontal: 16,
+    paddingLeft: 16,
+    // paddingVertical: 10,
+    width: "100%",
+    // backgroundColor: "red",
   },
   profileCard: { 
     flexDirection: "row", 
@@ -408,12 +420,12 @@ button: {
   width: "100%",
   padding: 14,
   marginVertical: 8,
-  backgroundColor: "#007bff",
+  backgroundColor: "#475569",
   borderRadius: 10,
   alignItems: "center",
 },
 cancelButton: {
-  backgroundColor: "#d9534f", // Red for cancel to indicate action
+  backgroundColor: "#a94442", // Red for cancel to indicate action
 },
 buttonText: {
   color: "white",

@@ -33,11 +33,10 @@ const GroupDetailsScreen = () => {
     }
   }, [id]);
 
-  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  if (isLoading || loading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   if (error) return <Text>Error loading group details</Text>;
   if (!data?.data) return <Text>No group found</Text>;
   if (historyError) return <Text>Error fetching history</Text>;
-  if (loading) return <Text>Loading...</Text>;
 
   const onStateChange = ({ open }) => setState({ open });
 
