@@ -38,7 +38,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (!loading && !authToken) {
-      router.replace("/welcome");
+      router.replace("/auth/welcome");
     }
   }, [authToken, loading]);
 
@@ -71,9 +71,9 @@ export default function HomeScreen() {
   };
   const handleSelection = (option:any) => {
     if (option === "to Split") {
-      router.push({ pathname: "../addSplit", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type: selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
+      router.push({ pathname: "/action/create/createExpense", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type: selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
     } else if (option === "to Personal") {
-      router.push({ pathname: "../addTransaction", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type:selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
+      router.push({ pathname: "/action/create/createTransaction", params: {detectedId: selectedTransaction?._id, detectedAmount: selectedTransaction?.amount,detectedTransaction_type:selectedTransaction?.transaction_type,detectedDescription:selectedTransaction?.description,detectedFrom_account:selectedTransaction?.from_account,detectedTo_account:selectedTransaction?.to_account,detectedCreated_at_date_time:selectedTransaction?.created_at_date_time, detectedNotes:selectedTransaction?.notes} });
     }
     setModalVisible(false);
   };
@@ -84,7 +84,7 @@ export default function HomeScreen() {
       {/* Profile Card */}
       <View style={styles.profileCard}>
         <View style={styles.profileColumn1}>
-          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("../viewProfile")}>
+          <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("/view/viewProfile")}>
             {dataUser.data.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.avatar} />) : ( <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
             <View>
               <Text style={styles.greeting}>Good afternoon</Text>
@@ -116,8 +116,8 @@ export default function HomeScreen() {
       {/* Quick Actions */}
       <View style={styles.actions}>
   {[
-    { icon: "call-split", label: "New Split", route: "../addSplit" },
-    { icon: "plus", label: "New Spend", route: "../addTransaction" },
+    { icon: "call-split", label: "New Split", route: "/action/create/createExpense" },
+    { icon: "plus", label: "New Spend", route: "/action/create/createTransaction" },
     { icon: "file-check-outline", label: "Bills", route: "../activity/bills" },
     { icon: "finance", label: "Budgets", route: "/activity/budgets" },
   ].map((item, index) => (
@@ -170,7 +170,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.groupContainer}>
         {groups.slice(0, 3).map((group:any, index:any = group._id) => (
-          <TouchableOpacity onPress={() => router.push({ pathname: "../../viewGroup", params: { id:group._id} })}>
+          <TouchableOpacity onPress={() => router.push({ pathname: "/view/viewGroup", params: { id:group._id} })}>
           <View key={index} style={styles.groupItem}>
             <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
             <Text style={styles.groupName}>{group.group_title}</Text>
@@ -178,7 +178,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         ))}
         <View style={styles.groupItem}>
-          <TouchableOpacity style={styles.newGroup} onPress={() => router.push("../createGroup")}>
+          <TouchableOpacity style={styles.newGroup} onPress={() => router.push("/action/create/createGroup")}>
             <Ionicons name="add" size={24} color="#000" />          
           </TouchableOpacity>
           <Text style={styles.groupName}>Add</Text>

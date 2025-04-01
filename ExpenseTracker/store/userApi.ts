@@ -1,8 +1,73 @@
 import api from "./api";
+import { GetBillsResponse } from "./billApi";
+import { GetBudgetsResponse } from "./budgetApi";
+import { GetDetectedResponses } from "./detectedTransactionApi";
+import { ExpenseMedia, GetExpensesResponse } from "./expenseApi";
+import { GetGroupsResponse } from "./groupApi";
+import { GetTransactionsResponse } from "./personalTransactionApi";
+import { GetSettlementsResponse } from "./settlementApi";
+import { GetWalletsResponse } from "./walletApi";
+
+type friends = {
+  _id: string;
+  name: string;
+  email: string;
+  profile_photo: ExpenseMedia;
+  amount: number;
+  type: "debit" | "credit" | undefined;
+}
+
+type oauth = {
+  auth_id: string;
+  auth_provider: string;
+}
+
+type borrower = {
+  lender_id: string;
+  amount: number;
+}
+
+type lender = {
+  borrower_id: string;
+  amount: number;
+}
+
+type settler = {
+  user_id: string;
+  amount: number;
+}
+
+type User = {
+  _id: string;
+  name: string;
+  phone_number?: number;
+  email: string;
+  profile_photo?: ExpenseMedia;
+  oauth?: oauth;
+  lended?: borrower[];
+  borrowed?: lender[];
+  settled?: settler[];
+  futureFriends?: {email: string}[];
+  otp?: string;
+  otpExpiry?: string | Date;
+  daily_limit?: number;
+  password?: string;
+}
+
+type GetUserResponse = {
+  data: User;
+}
+
+type GetUsersResponse = {
+  data: User[];
+}
+
+type CreateUserRequest = Omit<User, "_id" | "lended" | "borrowed" | "settled" | "futureFriends" | "otp" | "otpExpiry">;
+type UpdateUserRequest = Partial<CreateUserRequest>;
 
 export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    registerUser: builder.mutation({
+    registerUser: builder.mutation<GetUserResponse, CreateUserRequest>({
       query: (body) => ({
         url: `/users/new`,
         method: "POST",
@@ -11,7 +76,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
-    googleLogin: builder.mutation({
+    googleLogin: builder.mutation<GetUserResponse, CreateUserRequest>({
       query: (body) => ({
         url: `/users/auth/google`,
         method: "POST",
@@ -20,7 +85,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
-    loginUser: builder.mutation({
+    loginUser: builder.mutation<GetUserResponse, {email: string, password: string}>({
       query: (body) => ({
         url: `/users/login`,
         method: "POST",
@@ -29,7 +94,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
-    sendOtp: builder.mutation({
+    sendOtp: builder.mutation<void, {email: string}>({
       query: (body) => ({
         url: `/users/send-otp`,
         method: "POST",
@@ -37,7 +102,7 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
-    verifyOtp: builder.mutation({
+    verifyOtp: builder.mutation<void, {email: string, otp: string}>({
       query: (body) => ({
         url: `/users/verify-otp`,
         method: "POST",
@@ -45,7 +110,7 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
-    resetPassword: builder.mutation({
+    resetPassword: builder.mutation<void, {email: string, newPassword: string}>({
       query: (body) => ({
         url: `/users/reset-password`,
         method: "POST",
@@ -53,19 +118,19 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
-    sendInvites: builder.mutation({
-      query: (body) => ({
-        url: `/users/send-invites`,
-        method: "POST",
-        body,
-      }),
-    }),
+    // sendInvites: builder.mutation<void, {invitees: {email: string}[]}>({
+    //   query: (body) => ({
+    //     url: `/users/send-invites`,
+    //     method: "POST",
+    //     body,
+    //   }),
+    // }),
 
-    getUser: builder.query<void, void>({
+    getUser: builder.query<GetUserResponse, void>({
       query: () => `/users/me`,
       providesTags: ["user"],
     }),
-    getUserById: builder.query({
+    getUserById: builder.query<GetUserResponse, string>({
       query: (id) => `/users/${id}`,
     }),
     logoutUser: builder.mutation<void, void>({
@@ -87,17 +152,17 @@ export const userApi = api.injectEndpoints({
       ],
     }),
 
-    getUserGroups: builder.query({
+    getUserGroups: builder.query<GetGroupsResponse, void>({
       query: () => `/users/groups`,
       providesTags: ["group"],
     }),
 
-    getUserExpenses: builder.query({
+    getUserExpenses: builder.query<GetExpensesResponse, void>({
       query: () => `/users/expenses`,
       providesTags: ["expense"],
     }),
 
-    getUserSettlements: builder.query({
+    getUserSettlements: builder.query<GetSettlementsResponse, {group_id: string}>({
       query: ({ group_id }) => {
         const params = new URLSearchParams();
         if (group_id) params.append("group_id", group_id);
@@ -106,17 +171,17 @@ export const userApi = api.injectEndpoints({
       providesTags: ["settlement"],
     }),
 
-    getUserWallets: builder.query<void, void>({
+    getUserWallets: builder.query<GetWalletsResponse, void>({
       query: () => `/users/wallets`,
       providesTags: ["wallet"],
     }),
 
-    getUserBudgets: builder.query({
+    getUserBudgets: builder.query<GetBudgetsResponse, void>({
       query: () => `/users/budgets`,
       providesTags: ["budget"],
     }),
 
-    getUserBills: builder.query({
+    getUserBills: builder.query<GetBillsResponse, {status: "pending" | "missed" | "paid"}>({
       query: ({ status }) => {
         const params = new URLSearchParams();
         if (status) params.append("status", status);
@@ -125,41 +190,41 @@ export const userApi = api.injectEndpoints({
       providesTags: ["bill"],
     }),
 
-    getUserPersonalTransactions: builder.query({
+    getUserPersonalTransactions: builder.query<GetTransactionsResponse, void>({
       query: () => `/users/personal-transactions`,
       providesTags: ["personalTransaction"],
     }),
 
-    getUserDetectedTransactions: builder.query({
+    getUserDetectedTransactions: builder.query<GetDetectedResponses, void>({
       query: () => `/users/detected-transactions`,
       providesTags: ["detectedTransaction"],
     }),
 
-    getUserFriends: builder.query<void,void>({
+    getUserFriends: builder.query<{data: friends[]},void>({
       query: () => `/users/friends`,
       providesTags: ["user"],
     }),
 
-    getUserCurrentExchangeStatus: builder.query<void, void>({
+    getUserCurrentExchangeStatus: builder.query<{data: {lendedAmount: number, borrowedAmount: number}}, void>({
       query: () => `/users/current-exchange-status`,
       providesTags: ["user"],
     }),
 
-    remindUserBorrower: builder.mutation({
+    remindUserBorrower: builder.mutation<void,{borrower_id: string}>({
       query: ({ borrower_id }) => ({
         url: `/users/remind-borrower/${borrower_id}`,
         method: "POST",
       }),
     }),
 
-    remindUserBorrowers: builder.mutation({
+    remindUserBorrowers: builder.mutation<void,void>({
       query: () => ({
         url: `/users/remind-borrowers`,
         method: "POST",
       }),
     }),
 
-    addUserFriends: builder.mutation({
+    addUserFriends: builder.mutation<void, {invitees: {email: string}[]}>({
       query: (body) => ({
         url: `/users/send-invites`,
         method: "POST",
@@ -168,7 +233,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"]
     }),
 
-    autoaddFriends: builder.mutation({
+    autoaddFriends: builder.mutation<void, {email:string}>({
       query: (body) => ({
         url: `/users/auto-add-friends`,
         method: "POST",
@@ -176,7 +241,7 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
-    updateUserDetails: builder.mutation({
+    updateUserDetails: builder.mutation<GetUserResponse, UpdateUserRequest>({
       query: ( body ) => ({
         url: `/users/profile-details`,
         method: "PUT",
@@ -185,7 +250,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
-    updateUserProfilePhoto: builder.mutation({
+    updateUserProfilePhoto: builder.mutation<GetUserResponse, UpdateUserRequest>({
       query: (body) => ({
         url: `/users/profile-photo`,
         method: "PUT",
@@ -203,7 +268,6 @@ export const {
   useSendOtpMutation,
   useVerifyOtpMutation,
   useResetPasswordMutation,
-  useSendInvitesMutation,
   useGetUserQuery,
   useGetUserByIdQuery,
   useLazyGetUserByIdQuery,

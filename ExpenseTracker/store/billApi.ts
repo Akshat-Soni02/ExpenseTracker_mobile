@@ -1,8 +1,42 @@
 import api from "./api";
 
+type member = {
+  user_id: string;
+  amount: number;
+  wallet_id?: string;
+  status: "paid" | "pending";
+};
+
+export type Bill = {
+  _id: string;
+  bill_number: number;
+  bill_title: string;
+  amount: number;
+  bill_category?: string;
+  due_date_time: string;
+  final_pay_date?: string;
+  recurring?: boolean;
+  status: "pending" | "missed" | "paid";
+  creator_id?: string;
+  members?: member[];
+};
+
+type GetBillResponse = {
+  data: Bill;
+};
+
+export type GetBillsResponse = {
+  data: Bill[];
+};
+
+type CreateBillRequest = Omit<Bill, "_id" | "bill_number" | "status" | "creator_id">;
+type updateBillRequest = Partial<Omit<Bill, "_id" | "bill_number" | "status" | "creator_id">>;
+
+
+
 export const billApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    createBill: builder.mutation({
+    createBill: builder.mutation<GetBillResponse, CreateBillRequest>({
       query: (body) => ({
         url: `/bills/new`,
         method: "POST",
@@ -11,7 +45,7 @@ export const billApi = api.injectEndpoints({
       invalidatesTags: ["bill"],
     }),
 
-    updateUserStatusOfBill: builder.mutation({
+    updateUserStatusOfBill: builder.mutation<GetBillResponse, {body: {status: string}, billId: string}>({
       query: ({ body, billId }) => ({
         url: `/bills/bill-status-update/${billId}`,
         method: "POST",
@@ -20,12 +54,12 @@ export const billApi = api.injectEndpoints({
       invalidatesTags: ["bill"],
     }),
 
-    getBill: builder.query({
+    getBill: builder.query<GetBillResponse, string>({
       query: (id) => `/bills/${id}`,
       providesTags: (_result, _error, id) => [{ type: "bill", id }],
     }),
 
-    updateBill: builder.mutation({
+    updateBill: builder.mutation<GetBillResponse, {id: string, body:updateBillRequest}>({
       query: ({ id, body }) => ({
         url: `/bills/${id}`,
         method: "PUT",
@@ -34,7 +68,7 @@ export const billApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [{ type: "bill", id }],
     }),
 
-    deleteBill: builder.mutation({
+    deleteBill: builder.mutation<void, string>({
       query: (id) => ({
         url: `/bills/${id}`,
         method: "DELETE",

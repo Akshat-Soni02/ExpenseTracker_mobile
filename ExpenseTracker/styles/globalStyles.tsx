@@ -37,3 +37,15 @@ export const globalStyles = StyleSheet.create({
     marginVertical: 10,
   },
 });
+
+// container: {
+//   flex: 1,
+//   backgroundColor: "#F9FAFB",
+//   padding: 20,
+// },
+
+// header: {
+//   fontSize: 24,
+//   fontWeight: "bold",
+//   fontFamily: "Poppins_700Bold",
+// },

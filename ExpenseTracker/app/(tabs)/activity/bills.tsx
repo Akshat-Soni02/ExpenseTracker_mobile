@@ -12,6 +12,7 @@ import {useGetUserBillsQuery} from '@/store/userApi';
 import { format } from "date-fns";
 import SegmentedControl from "@/components/SegmentedControl";
 
+
 export default function BillsScreen() {
   const router = useRouter();
   const [page, setPage] = React.useState("pending");
@@ -54,7 +55,7 @@ export default function BillsScreen() {
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
                   <TransactionCard
-                  pressFunction = {() => router.push({ pathname: "../../viewBill", params: { id:item._id} })} 
+                  pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })} 
                   title = {item.bill_title}
                   imageType = {undefined}
                   amount={`₹${item.amount}`}
@@ -66,8 +67,9 @@ export default function BillsScreen() {
                 ItemSeparatorComponent={() => (
                   <View style={{  height: 5, backgroundColor: 'white'}} />
                 )}
-                contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
+                contentContainerStyle={{ paddingBottom: 5 }}
                 nestedScrollEnabled={true}
+                scrollEnabled={false}
               />):
                 <Text style={styles.noText}>No pending bills</Text>
               }
@@ -76,7 +78,7 @@ export default function BillsScreen() {
             <FAB
                 label="Add Bill"
                 style={styles.fab}
-                onPress={() => router.push("../../createBill")}
+                onPress={() => router.push("/action/create/createBill")}
             />
         </View>
       );
@@ -97,7 +99,7 @@ export default function BillsScreen() {
                     keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
                       <TransactionCard
-                      pressFunction = {() => router.push({ pathname: "../../viewBill", params: { id:item._id} })}
+                      pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })}
                       title = {item.bill_title}
                       imageType = {undefined}
                       amount={`₹${item.amount}`}
@@ -109,8 +111,9 @@ export default function BillsScreen() {
                     ItemSeparatorComponent={() => (
                       <View style={{  height: 5, backgroundColor: 'white'}} />
                     )}
-                    contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
+                    contentContainerStyle={{ paddingBottom: 5 }}
                     nestedScrollEnabled={true}
+                    scrollEnabled={false}
                   />):
                     <Text style={styles.noText}>No missed bills</Text>
                   }
@@ -119,7 +122,7 @@ export default function BillsScreen() {
                 <FAB
                     label="Add Bill"
                     style={styles.fab}
-                    onPress={() => router.push("../../createBill")}
+                    onPress={() => router.push("/action/create/createBill")}
                 />
             </View>
           );
@@ -140,7 +143,7 @@ export default function BillsScreen() {
                     keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
                       <TransactionCard
-                      pressFunction = {() => router.push({ pathname: "../../viewBill", params: { id:item._id} })}
+                      pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })}
                       title = {item.bill_title}
                       imageType = {undefined}
                       amount={`₹${item.amount}`}
@@ -152,8 +155,9 @@ export default function BillsScreen() {
                     ItemSeparatorComponent={() => (
                       <View style={{  height: 5, backgroundColor: 'white'}} />
                     )}
-                    contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
+                    contentContainerStyle={{ paddingBottom: 5 }}
                     nestedScrollEnabled={true}
+                    scrollEnabled={false}
                   />):
                     <Text style={styles.noText}>No completed bills</Text>
                   }
@@ -162,7 +166,7 @@ export default function BillsScreen() {
                 <FAB
                     label="Add Bill"
                     style={styles.fab}
-                    onPress={() => router.push("../../createBill")}
+                    onPress={() => router.push("/action/create/createBill")}
                 />
             </View>
           );
@@ -176,14 +180,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position:"relative",
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
-    paddingTop: 0, // Add padding to the top to avoid overlap with status bar
+    paddingTop: 0,
   },
   header: {
     color: "black",
     backgroundColor: "white",
-    paddingInline: 5,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -200,15 +203,7 @@ const styles = StyleSheet.create({
   },
   navbar: {
     marginBottom: 20,
-    // backgroundColor: '#f8f8f8',
-    // borderBottomColor: '#ddd',
-    // borderRadius: 20,
-    // elevation: 2,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
     marginTop: 25,
-    // shadowRadius: 2,
     left : 2,
   },
   navItem: {
@@ -223,18 +218,15 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   todayText: {
-    // marginTop: 1 // Space above the "Today" text
     marginLeft: 20,
     color: "black",
     fontSize: 20,
     fontWeight: "bold",
-    // marginBottom: 0, // Space below the "Today" text
   },
   transactionsContainer: {
-    // marginTop: 10, // Space above the transactions
     alignItems: "flex-start",
     width: "100%",
-    paddingVertical: 10, // Space above and below the transactions
+    paddingVertical: 10,
   },
 
   sectionTitle: { 
@@ -250,12 +242,12 @@ const styles = StyleSheet.create({
     bottom: 0,
 },
 noText: {
-  height: 100, // Set a fixed height to match the expected space
-  justifyContent: 'center', // Center the text vertically
-  alignItems: 'center', // Center the text horizontally
-  textAlign: 'center', // Center the text
-  fontSize: 16, // Adjust font size as needed
-  color: 'gray', // Change color to indicate no transactions
-  padding: 16, // Add some padding for better spacing
+  height: 100,
+  justifyContent: 'center',
+  alignItems: 'center',
+  textAlign: 'center',
+  fontSize: 16,
+  color: 'gray',
+  padding: 16,
 },
 });

@@ -1,8 +1,47 @@
 import api from "./api";
 
+type ExpenseUser = {
+  user_id: string;
+  amount: number;
+}
+
+export type ExpenseMedia = {
+  url: string;
+  public_id: string;
+}
+
+export type Expense = {
+  _id: string;
+  description: string;
+  lenders: Array<ExpenseUser>;
+  borrowers: Array<ExpenseUser>;
+  group_id?: string;
+  wallet_id?: string;
+  media?: ExpenseMedia;
+  total_amount: number;
+  expense_category?: string;
+  created_at_date_time?: string;
+  creator?: {
+    creator_id: string;
+    amount: number;
+  };
+  notes?: string;
+}
+
+type GetExpenseResponse = {
+  data: Expense;
+}
+
+export type GetExpensesResponse = {
+  data: Expense[];
+}
+
+type CreateExpenseRequest = Omit<Expense, "_id" | "creator">;
+type UpdateExpenseRequest = Partial<CreateExpenseRequest>;
+
 export const expenseApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    createExpense: builder.mutation({
+    createExpense: builder.mutation<GetExpenseResponse, CreateExpenseRequest>({
       query: (body) => ({
         url: `/expenses/new`,
         method: "POST",
@@ -11,8 +50,7 @@ export const expenseApi = api.injectEndpoints({
       invalidatesTags: ["expense", "group", "wallet","user"],
     }),
 
-    // Get expenses for a user based on a period (e.g., daily, weekly, monthly)
-    getUserPeriodExpenses: builder.query({
+    getUserPeriodExpenses: builder.query<GetExpensesResponse, {startDate: string, endDate: string}>({
         query: ({ startDate, endDate }) => {
             const params = new URLSearchParams();
             if (startDate) params.append("startDate", startDate);
@@ -21,18 +59,18 @@ export const expenseApi = api.injectEndpoints({
         },
         providesTags: ["expense"],
     }),
-    getCustomExpenses: builder.query({
+    getCustomExpenses: builder.query<GetExpensesResponse, any>({
       query: (params) => {
         const queryString = new URLSearchParams(params).toString();
         return `/expenses/custom?${queryString}`;
       },
       providesTags: ["expense"],
     }),
-    getExpense: builder.query({
+    getExpense: builder.query<GetExpenseResponse, string>({
       query: (id) => `/expenses/${id}`,
       providesTags: ["expense"],
     }),
-    updateExpense: builder.mutation({
+    updateExpense: builder.mutation<GetExpenseResponse, {expense_id: string, body: UpdateExpenseRequest}>({
       query: ({ expense_id, body }) => ({
         url: `/expenses/${expense_id}`,
         method: "PUT",
@@ -40,7 +78,7 @@ export const expenseApi = api.injectEndpoints({
       }),
       invalidatesTags: ["expense", "group", "wallet", "user"],
     }),
-    deleteExpense: builder.mutation({
+    deleteExpense: builder.mutation<void, string>({
       query: (id) => ({
         url: `/expenses/${id}`,
         method: "DELETE",

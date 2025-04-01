@@ -48,7 +48,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TransactionCard 
-              pressFunction = {() => router.push({ pathname: "../../viewGroup", params: { id:item._id} })}
+              pressFunction = {() => router.push({ pathname: "/view/viewGroup", params: { id:item._id} })}
               title = {item.group_title}
               imageType = {undefined}
               amount={`₹${item.initial_budget}`}
@@ -71,7 +71,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
         <FAB
             label="Add Group"
             style={styles.fab}
-            onPress={() => router.push("../../createGroup")}
+            onPress={() => router.push("/action/create/createGroup")}
         />
     </View>
   );
