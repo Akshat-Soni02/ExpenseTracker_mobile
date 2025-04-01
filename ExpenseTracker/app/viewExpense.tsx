@@ -158,9 +158,18 @@ const ExpenseDetailScreen = () => {
         <Text style={styles.paidBy}>
           {lenderName} paid <Text style={styles.boldText}>₹{expense.total_amount}</Text>
         </Text>
+        {/* {expense.borrowers.map((borrower) => (
+          {borrowerNames[borrower.user_id]==="You" ? (<Text key={borrower.user_id} style={styles.oweText}>
+            You owe ₹{borrower.amount}
+          </Text>):(<Text key={borrower.user_id} style={styles.oweText}>
+            {borrowerNames[borrower.user_id] || "Unknown"} owes ₹{borrower.amount}
+          </Text>)}
+        ))} */}
         {expense.borrowers.map((borrower) => (
           <Text key={borrower.user_id} style={styles.oweText}>
-            {borrowerNames[borrower.user_id] || "Unknown"} owes ₹{borrower.amount}
+            {borrowerNames[borrower.user_id] === "You"
+              ? `You owe ₹${borrower.amount}`
+              : `${borrowerNames[borrower.user_id] || "Unknown"} owes ₹${borrower.amount}`}
           </Text>
         ))}
       </View>
