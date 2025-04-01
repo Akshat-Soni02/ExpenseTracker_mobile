@@ -103,7 +103,7 @@ export default function ActivityScreen() {
                         keyExtractor={(item) => item._id}
                         renderItem={({ item }) => (
                           <TransactionCard 
-                            pressFunction = {() => router.push({ pathname: "../../viewExpense", params: { id:item._id} })}
+                            pressFunction = {() => router.push({ pathname: "/view/viewExpense", params: { id:item._id} })}
     
                             title={item.description}
                             imageType={undefined}
@@ -121,13 +121,13 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                  <Text style= {styles.noText}>No expenses found</Text>
+                  <Text style= {styles.noText}>No splits found</Text>
                 }
             </ScrollView>
             <FAB
             label="Add split"
             style={styles.fab}
-            onPress={() => router.push("/addSplit")}
+            onPress={() => router.push("/action/create/createExpense")}
         />
         </View>
       );
@@ -154,7 +154,7 @@ export default function ActivityScreen() {
                         keyExtractor={(item) => item._id}
                         renderItem={({ item }) => (
                           <TransactionCard 
-                            pressFunction = {() => router.push({ pathname: "../../viewTransaction", params: { id:item._id} })}
+                            pressFunction = {() => router.push({ pathname: "/view/viewTransaction", params: { id:item._id} })}
     
                             title={item.description}
                             imageType={item.transaction_type}
@@ -172,14 +172,14 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                 <Text style= {styles.noText}>No personal transactions found</Text>
+                 <Text style= {styles.noText}>No spends found</Text>
                 }
     
             </ScrollView>
             <FAB
             label="Add Spend"
             style={styles.fab}
-            onPress={() => router.push("/addTransaction")}
+            onPress={() => router.push("/action/create/createTransaction")}
         />
         </View>
       );
@@ -206,7 +206,7 @@ export default function ActivityScreen() {
                         keyExtractor={(item) => item._id}
                         renderItem={({ item }) => (
                           <TransactionCard
-                            pressFunction={() => router.push({ pathname: "../../viewSettlement", params: { id:item._id} })}
+                            pressFunction={() => router.push({ pathname: "/view/viewSettlement", params: { id:item._id} })}
                             title={item.settlement_description}
                             imageType={undefined}
                             amount={`₹${item.amount}`}

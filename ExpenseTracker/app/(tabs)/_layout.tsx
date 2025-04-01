@@ -65,11 +65,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="people"
+        name="friends"
         options={{
           title: "Friends",
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="account" color={color} focused={focused} route="/(tabs)/people" />
+            <TabBarIcon name="account" color={color} focused={focused} route="/(tabs)/friends" />
           ),
         }}
       />

@@ -1,5 +1,26 @@
 import api from "./api";
 
+type Detected = {
+  _id: string;
+  transaction_type: string;
+  description: string;
+  from_account?: string;
+  to_account?: string;
+  amount: number;
+  created_at_date_time?: string;
+  user_id?: string;
+  notes?: string;
+}
+
+type GetDetectedResponse = {
+  data: Detected;
+}
+
+export type GetDetectedResponses = {
+  data: Detected[];
+}
+
+
 export const detectedTransactionApi = api.injectEndpoints({
   endpoints: (builder) => ({
     createDetectedTransaction: builder.mutation({

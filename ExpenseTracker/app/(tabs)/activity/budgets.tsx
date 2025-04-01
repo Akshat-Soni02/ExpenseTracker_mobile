@@ -53,7 +53,7 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
               subtitle={`Current Spend: ₹${item.current_spend}`}
               optionText={item.period}
               transactionType={undefined}
-              pressFunction={() => router.push({ pathname: "../../viewBudget", params: { id: item._id } })}
+              pressFunction={() => router.push({ pathname: "/view/viewBudget", params: { id: item._id } })}
               />
               // </TouchableOpacity>
               
@@ -71,7 +71,7 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
         <FAB
             label="Add Budget"
             style={styles.fab}
-            onPress={() => router.push("../../createBudget")}
+            onPress={() => router.push("/action/create/createBudget")}
         />
     </View>
   );

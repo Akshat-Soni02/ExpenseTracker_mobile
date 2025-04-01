@@ -48,7 +48,7 @@ export default function WalletsScreen() {
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TransactionCard
-              pressFunction={() => router.push({ pathname: "../../viewWallet", params: { id:item._id} })}
+              pressFunction={() => router.push({ pathname: "/view/viewWallet", params: { id:item._id} })}
               title = {item.wallet_title}
               imageType = {undefined}
               amount={`₹${item.amount}`}
@@ -71,7 +71,7 @@ export default function WalletsScreen() {
         <FAB
             label="Add Wallet"
             style={styles.fab}
-            onPress={() => router.push("../createWallet")}
+            onPress={() => router.push("/action/create/createWallet")}
         />
     </View>
   );
