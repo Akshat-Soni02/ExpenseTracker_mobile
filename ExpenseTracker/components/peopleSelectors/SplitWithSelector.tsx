@@ -4,6 +4,7 @@ import { Control, Controller, useWatch ,useController} from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
+import { UseFormSetValue } from "react-hook-form";
 
 import CustomButton from "../button/CustomButton";
 import { useLazyGetGroupQuery } from "@/store/groupApi";
@@ -11,10 +12,22 @@ import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi
 import { people } from "./AddPeopleInput";
 const { width } = Dimensions.get("window");
 
+type FormValues = { 
+  amount: number; 
+  title: string; 
+  splitWith: { user_id: string; amount: number }[];
+  paidBy?: { user_id: string, name: string, profile_photo?: string };
+  members: never[]; 
+  date: Date; 
+  time: Date; 
+  category: string; 
+  recurring: boolean; 
+};
+
 interface Props {
   control: Control<any>;
   amount: number;
-  setValue: (name: string, value: any) => void;
+  setValue: UseFormSetValue<FormValues>;
   title?: string;
   group_id?: string;
   IncludePaidBy?: boolean;
@@ -110,8 +123,9 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
     const updatedArray = newSelectedUsers.map((u) => ({
       user_id: u.user_id,
-      amount: splitAmounts[u.user_id] || "0",
+      amount: splitAmounts[u.user_id] || 0,
     }));
+
     setValue("splitWith", updatedArray);
     setUpdateUI((prev) => !prev);
   };

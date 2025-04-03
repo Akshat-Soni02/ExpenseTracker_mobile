@@ -21,6 +21,12 @@ type ChildErrors = {
   Title?: error;
 }
 
+type BillMember = {
+  user_id: string;
+  amount: number;
+  status: "pending";
+}
+
 export default function CreateBillScreen() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
@@ -53,6 +59,13 @@ export default function CreateBillScreen() {
     }
   }, [childErrors]);
 
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+  
+
   const onBillSubmit = async (data: any) => {
     try {
       const selectedDate = new Date(data.date);
@@ -66,8 +79,8 @@ export default function CreateBillScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
-      let members = [];
-      data?.splitWith.forEach((split) => {
+      let members: BillMember[] = [];
+      data?.splitWith.forEach((split:{ user_id: string, amount: number}) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
       });
 
@@ -116,7 +129,6 @@ export default function CreateBillScreen() {
       <CategorySelector control={control}/>
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onBillSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );
