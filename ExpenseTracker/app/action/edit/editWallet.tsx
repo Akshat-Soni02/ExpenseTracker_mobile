@@ -4,12 +4,12 @@ import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
-import TitleInput from "@/components/TitleInput";
-import AddPeopleInput from "@/components/AddPeopleInput";
-import InitialBudget from "@/components/InitialBudget";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
-import AmountDescriptionInput from "@/components/AmountDescriptionInput";
-import LowerLimit from "@/components/LowerLimit";
+import TitleInput from "@/components/inputs/TitleInput";
+import AddPeopleInput from "@/components/peopleSelectors/AddPeopleInput";
+import InitialBudget from "@/components/inputs/InitialBudget";
+import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
+import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
+import LowerLimit from "@/components/inputs/LowerLimit";
 import { useUpdateWalletMutation } from "@/store/walletApi";
 
 export default function CreateWalletScreen() {

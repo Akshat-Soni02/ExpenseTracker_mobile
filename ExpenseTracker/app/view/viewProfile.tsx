@@ -18,7 +18,7 @@ import { useRouter } from "expo-router";
 import { useGetUserQuery, useLogoutUserMutation, useUpdateUserDetailsMutation } from "@/store/userApi";
 import { useAuth } from "@/context/AuthProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { handleGoogleSignOut } from "@/components/GoogleButton";
+import { handleGoogleSignOut } from "@/components/button/GoogleButton";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Feather from '@expo/vector-icons/Feather';
 import { useDispatch, UseDispatch } from "react-redux";

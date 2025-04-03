@@ -4,10 +4,11 @@ import { ExpenseMedia } from "./expenseApi";
 export type Transaction = {
   _id: string;
   transaction_type: "expense" | "income";
+  description: string;
   wallet_id?: string;
   media?: ExpenseMedia;
   transaction_category?: string;
-  created_at_date_time?: string;
+  created_at_date_time: string;
   notes?: string;
   amount: number;
   budget_id?: string;

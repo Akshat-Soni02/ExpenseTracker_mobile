@@ -20,7 +20,7 @@ export type Expense = {
   media?: ExpenseMedia;
   total_amount: number;
   expense_category?: string;
-  created_at_date_time?: string;
+  created_at_date_time: string;
   creator?: {
     creator_id: string;
     amount: number;

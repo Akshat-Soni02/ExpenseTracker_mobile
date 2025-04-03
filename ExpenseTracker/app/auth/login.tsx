@@ -5,7 +5,7 @@ import { globalStyles } from "../../styles/globalStyles";
 import CustomButton from "../../components/button/CustomButton";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import GoogleButton from "@/components/GoogleButton";
+import GoogleButton from "@/components/button/GoogleButton";
 import { useLoginUserMutation } from "@/store/userApi";
 import { UseDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";

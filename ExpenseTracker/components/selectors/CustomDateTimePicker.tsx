@@ -14,12 +14,12 @@ interface CustomDateTimePickerProps {
 }
 
 const formatDate = (dateString: string | null, label: "Date" | "Time") => {
-  if (!dateString) return "Select"; // Default placeholder
+  if (!dateString) return "Select";
   const date = new Date(dateString);
 
   return label === "Time"
     ? date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
-    : date.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }); // Short month to avoid wrapping
+    : date.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
 };
 
 const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({

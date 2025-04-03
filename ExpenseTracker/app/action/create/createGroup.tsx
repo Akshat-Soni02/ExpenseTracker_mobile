@@ -4,10 +4,10 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
-import TitleInput from "@/components/TitleInput";
-import AddPeopleInput from "@/components/AddPeopleInput";
-import InitialBudget from "@/components/InitialBudget";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
+import TitleInput from "@/components/inputs/TitleInput";
+import AddPeopleInput from "@/components/peopleSelectors/AddPeopleInput";
+import InitialBudget from "@/components/inputs/InitialBudget";
+import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import { useCreateGroupMutation } from "@/store/groupApi";
 
 export default function CreateGroupScreen() {

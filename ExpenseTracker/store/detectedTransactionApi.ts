@@ -1,6 +1,6 @@
 import api from "./api";
 
-type Detected = {
+export type Detected = {
   _id: string;
   transaction_type: string;
   description: string;

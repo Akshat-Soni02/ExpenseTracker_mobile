@@ -1,7 +1,7 @@
 import { Update } from "@reduxjs/toolkit";
 import api from "./api";
 
-type Wallet = {
+export type Wallet = {
   _id: string;
   amount: number;
   wallet_title: string;

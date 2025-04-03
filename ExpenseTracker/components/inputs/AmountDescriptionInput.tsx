@@ -1,19 +1,24 @@
 import React, { useEffect, useMemo } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity} from "react-native";
 import { Controller, Control } from "react-hook-form";
+import { FieldError } from "react-hook-form";
 
 interface Props {
   control: Control<any>;
   label: string;
   update?: boolean;
-  isAmountFrozen?: boolean; // New prop to freeze amount input
+  isAmountFrozen?: boolean;
   onErrorsChange: any;
-
 }
 
-const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmountFrozen = false, onErrorsChange}) => {
+export type FormErrors = {
+  [key: string]: FieldError | undefined;
+};
+
+const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFrozen = false, onErrorsChange}) => {
   return (
     <View style={styles.container}>
+
       {/* Amount Section */}
       <Text style={styles.label}>Amount</Text>
       <View style={[styles.amountWrapper, isAmountFrozen && styles.disabledInputWrapper]}>
@@ -29,7 +34,7 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmo
           render={({ field: { onChange, value }, fieldState: { error } }) => {
             useEffect(() => {
               if(error) {
-                onErrorsChange((prevErrors) => ({
+                onErrorsChange((prevErrors: FormErrors) => ({
                   ...prevErrors,
                   amount: error || undefined,
                 }));
@@ -59,8 +64,8 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmo
                       onChange(numericValue);
                     }
                   }}
-                  editable={!isAmountFrozen} // Freezing the input
-                  selectTextOnFocus={!isAmountFrozen} // Prevent selection if frozen
+                  editable={!isAmountFrozen}
+                  selectTextOnFocus={!isAmountFrozen}
                   accessibilityLabel="Amount input"
                   accessibilityHint={isAmountFrozen ? "Amount is locked" : "Enter the amount in rupees"}
                 />
@@ -81,7 +86,7 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmo
         render={({ field: { onChange, value }, fieldState: { error } }) => {
           useEffect(() => {
             if(error) {
-              onErrorsChange((prevErrors) => ({
+              onErrorsChange((prevErrors: FormErrors) => ({
                 ...prevErrors,
                 [label]: error || undefined,
               }));
@@ -112,8 +117,6 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, update, isAmo
 
 export default AmountDescriptionInput;
 
-
-// export default AmountDescriptionInput;
 
 const styles = StyleSheet.create({
   container: {

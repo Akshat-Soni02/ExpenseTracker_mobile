@@ -1,49 +1,49 @@
-import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import CustomButton from "@/components/button/CustomButton";
-import { globalStyles } from "@/styles/globalStyles";
-import TransactionCard from "@/components/TransactionCard";
-import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
-import { SegmentedButtons,FAB } from 'react-native-paper';
+import {  FontAwesome } from "@expo/vector-icons";
+import { FAB } from 'react-native-paper';
 import * as React from 'react';
+
 import moment from "moment";
-import {useGetUserGroupsQuery} from '@/store/userApi'; 
-const transactions = [
-  { id: "1", title:"General",imageType: undefined, amount: "₹60", time: "cash" ,transactionType: undefined},
-  { id: "2",title:"Food", imageType: undefined, amount: "₹90", time: "Acc. 12314" ,transactionType: undefined},
-  { id: "3", title:"Travel",imageType: undefined, amount: "₹80", time: "Acc. 65786" ,transactionType: undefined},
-];
-// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
+import TransactionCard from "@/components/readComponents/TransactionCard";
+import {useGetUserGroupsQuery} from '@/store/userApi';
+import { Group } from "@/store/groupApi";
+import { globalStyles } from "@/styles/globalStyles";
+
 export default function GroupsScreen() {
   const router = useRouter();
 
-  const [value, setValue] = React.useState('');
-const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUserGroupsQuery({});
-  if (isLoadingGroup) {
-      return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-    }
+const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUserGroupsQuery();
+
+  if (isLoadingGroup) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     
-    if (errorGroup) {
-      return <Text>Error: {errorGroup?.message || JSON.stringify(errorGroup)}</Text>;
+  if (errorGroup) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in errorGroup) {
+      errorMessage = `Server Error: ${JSON.stringify(errorGroup.data)}`;
+    } else if ("message" in errorGroup) {
+      errorMessage = `Client Error: ${errorGroup.message}`;
     }
-  const groups = dataGroup.data;
-  const numberOfGroups = groups.length; 
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
+
+  const groups: Group[] = dataGroup?.data || [];
+  const numberOfGroups: number = groups.length; 
+  
   return (
     <View style={styles.screen}>
+
         <ScrollView style={styles.container}>
+
           <View style = {styles.header}>
             <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
             <Text style={styles.headerText}>Groups</Text>
           </View>
           
-          {/* <View style={styles.navbar}>
-            <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
-          </View> */}
-          {numberOfGroups>0?(<FlatList
+          {numberOfGroups>0 ? (
+            <FlatList
             data={groups}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
@@ -56,23 +56,21 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
               transactionType={undefined}
               optionText={"Inital budget"}
               />
-              
             )}
             ItemSeparatorComponent={() => (
               <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
-
-          />):
-          <Text style={styles.noBudgetsText}>No groups found</Text>
-          }
+            contentContainerStyle={{ paddingBottom: 5 }}
+          />) : <Text style={styles.noBudgetsText}>No Groups</Text>}
           
         </ScrollView>
+
         <FAB
-            label="Add Group"
-            style={styles.fab}
-            onPress={() => router.push("/action/create/createGroup")}
+        label="Add Group"
+        style={styles.fab}
+        onPress={() => router.push("/action/create/createGroup")}
         />
+        
     </View>
   );
 }

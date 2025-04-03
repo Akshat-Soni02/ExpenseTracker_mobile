@@ -1,34 +1,38 @@
-import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
-import { Text, View } from "@/components/Themed";
-import { useRouter } from "expo-router";
-import CustomButton from "@/components/button/CustomButton";
-import { globalStyles } from "@/styles/globalStyles";
-import TransactionCard from "@/components/TransactionCard";
-import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
-import { SegmentedButtons,FAB } from 'react-native-paper';
+import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import * as React from 'react';
+import { FAB } from 'react-native-paper';
+import { useRouter } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
+import { Text, View } from "@/components/Themed";
+
+import TransactionCard from "@/components/readComponents/TransactionCard";
 import {useGetUserBudgetsQuery} from '@/store/userApi'; 
-const transactions = [
-  { id: "1", title:"General",imageType: undefined, amount: "₹60", time: "cash" ,transactionType: undefined},
-  { id: "2",title:"Food", imageType: undefined, amount: "₹90", time: "Acc. 12314" ,transactionType: undefined},
-  { id: "3", title:"Travel",imageType: undefined, amount: "₹80", time: "Acc. 65786" ,transactionType: undefined},
-];
-// import sampleProfilePic from "/Users/atharva.lonhari/Documents/Project_ET_Mobile/ExpenseTracker_mobile/ExpenseTracker/assets/images/sampleprofilepic.png";
+import { globalStyles } from "@/styles/globalStyles";
+import { Budget } from "@/store/budgetApi";
+
 export default function BudgetsScreen() {
   const router = useRouter();
+  const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGetUserBudgetsQuery();
 
-  const [value, setValue] = React.useState('');
-const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGetUserBudgetsQuery({});
   if (isLoadingBudget) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-    
-    if (errorBudget) {
-      return <Text>Error: {errorBudget?.message || JSON.stringify(errorBudget)}</Text>;
+
+  if (errorBudget) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in errorBudget) {
+      errorMessage = `Server Error: ${JSON.stringify(errorBudget.data)}`;
+    } else if ("message" in errorBudget) {
+      errorMessage = `Client Error: ${errorBudget.message}`;
     }
-  const budgets = dataBudget.data;
-  const numberOfBudgets = budgets.length; 
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
+
+  const budgets: Budget[] = dataBudget?.data || [];
+  const numberOfBudgets: number = budgets.length;
+
   return (
     <View style={styles.screen}>
+
         <ScrollView style={styles.container}>
           
           <View style = {styles.header}>
@@ -36,16 +40,11 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
             <Text style={styles.headerText}>Budgets</Text>
           </View>
           
-          {/* <View style={styles.navbar}>
-            <TouchableOpacity  style={styles.navItem}><Text style={styles.navText}>Detected Transactions</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySplit")}><Text style={styles.navText}>Split Expenses</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={() => router.push("/activity/activitySpend")}><Text style={styles.navText}>Spend Records</Text></TouchableOpacity>
-          </View> */}
-          {numberOfBudgets>0?(<FlatList
+          {numberOfBudgets>0 ? (
+            <FlatList
             data={budgets}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              // <TouchableOpacity onPress={() => router.push({ pathname: "../../viewBudget", params: { id: item._id } })}>
               <TransactionCard 
               title = {item.budget_title}
               imageType = {undefined}
@@ -55,26 +54,23 @@ const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGe
               transactionType={undefined}
               pressFunction={() => router.push({ pathname: "/view/viewBudget", params: { id: item._id } })}
               />
-              // </TouchableOpacity>
-              
             )}
             ItemSeparatorComponent={() => (
               <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 5 }}  // Ensure no extra padding
+            contentContainerStyle={{ paddingBottom: 5 }}
             nestedScrollEnabled={true}
-          />):
-          <Text style={styles.noBudgetsText}>No budgets found</Text>
-          }
+          />) : (<Text style={styles.noBudgetsText}>Create a budget to keep track categorical track of your expenses</Text>)}
           
         </ScrollView>
+
         <FAB
-            label="Add Budget"
-            style={styles.fab}
-            onPress={() => router.push("/action/create/createBudget")}
+        label="Add Budget"
+        style={styles.fab}
+        onPress={() => router.push("/action/create/createBudget")}
         />
-    </View>
-  );
+
+    </View>);
 }
 
 const styles = StyleSheet.create({

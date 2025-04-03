@@ -26,8 +26,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   variant = "filled",
   innerStyle
 }) => {
-  const [pressed, setPressed] = useState(false);
-
+  const [pressed, setPressed] = useState<boolean>(false);
   const handlePressIn = () => setPressed(true);
   const handlePressOut = () => setPressed(false);
 

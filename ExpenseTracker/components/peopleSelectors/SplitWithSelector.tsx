@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Modal, Image, FlatList, Dimensions } from "react-native";
 import { Control, Controller, useWatch ,useController} from "react-hook-form";
-import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
-import CustomButton from "./button/CustomButton";
-import { Ionicons } from "@expo/vector-icons";
+
+import CustomButton from "../button/CustomButton";
 import { useLazyGetGroupQuery } from "@/store/groupApi";
+import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi";
+import { people } from "./AddPeopleInput";
 const { width } = Dimensions.get("window");
 
 interface Props {
@@ -20,59 +21,104 @@ interface Props {
   edit?:boolean;
 }
 
-const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, group_id, IncludePaidBy,edit=false }) => {
-  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
-  const [splitAmounts, setSplitAmounts] = useState<Record<string, number>>({});
-  const [modalVisible, setModalVisible] = useState(false);
-  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
-  const [paidByModalVisible, setPaidByModalVisible] = useState(false);
-  const [paidBy, setPaidBy] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [groupMembers, setGroupMembers] = useState<{ _id: string; name: string }[]>([]);
-  const [fromMembers, setFromMembers] = useState<{ _id: string; name: string }[]>([]);
+type member = {
+  _id: string; 
+  name: string;
+}
 
-  const { data: userFriends, isLoading: friendsLoading } = useGetUserFriendsQuery();
-  const [getGroup, { data: groupData }] = useLazyGetGroupQuery();
-  const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
+type splitWith = {
+  user_id: string;
+  amount: number;
+}
+
+const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, group_id, IncludePaidBy, edit=false }) => {
+  const [selectedUsers, setSelectedUsers] = useState<people[]>([]);
+  const [splitAmounts, setSplitAmounts] = useState<Record<string, number>>({});
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
+  const [paidByModalVisible, setPaidByModalVisible] = useState<boolean>(false);
+
+  const [paidBy, setPaidBy] = useState<people | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [groupMembers, setGroupMembers] = useState<member[]>([]);
+  const [fromMembers, setFromMembers] = useState<member[]>([]);
+  const [members, setMembers] = useState<member[]>([]);
+  const [updateUI, setUpdateUI] = useState<boolean>(false);
+
+  const { data: userFriends, isLoading: loadingFriends, error: errorFriends } = useGetUserFriendsQuery();
+  const [getGroup, { data: groupData, error: errorGroupData, isLoading: loadingGroup }] = useLazyGetGroupQuery();
+  const [getUserById, { data: creatorData, error: errorUserData, isLoading: loadingUser }] = useLazyGetUserByIdQuery();
 
   const splitWith = useWatch({ control, name: "splitWith" });
   const { field } = useController({ control, name: "paidBy" });
-  const paidByUser = field.value;  
-  const [editMembers, setEditMembers] = useState<{ _id: string; name: string }[]>([]);
+  const paidByUser = field.value;
   
   
   const fetchEditMembers = async (memberIds: string[]) => {
     if (memberIds.length === 0) return;
 
-  if (!memberIds || memberIds.length === 0 || memberIds.includes(undefined)) {
-    console.error("Invalid member IDs detected:", memberIds);
-    return []; // Return an empty array if there are invalid IDs
-  }
+    if (!memberIds || memberIds.length === 0) {
+      console.error("Invalid member IDs detected:", memberIds);
+      return [];
+    }
   
     try {
       const memberData = await Promise.all(memberIds.map((id) => getUserById(id).unwrap()));
-  
       const newMembers = memberData.map((res:any, index:any) => ({
         user_id: memberIds[index],
         name: res?.data?.name || "Unknown",
       }));
   
-      setEditMembers((prevMembers) => [...prevMembers, ...newMembers]);
       return newMembers;
     } catch (error) {
       console.error("Error fetching group members:", error);
     }
   };
 
-  const [members, setMembers] = useState<{ _id: string; name: string }[]>([]);
 
-  const updateMembers = async (memberIds) => {
+  const updateMembers = async (memberIds: string[]) => {
     const fetchedMembers = await fetchEditMembers(memberIds);
-    setMembers(fetchedMembers??[]); // Updates state, triggering a re-render
+    setMembers(fetchedMembers??[]); //triggering a re-render
   };
+
+  const fetchGroupMembers = async (memberIds: string[]) => {
+    if (!memberIds.length) return;
+
+    try {
+      const memberData = await Promise.all(memberIds.map((id) => getUserById(id).unwrap()));
+
+      const newMembers = memberData.map((res, index) => ({
+        _id: memberIds[index],
+        name: res?.data?.name || "Unknown",
+      }));
+
+      setGroupMembers(newMembers);
+      setFromMembers(newMembers);
+    } catch (error) {
+      console.error("Error fetching group members:", error);
+    }
+  };
+
+  const toggleUserSelection = (user: member) => {
+    let newSelectedUsers;
+    if (selectedUsers.some((u) => u.user_id === user._id)) {
+      newSelectedUsers = selectedUsers.filter((u) => u.user_id !== user._id);
+    } else {
+      newSelectedUsers = [...selectedUsers, { ...user, user_id: user._id }];
+    }
+    setSelectedUsers(newSelectedUsers);
+
+    const updatedArray = newSelectedUsers.map((u) => ({
+      user_id: u.user_id,
+      amount: splitAmounts[u.user_id] || "0",
+    }));
+    setValue("splitWith", updatedArray);
+    setUpdateUI((prev) => !prev);
+  };
+
   useEffect(() => {
     if(edit){
-      const memberIds = splitWith.map((item: any) => item.user_id);
+      const memberIds = splitWith.map((item: splitWith) => item.user_id);
       if(IncludePaidBy){
         memberIds.push(paidByUser.user_id)
       };
@@ -116,10 +162,12 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
   useEffect(() => {
     if (selectedUsers.length > 0) {
-      const equalSplit = (amount / selectedUsers.length).toFixed(2);
+      
+      const equalSplit = amount / selectedUsers.length;
+      const formattedSplit = equalSplit % 1 === 0 ? equalSplit : parseFloat(equalSplit.toFixed(2));
       const newSplits: Record<string, number> = {};
       selectedUsers.forEach((user) => {
-        newSplits[user.user_id] = equalSplit;
+        newSplits[user.user_id] = formattedSplit;
       });
       setSplitAmounts(newSplits);
       setValue(
@@ -150,24 +198,6 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
     loadGroup();
   }, [group_id, loggedInUserId]);
 
-  const fetchGroupMembers = async (memberIds: string[]) => {
-    if (!memberIds.length) return;
-
-    try {
-      const memberData = await Promise.all(memberIds.map((id) => getUserById(id).unwrap()));
-
-      const newMembers = memberData.map((res, index) => ({
-        _id: memberIds[index],
-        name: res?.data?.name || "Unknown",
-      }));
-
-      setGroupMembers(newMembers);
-      setFromMembers(newMembers);
-    } catch (error) {
-      console.error("Error fetching group members:", error);
-    }
-  };
-
   useEffect(() => {
     if (group_id) {
       if (groupMembers.length > 0) {
@@ -177,25 +207,6 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       setFromMembers(userFriends?.data || []);
     }
   }, [group_id, groupMembers, userFriends]);
-
-  const [updateUI, setUpdateUI] = useState(false);
-
-  const toggleUserSelection = (user: { _id: string; name: string }) => {
-    let newSelectedUsers;
-    if (selectedUsers.some((u) => u.user_id === user._id)) {
-      newSelectedUsers = selectedUsers.filter((u) => u.user_id !== user._id);
-    } else {
-      newSelectedUsers = [...selectedUsers, { ...user, user_id: user._id }];
-    }
-    setSelectedUsers(newSelectedUsers);
-
-    const updatedArray = newSelectedUsers.map((u) => ({
-      user_id: u.user_id,
-      amount: splitAmounts[u.user_id] || "0",
-    }));
-    setValue("splitWith", updatedArray);
-    setUpdateUI((prev) => !prev);
-  };
   
 
   const filteredUsers = React.useMemo(() => {
@@ -224,7 +235,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
                   style={styles.amountInput}
                   value={splitAmounts[user.user_id]?.toString() || "0"}
                   onChangeText={(text) => {
-                    const numericValue = parseFloat(text) || 0; // Convert input to number
+                    const numericValue = parseFloat(text) || 0;
                     const updatedSplits = { ...splitAmounts, [user.user_id]: numericValue };
                     setSplitAmounts(updatedSplits);
                     setValue(
@@ -270,7 +281,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
             value={searchQuery}
           />
           <FlashList
-            style = {styles.flashList}
+            // style = {styles.flashList}
             data={filteredUsers}
             keyExtractor={(item) => item._id}
             estimatedItemSize={50}
@@ -327,7 +338,6 @@ const styles = StyleSheet.create({
   userName: { flex: 1, fontSize: 16 },
   modalButton: {alignSelf: "center"},
   list: {width: "100%"},
-  // flashList: {gap: 1},
   selectedUsersContainer: { padding: 10, borderRadius: 10 },
   splitItem: { flexDirection: "row", alignItems: "center", marginVertical: 5, padding: 10, borderRadius: 10, backgroundColor: "rgba(200, 230, 255, 0.7)" },
   amountInput: { width: width * 0.25, padding: 5, textAlign: "center", backgroundColor: "#F3F4F6", borderRadius: 5, marginLeft: 10 },

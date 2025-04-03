@@ -1,14 +1,22 @@
 
 import React from "react";
-import { View, TouchableOpacity, Animated, StyleSheet } from "react-native";
+import { TouchableOpacity, Animated, StyleSheet } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-const TabBarIcon = ({ name, color, focused, route }) => {
+interface TabBar {
+  name: string;
+  color: string;
+  focused: boolean;
+  route: "/(tabs)" | "/(tabs)/activity" | "/(tabs)/friends" | "/(tabs)/wallets";
+}
+
+const TabBarIcon: React.FC<TabBar> =({ name, color, focused, route }) => {
+
   const router = useRouter();
   const animatedValue = new Animated.Value(focused ? 1 : 0);
 
-  // Smooth animation for selection
+  //animation for selection
   React.useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: focused ? 1 : 0,
@@ -20,7 +28,7 @@ const TabBarIcon = ({ name, color, focused, route }) => {
   // Interpolate background color for the highlight effect
   const backgroundColor = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ["transparent", "rgba(58, 90, 255, 0.15)"], // Light highlight color
+    outputRange: ["transparent", "rgba(58, 90, 255, 0.15)"],
   });
 
   return (

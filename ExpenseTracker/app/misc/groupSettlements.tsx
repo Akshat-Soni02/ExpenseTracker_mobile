@@ -3,7 +3,7 @@ import { Text, View } from "@/components/Themed";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
-import TransactionCard from "@/components/TransactionCard";
+import TransactionCard from "@/components/readComponents/TransactionCard";
 import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import {useGetUserFriendsQuery,useRemindUserBorrowerMutation} from '@/store/userApi';

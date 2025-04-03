@@ -24,7 +24,7 @@ const InitialBudget: React.FC<Props> = ({ control }) => {
             placeholderTextColor="#6B7280"
             value={displayValue}
             onChangeText={(text) => {
-              const numericValue = text.replace(/[^0-9]/g, ""); // Restrict to numbers only
+              const numericValue = text.replace(/[^0-9]/g, "");
               onChange(numericValue);
             }}
             keyboardType="numeric"

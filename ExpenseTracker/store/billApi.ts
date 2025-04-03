@@ -13,7 +13,7 @@ export type Bill = {
   bill_title: string;
   amount: number;
   bill_category?: string;
-  due_date_time: string;
+  due_date_time: string | Date;
   final_pay_date?: string;
   recurring?: boolean;
   status: "pending" | "missed" | "paid";

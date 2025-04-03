@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { 
-  View, Text, FlatList, PermissionsAndroid, Platform, TextInput, TouchableOpacity, 
-  Alert
-} from "react-native";
+import { View, Text, FlatList, PermissionsAndroid, Platform, TextInput, TouchableOpacity, Alert } from "react-native";
 import Contacts from "react-native-contacts";
 import { useRouter } from "expo-router";
+import { Contact } from "react-native-contacts/type";
 
 const ContactsScreen = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filteredContacts, setFilteredContacts] = useState([]);
-  const [selectedContacts, setSelectedContacts] = useState(new Set());
-  const [searchQuery, setSearchQuery] = useState("");
+  const [contacts, setContacts] = useState<Contact[] | []>([]);
+  const [filteredContacts, setFilteredContacts] = useState<Contact[] | []>([]);
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
@@ -20,6 +18,8 @@ const ContactsScreen = () => {
   const requestContactsPermission = async () => {
     if (Platform.OS === "android") {
       try {
+        //this asks for permission to user
+        console.log("Asking contact permission to user");
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
           {
@@ -60,7 +60,7 @@ const ContactsScreen = () => {
     if (!granted) return;
   
     Contacts.getAll()
-      .then((contactList) => {
+      .then((contactList: Contact[]) => {
         setContacts(contactList);
         setFilteredContacts(contactList);
       })
@@ -68,7 +68,7 @@ const ContactsScreen = () => {
   };
   
 
-  const handleSearch = (text) => {
+  const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (text.trim() === "") {
       setFilteredContacts(contacts);
@@ -80,7 +80,7 @@ const ContactsScreen = () => {
     }
   };
 
-  const toggleSelectContact = useCallback((contact) => {
+  const toggleSelectContact = useCallback((contact: Contact) => {
     setSelectedContacts((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(contact.recordID)) {
@@ -97,7 +97,7 @@ const ContactsScreen = () => {
     router.push({ pathname: "/action/create/addPeopleEmail", params: { contacts: JSON.stringify(selected) } });
   };
 
-  const renderItem = useCallback(({ item }) => {
+  const renderItem = useCallback(({ item }: { item: Contact }) => {
     const isSelected = selectedContacts.has(item.recordID);
     return (
       <TouchableOpacity

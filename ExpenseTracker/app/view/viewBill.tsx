@@ -4,7 +4,7 @@ import { FontAwesome, Ionicons, Entypo } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useDeleteBillMutation, useGetBillQuery, useUpdateUserStatusOfBillMutation } from "@/store/billApi";
 import moment from "moment";
-import TransactionCard from "@/components/TransactionCard";
+import TransactionCard from "@/components/readComponents/TransactionCard";
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import CustomButton from "@/components/button/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";

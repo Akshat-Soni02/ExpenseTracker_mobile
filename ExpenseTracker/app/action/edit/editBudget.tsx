@@ -4,9 +4,9 @@ import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useUpdateBudgetMutation, useGetBudgetQuery } from "@/store/budgetApi";
 import { useLocalSearchParams } from "expo-router";
-import AmountDescriptionInput from "@/components/AmountDescriptionInput";
-import CategorySelector from "@/components/CategorySelector";
-import PeriodSelector from "@/components/PeriodSelector";
+import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
+import CategorySelector from "@/components/selectors/CategorySelector";
+import PeriodSelector from "@/components/selectors/PeriodSelector";
 import { useForm } from "react-hook-form";
 import CustomButton from "@/components/button/CustomButton";
 

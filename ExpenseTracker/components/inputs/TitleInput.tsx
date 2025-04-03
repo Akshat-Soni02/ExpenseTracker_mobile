@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Controller, Control } from "react-hook-form";
+import { FormErrors } from "./AmountDescriptionInput";
 
 interface Props {
   control: Control<any>;
@@ -20,7 +21,7 @@ const TitleInput: React.FC<Props> = ({ control, onErrorsChange }) => {
           const memoizedValue = useMemo(() => value, [value]);
           useEffect(() => {
           if(error) {
-            onErrorsChange((prevErrors) => ({
+            onErrorsChange((prevErrors: FormErrors) => ({
               ...prevErrors,
               Title: error || undefined,
             }));

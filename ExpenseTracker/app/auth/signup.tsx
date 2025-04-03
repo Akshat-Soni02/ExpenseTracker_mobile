@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityInd
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "../../components/button/CustomButton";
 import { useRouter } from "expo-router";
-import GoogleButton from "@/components/GoogleButton";
+import GoogleButton from "@/components/button/GoogleButton";
 import { useRegisterUserMutation, useAutoaddFriendsMutation } from "@/store/userApi";
 import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";

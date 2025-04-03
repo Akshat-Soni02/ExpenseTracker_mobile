@@ -8,11 +8,11 @@ import { GetTransactionsResponse } from "./personalTransactionApi";
 import { GetSettlementsResponse } from "./settlementApi";
 import { GetWalletsResponse } from "./walletApi";
 
-type friends = {
+export type friend = {
   _id: string;
   name: string;
   email: string;
-  profile_photo: ExpenseMedia;
+  profile_photo: string;
   amount: number;
   type: "debit" | "credit" | undefined;
 }
@@ -37,7 +37,7 @@ type settler = {
   amount: number;
 }
 
-type User = {
+export type User = {
   _id: string;
   name: string;
   phone_number?: number;
@@ -62,12 +62,18 @@ type GetUsersResponse = {
   data: User[];
 }
 
+type LoginUserResponse = {
+  message: string;
+  token: string;
+  userData: User;
+}
+
 type CreateUserRequest = Omit<User, "_id" | "lended" | "borrowed" | "settled" | "futureFriends" | "otp" | "otpExpiry">;
 type UpdateUserRequest = Partial<CreateUserRequest>;
 
 export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    registerUser: builder.mutation<GetUserResponse, CreateUserRequest>({
+    registerUser: builder.mutation<LoginUserResponse, CreateUserRequest>({
       query: (body) => ({
         url: `/users/new`,
         method: "POST",
@@ -76,7 +82,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
-    googleLogin: builder.mutation<GetUserResponse, CreateUserRequest>({
+    googleLogin: builder.mutation<LoginUserResponse, {idToken: string}>({
       query: (body) => ({
         url: `/users/auth/google`,
         method: "POST",
@@ -85,7 +91,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
-    loginUser: builder.mutation<GetUserResponse, {email: string, password: string}>({
+    loginUser: builder.mutation<LoginUserResponse, {email: string, password: string}>({
       query: (body) => ({
         url: `/users/login`,
         method: "POST",
@@ -162,10 +168,10 @@ export const userApi = api.injectEndpoints({
       providesTags: ["expense"],
     }),
 
-    getUserSettlements: builder.query<GetSettlementsResponse, {group_id: string}>({
-      query: ({ group_id }) => {
+    getUserSettlements: builder.query<GetSettlementsResponse, {group_id?: string} | void>({
+      query: (arg={}) => {
         const params = new URLSearchParams();
-        if (group_id) params.append("group_id", group_id);
+        if (arg && arg.group_id) params.append("group_id", arg.group_id);
         return `/users/settlements?${params.toString()}`;
       },
       providesTags: ["settlement"],
@@ -200,7 +206,7 @@ export const userApi = api.injectEndpoints({
       providesTags: ["detectedTransaction"],
     }),
 
-    getUserFriends: builder.query<{data: friends[]},void>({
+    getUserFriends: builder.query<{data: friend[]},void>({
       query: () => `/users/friends`,
       providesTags: ["user"],
     }),

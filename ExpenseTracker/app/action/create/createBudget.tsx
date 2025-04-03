@@ -4,14 +4,14 @@ import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/button/CustomButton";
-import AmountDescriptionInput from "@/components/AmountDescriptionInput";
+import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 // import SplitWithSelector from "@/components/SplitWithSelector";
 // import NotesInput from "@/components/NotesInput";
 // import WalletSelector from "@/components/WalletSelector";
 // import PhotoSelector from "@/components/PhotoSelector";
 // import CustomDateTimePicker from "@/components/CustomDateTimePicker";
-import CategorySelector from "@/components/CategorySelector";
-import PeriodSelector from "@/components/PeriodSelector";
+import CategorySelector from "@/components/selectors/CategorySelector";
+import PeriodSelector from "@/components/selectors/PeriodSelector";
 import { useCreateBudgetMutation } from "@/store/budgetApi";
 
 export default function AddBudgetScreen() {
