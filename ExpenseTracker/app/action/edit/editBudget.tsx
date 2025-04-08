@@ -9,7 +9,7 @@ import CategorySelector from "@/components/CategorySelector";
 import PeriodSelector from "@/components/PeriodSelector";
 import { useForm } from "react-hook-form";
 import CustomButton from "@/components/button/CustomButton";
-
+import { globalStyles } from "@/styles/globalStyles";
 export default function ViewBudgetScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -93,13 +93,13 @@ export default function ViewBudgetScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={globalStyles.viewContainer}>
       {/* Header */}
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>Edit Bill</Text>
+        <Text style={globalStyles.headerText}>Edit Budget</Text>
       </View>
 
       {/* View Mode */}
@@ -109,7 +109,7 @@ export default function ViewBudgetScreen() {
           <PeriodSelector control={control}/>
 
       {errorMessage && (Alert.alert("Error",errorMessage))}
-          <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
+          <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     
     </ScrollView>
   );
@@ -117,56 +117,6 @@ export default function ViewBudgetScreen() {
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "#F5F7FA", 
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 50,
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  headerButton: {
-    padding: 10,
-  },
-  card: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  amountContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  amount: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#007AFF",
-  },
-  section: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  value: {
-    fontSize: 18,
-    color: "#555",
-    marginTop: 5,
-  },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
@@ -177,20 +127,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "red",
     marginTop: 20,
-  },
-  error: {
-    color: "red",
-    fontSize: 14,
-    marginTop: 10,
-    textAlign: "center",
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
   },
 });

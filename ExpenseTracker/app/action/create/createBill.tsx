@@ -13,7 +13,7 @@ import CategorySelector from "@/components/CategorySelector";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import SplitWithSelector from "@/components/SplitWithSelector";
 import { useCreateBillMutation } from "@/store/billApi";
-
+import { globalStyles } from "@/styles/globalStyles";
 export default function CreateBillScreen() {
   const [createBill, {isLoading}] = useCreateBillMutation();
   const [errorMessage, setErrorMessage] = useState("");
@@ -87,12 +87,12 @@ export default function CreateBillScreen() {
 
   if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
+    <ScrollView style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Bill</Text>
+        <Text style={globalStyles.headerText}>New Bill</Text>
       </View>
 
       {/* Bill Title and amount */}
@@ -103,7 +103,7 @@ export default function CreateBillScreen() {
       <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
 
       {/* Initial Budget & Date */}
-      <View style={styles.dateTimeContainer}>
+      <View style={globalStyles.dateTimeContainer}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Due Date"/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" useDefaultToday/>
       </View>
@@ -112,40 +112,7 @@ export default function CreateBillScreen() {
 
       {/* Save Button */}
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onBillSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-});

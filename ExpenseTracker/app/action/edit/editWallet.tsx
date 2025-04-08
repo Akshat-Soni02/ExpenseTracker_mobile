@@ -11,7 +11,7 @@ import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import AmountDescriptionInput from "@/components/AmountDescriptionInput";
 import LowerLimit from "@/components/LowerLimit";
 import { useUpdateWalletMutation } from "@/store/walletApi";
-
+import { globalStyles } from "@/styles/globalStyles";
 export default function CreateWalletScreen() {
   let {fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit} = useLocalSearchParams();
   let fetchedAmountNumber = Number(fetchedAmount);
@@ -67,12 +67,12 @@ export default function CreateWalletScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <ScrollView style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Wallet</Text>
+        <Text style={globalStyles.headerText}>Edit Wallet</Text>
       </View>
 
       {/* wallet Title and Amount */}
@@ -83,45 +83,7 @@ export default function CreateWalletScreen() {
 
       {/* Save Button */}
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onWalletSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onWalletSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 5,
-  }
-});

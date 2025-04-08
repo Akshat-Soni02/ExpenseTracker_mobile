@@ -151,24 +151,93 @@ const AddPeopleInput: React.FC<Props> = ({ control, des, update }) => {
 export default AddPeopleInput;
 
 const styles = StyleSheet.create({
-  container: { padding: 10, borderRadius: 15, width: "100%", backgroundColor: "rgba(200, 230, 255, 0.4)" , borderWidth: 2, borderColor: "rgba(255, 255, 255, 0.2)",},
-  title: { fontSize: 18, fontWeight: "bold", textAlign: "center", marginBottom: 5 },
-  userIcon: { width: 34, height: 34, borderRadius: 17, marginRight: 10 },
-  userName: { flex: 1, fontSize: 16 },
-  modalButton: {alignSelf: "center"},
-  list: {width: "100%"},
-  flashList: {},
-  selectedUsersContainer: { padding: 10, borderRadius: 10 },
-  splitItem: { flexDirection: "row", alignItems: "center", marginVertical: 5, padding: 10, borderRadius: 10, backgroundColor: "rgba(200, 230, 255, 0.7)" },
-  amountInput: { width: 60, padding: 5, textAlign: "center", backgroundColor: "#F3F4F6", borderRadius: 5, marginLeft: 10 },
-  addButton: { backgroundColor: "#355C7D", padding: 10, borderRadius: 8, alignItems: "center", marginTop: 10 },
-  addButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  modalContainer: { flex: 1, backgroundColor: "#fff", padding: 20,},
-  searchInput: { padding: 10, borderBottomWidth: 1, borderBottomColor: "#ccc", marginBottom: 10, width: "100%" },
-  modalItem: { paddingVertical: 15, flexDirection: "row", width: "100%", paddingHorizontal: 10 },
-  selectedItem: { backgroundColor: "rgba(111, 187, 250, 0.24)" },
-  modalItemText: { fontSize: 16 },
-    paidByContainer: {
+  container: { 
+    padding: 10, 
+    borderRadius: 15, 
+    width: "100%", 
+    backgroundColor: "rgba(200, 230, 255, 0.4)" , 
+    borderWidth: 2, 
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  title: { 
+    fontSize: 18, 
+    fontWeight: "bold", 
+    textAlign: "center", 
+    marginBottom: 5 
+  },
+  userIcon: { 
+    width: 34, 
+    height: 34, 
+    borderRadius: 17, 
+    marginRight: 10 
+  },
+  userName: { 
+    flex: 1, 
+    fontSize: 16 
+  },
+  modalButton: {
+    alignSelf: "center"
+  },
+  list: {
+    width: "100%"
+  },
+  selectedUsersContainer: { 
+    padding: 10, 
+    borderRadius: 10 
+  },
+  splitItem: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    marginVertical: 5, 
+    padding: 10, 
+    borderRadius: 10, 
+    backgroundColor: "rgba(200, 230, 255, 0.7)" 
+  },
+  amountInput: { 
+    width: 60, 
+    padding: 5, 
+    textAlign: "center", 
+    backgroundColor: "#F3F4F6", 
+    borderRadius: 5,
+    marginLeft: 10 
+  },
+  addButton: { 
+    backgroundColor: "#355C7D", 
+    padding: 10, 
+    borderRadius: 8, 
+    alignItems: "center", 
+    marginTop: 10 
+  },
+  addButtonText: { 
+    color: "#fff", 
+    fontSize: 16, 
+    fontWeight: "bold" 
+  },
+  modalContainer: { 
+    flex: 1, 
+    backgroundColor: "#fff", 
+    padding: 20,
+  },
+  searchInput: { 
+    padding: 10, 
+    borderBottomWidth: 1, 
+    borderBottomColor: "#ccc", 
+    marginBottom: 10, 
+    width: "100%" 
+  },
+  modalItem: { 
+    paddingVertical: 15, 
+    flexDirection: "row", 
+    width: "100%", 
+    paddingHorizontal: 10 
+  },
+  selectedItem: { 
+    backgroundColor: "rgba(111, 187, 250, 0.24)" 
+  },
+  modalItemText: { 
+    fontSize: 16 
+  },
+  paidByContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 15,

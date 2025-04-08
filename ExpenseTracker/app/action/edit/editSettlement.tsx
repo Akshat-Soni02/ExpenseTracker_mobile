@@ -14,6 +14,7 @@ import CategorySelector from "@/components/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useGetWalletQuery } from "@/store/walletApi";
 import {useUpdateSettlementMutation,useGetSettlementQuery} from '@/store/settlementApi';
+import { globalStyles } from "@/styles/globalStyles";
 export default function AddSettlementScreen() {
   let {id} = useLocalSearchParams();
 //   let status = "receiver";
@@ -84,71 +85,25 @@ const onSubmit = async (data: any) => {
   
 return (
   // <View style={[{flex:1}]}>
-    <ScrollView style={styles.container}>
+    <ScrollView style={globalStyles.viewContainer}>
 
-        <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-            <Text style={styles.header}>Edit Settlement</Text>
+            <Text style={globalStyles.headerText}>Edit Settlement</Text>
       </View>
 
       <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>
       {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
       
-      <View style={styles.walletPhotoContainer}>
+      <View style={globalStyles.walletPhotoContainer}>
         <WalletSelector control={control} name="wallet" isFrozen={true}/>
         <PhotoSelector control={control} />
       </View>
       
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>          
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 50,
-    marginBottom: 20
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  walletPhotoContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 130,
-    justifyContent: "space-between"
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 100,
-    justifyContent: "space-between"
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 10,
-  }
-});

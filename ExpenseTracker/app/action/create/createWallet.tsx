@@ -11,7 +11,7 @@ import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import AmountDescriptionInput from "@/components/AmountDescriptionInput";
 import LowerLimit from "@/components/LowerLimit";
 import { useCreateWalletMutation } from "@/store/walletApi";
-
+import { globalStyles } from "@/styles/globalStyles";
 export default function CreateWalletScreen() {
   const [createWallet, {isLoading}] = useCreateWalletMutation();
   const [errorMessage, setErrorMessage] = useState("");
@@ -60,12 +60,12 @@ export default function CreateWalletScreen() {
 
   if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <ScrollView style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Wallet</Text>
+        <Text style={globalStyles.headerText}>New Wallet</Text>
       </View>
 
       {/* wallet Title and Amount */}
@@ -76,45 +76,7 @@ export default function CreateWalletScreen() {
 
       {/* Save Button */}
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onWalletSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onWalletSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 5,
-  }
-});

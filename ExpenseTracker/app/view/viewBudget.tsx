@@ -9,7 +9,7 @@ import CategorySelector from "@/components/CategorySelector";
 import PeriodSelector from "@/components/PeriodSelector";
 import { useForm } from "react-hook-form";
 import {Menu, Divider } from "react-native-paper";
-
+import { globalStyles } from "@/styles/globalStyles";
 
 export default function ViewBudgetScreen() {
   const { id } = useLocalSearchParams();
@@ -23,60 +23,6 @@ export default function ViewBudgetScreen() {
   // const [isEditing, setIsEditing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [childErrors, setChildErrors] = useState({});
-  // const { control, handleSubmit, reset } = useForm({
-  //   defaultValues: {
-  //     amount: "",
-  //     Description: "",
-  //     category: "",
-  //     period: "monthly",
-  //   },
-  // });
-
-  // Reset form with default values when switching to edit mode
-  // useEffect(() => {
-  //   if (isEditing && dataBudget) {
-  //     reset({
-  //       amount: dataBudget.data.amount.toString(), // Convert to string if necessary
-  //       Description: dataBudget.data.budget_title,
-  //       category: dataBudget.data.budget_category,
-  //       period: dataBudget.data.period,
-  //     });
-  //   }
-  // }, [isEditing, dataBudget, reset]);
-
-  // useEffect(() => {
-  //   if (Object.keys(childErrors).length !== 0) {
-  //     const messages = [
-  //       childErrors.amount?.message,
-  //       childErrors.Description?.message
-  //     ].filter(Boolean).join("\n");
-  
-  //     Alert.alert("Invalid data", messages);
-  //   }
-  // }, [childErrors]);
-
-  // const onSubmit = async (data: any) => {
-  //   if (isEditing) {
-  //     try {
-  //       await updateBudget({
-  //         id,
-  //         body: {
-  //           budget_title: data.Description,
-  //           amount: parseFloat(data.amount), // Ensure numeric conversion
-  //           budget_category: data.category,
-  //           period: data.period,
-  //         },
-  //       }).unwrap();
-  //     } catch (error) {
-  //       console.error("Failed to update budget:", error);
-  //       setErrorMessage("Something went wrong. Please try again.");
-  //     }
-  //     setIsEditing(false);
-  //     await refetch();
-  //   } else {
-  //     setIsEditing(true);
-  //   }
-  // };
   useEffect(() => {
       if (id) {
         refetch();
@@ -88,7 +34,6 @@ const handleBudgetDelete = async () => {
             console.log("bill deleting response",response);
             if(!response || deleteError) {
               console.log(error);
-              // setMenuVisible(false);
             }
             router.back();
           } catch (error) {
@@ -108,17 +53,17 @@ const handleBudgetDelete = async () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={globalStyles.viewContainer}>
       {/* Header */}
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
         <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+            <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
@@ -166,24 +111,6 @@ const handleBudgetDelete = async () => {
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "#F5F7FA", 
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 50,
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  headerButton: {
-    padding: 10,
-  },
   card: {
     backgroundColor: "white",
     padding: 20,
@@ -226,11 +153,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "red",
     marginTop: 20,
-  },
-  error: {
-    color: "red",
-    fontSize: 14,
-    marginTop: 10,
-    textAlign: "center",
   },
 });

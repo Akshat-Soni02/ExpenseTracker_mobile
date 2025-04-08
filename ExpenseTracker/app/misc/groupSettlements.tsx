@@ -8,7 +8,6 @@ import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import {useGetUserFriendsQuery,useRemindUserBorrowerMutation} from '@/store/userApi';
 import {useGetUserExchangeStateInGroupQuery} from '@/store/groupApi';
-
 import { FAB } from "react-native-paper";
 const people = [
   { id: "1", title:"Akshat",imageName:"Akshat", amount: "₹60", time: "3 unsettled splits" ,optionText:"You Owe",transactionType:"income"},
@@ -55,10 +54,10 @@ const handleRemind = async (id) => {
     };
   return (
     <View style={[{flex:1}]}>
-        <ScrollView style={styles.container}>   
-          <View style = {styles.header}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style={styles.backButton}/>
-            <Text style={styles.headerText}>{group_name}</Text>
+        <ScrollView style={globalStyles.viewContainer}>   
+          <View style = {globalStyles.viewHeader}>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style={globalStyles.backButton}/>
+            <Text style={globalStyles.headerText}>{group_name}</Text>
           </View>
           <View style={styles.transactionsContainer}>
           {numberOfPeople>0?(<FlatList
@@ -126,31 +125,6 @@ const handleRemind = async (id) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 10,
-    backgroundColor: "#fff",
-    paddingTop: 0, // Add padding to the top to avoid overlap with status bar
-  },
-  header: {
-    color: "black",
-    backgroundColor: "white",
-    paddingInline: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    // position: "absolute",
-    padding: 10
-  },
-  headerText: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "black"
-  },
   transactionsContainer: {
     // marginTop: 20, // Space above the transactions
     // alignItems: "flex-start",
@@ -166,13 +140,7 @@ const styles = StyleSheet.create({
     fontSize: 16, // Adjust font size as needed
     color: 'gray', // Change color to indicate no transactions
     padding: 16, // Add some padding for better spacing
-  },fab: {
-    position: "absolute",
-    margin: 16,
-    backgroundColor:"#f8f9fa",
-    right: 0,
-    bottom: 0,
-},
+  },
 buttonContainer: {
     flexDirection: "row",
     alignItems: "center",

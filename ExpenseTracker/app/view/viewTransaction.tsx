@@ -6,7 +6,7 @@ import { Menu, Divider } from "react-native-paper";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
 import FastImage from 'react-native-fast-image';
-
+import {globalStyles} from "@/styles/globalStyles";
 
 const TransactionDetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -58,9 +58,9 @@ const TransactionDetailScreen = () => {
     }
   }
   return (
-    <View style={[styles.container]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <View style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
 
@@ -69,7 +69,7 @@ const TransactionDetailScreen = () => {
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+            <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
@@ -87,19 +87,19 @@ const TransactionDetailScreen = () => {
         </Menu>
       </View>
 
-      <View style={styles.detailContainer}>
-        <Text style={styles.title}>{transaction.description}</Text>
-        <Text style={[styles.amount, { color: themeColor }]}>₹{transaction.amount}</Text>
+      <View style={globalStyles.viewActivityDetailContainer}>
+        <Text style={globalStyles.viewActivityTitle}>{transaction.description}</Text>
+        <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{transaction.amount}</Text>
         {transaction.wallet_id && (
-          <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
+          <Text style={globalStyles.viewActivityAccountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )}
-        <Text style={styles.date}>{new Date(transaction.created_at_date_time).toLocaleString()}</Text>
+        <Text style={globalStyles.viewActivityDate}>{new Date(transaction.created_at_date_time).toLocaleString()}</Text>
       </View>
 
       {transaction.notes && (
-        <View style={styles.notesContainer}>
-          <Text style={styles.notesTitle}>Notes</Text>
-          <Text style={styles.notesText}>{transaction.notes}</Text>
+        <View style={globalStyles.viewActivityNotesContainer}>
+          <Text style={globalStyles.viewActivityNotesTitle}>Notes</Text>
+          <Text style={globalStyles.viewActivityNotesText}>{transaction.notes}</Text>
         </View>
       )}
 
@@ -119,11 +119,7 @@ const TransactionDetailScreen = () => {
 export default TransactionDetailScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-    padding: 20,
-  },
+
   mediaContainer: {
     marginTop: 20,
     alignItems: 'center',
@@ -134,79 +130,5 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 8,
     resizeMode: "contain",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  menuButton: {
-    padding: 10,
-  },
-  detailContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: "Poppins_700Bold",
-    color: "#111827",
-  },
-  amount: {
-    fontSize: 24,
-    fontFamily: "Poppins_700Bold",
-    marginVertical: 5,
-  },
-  accountName: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  date: {
-    fontSize: 12,
-    fontFamily: "Poppins_400Regular",
-    color: "#9CA3AF",
-  },
-  notesContainer: {
-    backgroundColor: "#E5E7EB",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  notesTitle: {
-    fontSize: 16,
-    fontFamily: "Poppins_600SemiBold",
-    color: "#374151",
-  },
-  notesText: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  splitContainer: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    marginBottom: 15,
-  },
-  paidBy: {
-    fontSize: 16,
-    fontFamily: "Poppins_600SemiBold",
-    color: "#374151",
-    marginBottom: 5,
-  },
-  oweText: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  boldText: {
-    fontFamily: "Poppins_700Bold",
   },
 });

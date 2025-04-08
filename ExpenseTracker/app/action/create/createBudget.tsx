@@ -13,7 +13,7 @@ import AmountDescriptionInput from "@/components/AmountDescriptionInput";
 import CategorySelector from "@/components/CategorySelector";
 import PeriodSelector from "@/components/PeriodSelector";
 import { useCreateBudgetMutation } from "@/store/budgetApi";
-
+import { globalStyles } from "@/styles/globalStyles";
 export default function AddBudgetScreen() {
   const [createBudget, {isLoading}] = useCreateBudgetMutation();
   const [errorMessage, setErrorMessage] = useState("");
@@ -78,13 +78,13 @@ const onSubmit = async (data: any) => {
 
 if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={globalStyles.viewContainer}>
 
-        <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Budget</Text>
+        <Text style={globalStyles.headerText}>New Budget</Text>
       </View>
 
       <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
@@ -104,53 +104,7 @@ if(isLoading) return <View style = {{width: "100%", height: "100%", justifyConte
       </View> */}
       
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  walletPhotoContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 130,
-    justifyContent: "space-between"
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 100,
-    justifyContent: "space-between"
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 10,
-  }
-});

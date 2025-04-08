@@ -23,6 +23,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Feather from '@expo/vector-icons/Feather';
 import { useDispatch, UseDispatch } from "react-redux";
 import api from "@/store/api";
+import { globalStyles } from "@/styles/globalStyles";
 const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
@@ -123,10 +124,10 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <View style={styles.container}>
+      <View style={globalStyles.viewContainer}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <View style={globalStyles.viewHeader}>
+          <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
             <FontAwesome name="arrow-left" size={22} color="black" />
           </TouchableOpacity>
           {isEditing ? (<Feather name="check" size={24} color="black" onPress={handleEditToggle}/>) : (<MaterialCommunityIcons name="account-edit-outline" size={30} color="black" onPress={handleEditToggle}/>)}
@@ -231,16 +232,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F8F9FB",
   },
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 20,
-  },
   phoneInputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -260,10 +251,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     flex: 1,
     color: "black",
-  },  
-  backButton: {
-    padding: 10,
-  },
+  }, 
   profileSection: {
     alignItems: "center",
     marginBottom: 20,

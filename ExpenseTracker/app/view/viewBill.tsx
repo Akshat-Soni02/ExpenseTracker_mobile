@@ -9,6 +9,7 @@ import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import CustomButton from "@/components/button/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Menu, Divider } from "react-native-paper";
+import { globalStyles } from "@/styles/globalStyles";
 
 const BillDetailsScreen = () => {
   const { id } = useLocalSearchParams();
@@ -128,10 +129,11 @@ const BillDetailsScreen = () => {
   if (!data?.data) return <Text>No bill found</Text>;
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.viewContainer}>
+    {/* <View style={styles.container}> */}
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style= {globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
         {/* Menu Component */}
@@ -139,7 +141,7 @@ const BillDetailsScreen = () => {
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+            <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
@@ -211,11 +213,6 @@ const BillDetailsScreen = () => {
 export default BillDetailsScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-    padding: 20,
-  },
   loaderContainer: {
     width: "100%",
     height: 200,
@@ -228,26 +225,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center"
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  mandatory: {
-    alignItems: "flex-start",
-    gap: 5,
-  },
-  optional: {
-    alignItems: "flex-end",
-    gap: 5,
-  },
   detailContainer: {
     alignItems: "center",
     marginBottom: 40,
   },
   members: {
-    // alignItems: "center",
     gap: 10,
     marginBottom: 40,
   },

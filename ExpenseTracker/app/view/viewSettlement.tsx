@@ -10,7 +10,7 @@ import { useGetSettlementQuery, useDeleteSettlementMutation } from "@/store/sett
 import { LinearGradient } from "expo-linear-gradient";
 import moment from "moment";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
+import { globalStyles } from "@/styles/globalStyles";
 // router.push({ pathname: "/viewTransaction", params: {id: "67cf2e67b3452d6bb43d2a23"} })
 
 const SettlementDetailsScreen = () => {
@@ -107,16 +107,16 @@ const SettlementDetailsScreen = () => {
 
 
   return (
-    <View style={[styles.container]}>
-      <View style={styles.header}>
-        <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {styles.backButton}/>
+    <View style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {globalStyles.backButton}/>
         {/* Menu Component */}
         <View>
           <Menu
             visible={menuVisible}
             onDismiss={() => setMenuVisible(false)}
             anchor={
-              <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+              <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
                 <Entypo name="dots-three-vertical" size={20} color="black" />
               </TouchableOpacity>
             }
@@ -135,22 +135,22 @@ const SettlementDetailsScreen = () => {
         </View>
       </View>
 
-      <View style={styles.detailContainer}>
-        <Text style={styles.title}>{settlement.settlement_description}</Text>
-        <Text style={[styles.amount]}>₹{settlement.amount}</Text>
+      <View style={globalStyles.viewActivityDetailContainer}>
+        <Text style={globalStyles.viewActivityTitle}>{settlement.settlement_description}</Text>
+        <Text style={globalStyles.viewActivityAmount}>₹{settlement.amount}</Text>
         {(settlement.payer_wallet_id || settlement.receiver_wallet_id) && (
-            <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
+            <Text style={globalStyles.viewActivityAccountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )}
         {/* {isLender && expense.wallet_id && (
           <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )} */}
-        <Text style={styles.date}>{moment(settlement.createdAt).format("DD MMM YYYY, hh:mm A")}</Text>
+        <Text style={globalStyles.viewActivityDate}>{moment(settlement.createdAt).format("DD MMM YYYY, hh:mm A")}</Text>
       </View>
 
       <View style={styles.splitContainer}>
         <View style = {styles.usersContainer}>
             {payer?.profile_photo ? (<Image source={{ uri: payer.profile_photo.url }} style={styles.avatar} />) : (<LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
-            <Text style = {styles.accountName} >{payer.name}</Text>
+            <Text style = {globalStyles.viewActivityAccountName} >{payer.name}</Text>
         </View>
         <Icon name="arrow-forward" size={40} color="black" />
         <View style = {styles.usersContainer}>
@@ -171,11 +171,7 @@ const SettlementDetailsScreen = () => {
 export default SettlementDetailsScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-    padding: 20,
-  },
+
   usersContainer:{
     justifyContent: "space-between",
     alignItems: "center",
@@ -201,58 +197,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 8,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  menuButton: {
-    padding: 10,
-  },
-  detailContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: "Poppins_700Bold",
-    color: "#111827",
-  },
-  amount: {
-    fontSize: 24,
-    fontFamily: "Poppins_700Bold",
-    marginVertical: 5,
-  },
-  accountName: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  date: {
-    fontSize: 12,
-    fontFamily: "Poppins_400Regular",
-    color: "#9CA3AF",
-  },
-  notesContainer: {
-    backgroundColor: "#E5E7EB",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  notesTitle: {
-    fontSize: 16,
-    fontFamily: "Poppins_600SemiBold",
-    color: "#374151",
-  },
-  notesText: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
   splitContainer: {
     backgroundColor: "#FFF",
     padding: 15,
@@ -264,19 +208,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     alignItems: "center"
-  },
-  paidBy: {
-    fontSize: 16,
-    fontFamily: "Poppins_600SemiBold",
-    color: "#374151",
-    marginBottom: 5,
-  },
-  oweText: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  boldText: {
-    fontFamily: "Poppins_700Bold",
   },
 });

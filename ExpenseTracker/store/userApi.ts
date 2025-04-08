@@ -250,6 +250,14 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
+    updateUserAccessToken: builder.mutation<void, {token:string}>({
+      query: ( body ) => ({
+        url: `/users/update-access-token`,
+        method: "PUT",
+        body,
+      }),
+    }),
+
     updateUserProfilePhoto: builder.mutation<GetUserResponse, UpdateUserRequest>({
       query: (body) => ({
         url: `/users/profile-photo`,
@@ -286,6 +294,7 @@ export const {
   useRemindUserBorrowerMutation,
   useRemindUserBorrowersMutation,
   useUpdateUserDetailsMutation,
+  useUpdateUserAccessTokenMutation,
   useUpdateUserProfilePhotoMutation,
   useAddUserFriendsMutation,
   useAutoaddFriendsMutation

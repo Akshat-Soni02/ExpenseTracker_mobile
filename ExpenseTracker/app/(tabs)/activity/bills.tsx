@@ -1,17 +1,14 @@
-import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 import TransactionCard from "@/components/TransactionCard";
-import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
-import { SegmentedButtons,FAB } from 'react-native-paper';
+import { FontAwesome } from "@expo/vector-icons";
+import { FAB } from 'react-native-paper';
 import * as React from 'react';
 import {useGetUserBillsQuery} from '@/store/userApi';
 import { format } from "date-fns";
 import SegmentedControl from "@/components/SegmentedControl";
-
 
 export default function BillsScreen() {
   const router = useRouter();
@@ -40,14 +37,14 @@ export default function BillsScreen() {
 
   if(page === "pending") {
     return (
-        <View style={styles.screen}>
-            <ScrollView style={styles.container}>
+        <View style={globalStyles.screen}>
+            <ScrollView style={globalStyles.viewContainer}>
               
-              <View style = {styles.header}>
-                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-                <Text style={styles.headerText}>Bills</Text>
+              <View style = {[globalStyles.viewHeader,{marginBottom: 0}]}>
+                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {globalStyles.backButton}/>     
+                <Text style={globalStyles.headerText}>Bills</Text>
               </View>
-              <View style={styles.navbar}>
+              <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
               {numberOfPendingBills>0?(<FlatList
@@ -71,27 +68,27 @@ export default function BillsScreen() {
                 nestedScrollEnabled={true}
                 scrollEnabled={false}
               />):
-                <Text style={styles.noText}>No pending bills</Text>
+                <Text style={globalStyles.noText}>No pending bills</Text>
               }
               
             </ScrollView>
             <FAB
                 label="Add Bill"
-                style={styles.fab}
+                style={globalStyles.fab}
                 onPress={() => router.push("/action/create/createBill")}
             />
         </View>
       );
   } else if(page === "missed") {
         return (
-            <View style={styles.screen}>
-                <ScrollView style={styles.container}>
+            <View style={globalStyles.screen}>
+                <ScrollView style={globalStyles.viewContainer}>
                   
-                <View style = {styles.header}>
+                <View style = {globalStyles.viewHeader}>
                 <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-                <Text style={styles.headerText}>Bills</Text>
+                <Text style={globalStyles.headerText}>Bills</Text>
               </View>
-              <View style={styles.navbar}>
+              <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
                   {numberOfMissedBills>0?(<FlatList
@@ -115,27 +112,27 @@ export default function BillsScreen() {
                     nestedScrollEnabled={true}
                     scrollEnabled={false}
                   />):
-                    <Text style={styles.noText}>No missed bills</Text>
+                    <Text style={globalStyles.noText}>No missed bills</Text>
                   }
                   
                 </ScrollView>
                 <FAB
                     label="Add Bill"
-                    style={styles.fab}
+                    style={globalStyles.fab}
                     onPress={() => router.push("/action/create/createBill")}
                 />
             </View>
           );
   } else {
         return (
-            <View style={styles.screen}>
-                <ScrollView style={styles.container}>
+            <View style={globalStyles.screen}>
+                <ScrollView style={globalStyles.viewContainer}>
                   
-                <View style = {styles.header}>
+                <View style = {globalStyles.viewHeader}>
                 <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-                <Text style={styles.headerText}>Bills</Text>
+                <Text style={globalStyles.headerText}>Bills</Text>
               </View>
-              <View style={styles.navbar}>
+              <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
                   {numberOfCompletedBills>0?(<FlatList
@@ -159,95 +156,16 @@ export default function BillsScreen() {
                     nestedScrollEnabled={true}
                     scrollEnabled={false}
                   />):
-                    <Text style={styles.noText}>No completed bills</Text>
+                    <Text style={globalStyles.noText}>No completed bills</Text>
                   }
                   
                 </ScrollView>
                 <FAB
                     label="Add Bill"
-                    style={styles.fab}
+                    style={globalStyles.fab}
                     onPress={() => router.push("/action/create/createBill")}
                 />
             </View>
           );
   }
 }
-
-const styles = StyleSheet.create({
-    screen:{
-        flex:1
-    },
-  container: {
-    flex: 1,
-    position:"relative",
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-    paddingTop: 0,
-  },
-  header: {
-    color: "black",
-    backgroundColor: "white",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10
-  },
-  headerText: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "black"
-  },
-  navbar: {
-    marginBottom: 20,
-    marginTop: 25,
-    left : 2,
-  },
-  navItem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  navText: {
-    color: 'black',
-    fontSize: 16,
-    fontWeight: '400',
-  },
-  todayText: {
-    marginLeft: 20,
-    color: "black",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  transactionsContainer: {
-    alignItems: "flex-start",
-    width: "100%",
-    paddingVertical: 10,
-  },
-
-  sectionTitle: { 
-    fontSize: 18, 
-    fontWeight: "bold", 
-    marginBottom: 10 
-  },
-  fab: {
-    position: "absolute",
-    margin: 16,
-    backgroundColor:"#f8f9fa",
-    right: 0,
-    bottom: 0,
-},
-noText: {
-  height: 100,
-  justifyContent: 'center',
-  alignItems: 'center',
-  textAlign: 'center',
-  fontSize: 16,
-  color: 'gray',
-  padding: 16,
-},
-});

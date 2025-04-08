@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
 import moment from "moment";
-
+import { globalStyles } from "@/styles/globalStyles";
 // router.push({ pathname: "/viewTransaction", params: {id: "67cf2e67b3452d6bb43d2a23"} })
 
 const ExpenseDetailScreen = () => {
@@ -109,9 +109,9 @@ const ExpenseDetailScreen = () => {
   const themeColor = isLender ? "#10B981" : isBorrower ? "#EF4444" : "#374151";
 
   return (
-    <View style={[styles.container]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <View style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
 
@@ -120,7 +120,7 @@ const ExpenseDetailScreen = () => {
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+            <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
@@ -138,25 +138,25 @@ const ExpenseDetailScreen = () => {
         </Menu>
       </View>
 
-      <View style={styles.detailContainer}>
-        <Text style={styles.title}>{expense.description}</Text>
-        <Text style={[styles.amount, { color: themeColor }]}>₹{userState?.toFixed(2) || 0}</Text>
+      <View style={globalStyles.viewActivityDetailContainer}>
+        <Text style={globalStyles.viewActivityTitle}>{expense.description}</Text>
+        <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{userState?.toFixed(2) || 0}</Text>
         {isLender && expense.wallet_id && (
-          <Text style={styles.accountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
+          <Text style={globalStyles.viewActivityAccountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )}
-        <Text style={styles.date}>{moment(expense.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
+        <Text style={globalStyles.viewActivityDate}>{moment(expense.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
       </View>
 
       {expense.notes && (
-        <View style={styles.notesContainer}>
-          <Text style={styles.notesTitle}>Notes</Text>
-          <Text style={styles.notesText}>{expense.notes}</Text>
+        <View style={globalStyles.viewActivityNotesContainer}>
+          <Text style={globalStyles.viewActivityNotesTitle}>Notes</Text>
+          <Text style={globalStyles.viewActivityNotesText}>{expense.notes}</Text>
         </View>
       )}
 
-      <View style={styles.splitContainer}>
-        <Text style={styles.paidBy}>
-          {lenderName} paid <Text style={styles.boldText}>₹{expense.total_amount}</Text>
+      <View style={globalStyles.viewActivitySplitContainer}>
+        <Text style={globalStyles.viewActivityPaidBy}>
+          {lenderName} paid <Text style={globalStyles.viewActivityBoldText}>₹{expense.total_amount}</Text>
         </Text>
         {/* {expense.borrowers.map((borrower) => (
           {borrowerNames[borrower.user_id]==="You" ? (<Text key={borrower.user_id} style={styles.oweText}>
@@ -166,7 +166,7 @@ const ExpenseDetailScreen = () => {
           </Text>)}
         ))} */}
         {expense.borrowers.map((borrower) => (
-          <Text key={borrower.user_id} style={styles.oweText}>
+          <Text key={borrower.user_id} style={globalStyles.viewActivityOweText}>
             {borrowerNames[borrower.user_id] === "You"
               ? `You owe ₹${borrower.amount}`
               : `${borrowerNames[borrower.user_id] || "Unknown"} owes ₹${borrower.amount}`}
@@ -186,11 +186,6 @@ const ExpenseDetailScreen = () => {
 export default ExpenseDetailScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-    padding: 20,
-  },
   mediaContainer: {
     marginTop: 20,
     alignItems: 'center',
@@ -200,79 +195,5 @@ const styles = StyleSheet.create({
     height: 200,
     marginTop: 10,
     borderRadius: 8,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  menuButton: {
-    padding: 10,
-  },
-  detailContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: "Poppins_700Bold",
-    color: "#111827",
-  },
-  amount: {
-    fontSize: 24,
-    fontFamily: "Poppins_700Bold",
-    marginVertical: 5,
-  },
-  accountName: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  date: {
-    fontSize: 12,
-    fontFamily: "Poppins_400Regular",
-    color: "#9CA3AF",
-  },
-  notesContainer: {
-    backgroundColor: "#E5E7EB",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  notesTitle: {
-    fontSize: 16,
-    fontFamily: "Poppins_600SemiBold",
-    color: "#374151",
-  },
-  notesText: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  splitContainer: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    marginBottom: 15,
-  },
-  paidBy: {
-    fontSize: 16,
-    fontFamily: "Poppins_600SemiBold",
-    color: "#374151",
-    marginBottom: 5,
-  },
-  oweText: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-  },
-  boldText: {
-    fontFamily: "Poppins_700Bold",
   },
 });

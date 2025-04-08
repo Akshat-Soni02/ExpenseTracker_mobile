@@ -16,6 +16,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { useEffect } from "react";
 import {useGetWalletQuery} from "@/store/walletApi";
+import { globalStyles } from "@/styles/globalStyles";
 export default function EditTransactionScreen() {
   let {fetchedId} = useLocalSearchParams();
   const { data:fetchedData, isLoading, error, refetch } = useGetPersonalTransactionQuery(fetchedId);
@@ -127,12 +128,12 @@ export default function EditTransactionScreen() {
     }
   };
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <ScrollView style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>Add Spend</Text>
+        <Text style={globalStyles.headerText}>Edit Spend</Text>
       </View>
 
       {/* Transaction Type Selector */}
@@ -160,44 +161,25 @@ export default function EditTransactionScreen() {
       <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
       <NotesInput control={control} name="notes" />
       
-      <View style={styles.walletPhotoContainer}>
+      <View style={globalStyles.walletPhotoContainer}>
         <WalletSelector control={control} name="wallet"/>
         <PhotoSelector control={control} />
       </View>
 
       <CategorySelector control={control} />
-      <View style={styles.dateTimeContainer}>
+      <View style={globalStyles.dateTimeContainer}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
 
        {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
+  
   transactionTypeContainer: {
     flexDirection: "row",
     backgroundColor: "#f1f1f1",
@@ -230,27 +212,6 @@ const styles = StyleSheet.create({
   selectedText: {
     fontWeight: "bold",
     color: "#000",
-  },
-  walletPhotoContainer: {
-    flexDirection: "row",
-    width: "100%",
-    height: 130,
-    justifyContent: "space-between",
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    width: "100%",
-    height: 100,
-    justifyContent: "space-between",
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 5,
   },
   disabledType: {
     opacity: 0.8, // Make it look disabled

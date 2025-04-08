@@ -13,6 +13,7 @@ import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
 import {useCreateSettlementMutation} from '@/store/settlementApi';
+import { globalStyles } from "@/styles/globalStyles";
 export default function AddSettlementScreen() {
   let {fetched_amount,receiver_id,name,group_id,group_name} = useLocalSearchParams();
   let status = "receiver";
@@ -103,25 +104,25 @@ const onSubmit = async (data: any) => {
 if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 return (
   // <View style={[{flex:1}]}>
-    <ScrollView style={styles.container}>
+    <ScrollView style={globalStyles.viewContainer}>
 
-        <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        {status==="sent"?<Text style={styles.header}>Paid to {name}</Text>:<Text style={styles.header}>Received from {name}</Text>}
+        {status==="sent"?<Text style={globalStyles.headerText}>Paid to {name}</Text>:<Text style={globalStyles.headerText}>Received from {name}</Text>}
       </View>
       {group_name && <Text style={styles.groupName}> in {group_name}</Text>}
       <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>
       {/* <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy/> */}
       
-      <View style={styles.walletPhotoContainer}>
+      <View style={globalStyles.walletPhotoContainer}>
         <WalletSelector control={control} name="wallet"/>
         <PhotoSelector control={control} />
       </View>
       
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button}>Settle</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Settle</CustomButton>
     </ScrollView>
     
           
@@ -130,49 +131,6 @@ return (
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  walletPhotoContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 130,
-    justifyContent: "space-between"
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 100,
-    justifyContent: "space-between"
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 10,
-  },
   groupName:{
     alignSelf:"center",
     fontSize:20,

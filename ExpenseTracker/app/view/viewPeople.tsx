@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Ale
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/userApi";
-
+import {globalStyles} from "@/styles/globalStyles";
 const ViewPeopleScreen = () => {
     const {id, amount} = useLocalSearchParams();
     let amountNumber = Number(amount);
@@ -44,10 +44,10 @@ const ViewPeopleScreen = () => {
     };
 
   return (
-    <View style={styles.container}>
+    <View style={[globalStyles.viewContainer, { padding: 0 }]}>
       {/* Header Section */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={[globalStyles.backButton, { position: "absolute",top: 15,left: 15, }]}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
         <View style={styles.profileSection}>
@@ -104,10 +104,7 @@ const ViewPeopleScreen = () => {
 export default ViewPeopleScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
+
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
@@ -124,12 +121,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E7EB",
     paddingVertical: 20,
     alignItems: "center",
-  },
-  backButton: {
-    position: "absolute",
-    top: 15,
-    left: 15,
-    padding: 10,
   },
   profileSection: {
     alignItems: "center",

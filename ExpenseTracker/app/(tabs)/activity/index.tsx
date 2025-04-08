@@ -1,12 +1,10 @@
-import { StyleSheet, Image,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { StyleSheet, ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 import TransactionCard from "@/components/TransactionCard";
-import { MaterialCommunityIcons,FontAwesome } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
-import { SegmentedButtons ,FAB} from 'react-native-paper';
+import { FontAwesome } from "@expo/vector-icons";
+import { FAB} from 'react-native-paper';
 import { format, parseISO ,isToday} from 'date-fns';
 import * as React from 'react';
 import {useGetUserExpensesQuery, useGetUserPersonalTransactionsQuery, useGetUserSettlementsQuery} from '@/store/userApi';
@@ -19,11 +17,9 @@ export default function ActivityScreen() {
   const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery({});
   const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery({});
   
-
   if (isLoadingExpense || isLoadingPersonalTransaction || isLoadingSettlement) {
       return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  }
-      
+  }    
   if (errorExpense) return <Text>Error: {errorExpense?.message || JSON.stringify(errorExpense)}</Text>;
   else if (errorPersonalTransaction) return <Text>Error: {errorPersonalTransaction?.message || JSON.stringify(errorPersonalTransaction)}</Text>;
   else if (errorSettlement) return <Text>Error: {errorSettlement?.message || JSON.stringify(errorSettlement)}</Text>;
@@ -81,14 +77,14 @@ export default function ActivityScreen() {
 
     if(page === "splits") {
       return (
-        <View style={styles.screen}>
-            <ScrollView style={styles.container}>
+        <View style={globalStyles.screen}>
+            <ScrollView style={globalStyles.viewContainer}>
               
-            <View style = {styles.header}>
+            <View style = {globalStyles.viewHeader}>
               <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-              <Text style={styles.headerText}>Activity</Text>
+              <Text style={globalStyles.headerText}>Activity</Text>
             </View>
-              <View style={styles.navbar}>
+              <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={false}/>
               </View>
     
@@ -121,26 +117,26 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                  <Text style= {styles.noText}>No splits found</Text>
+                  <Text style= {globalStyles.noText}>No splits found</Text>
                 }
             </ScrollView>
             <FAB
             label="Add split"
-            style={styles.fab}
+            style={globalStyles.fab}
             onPress={() => router.push("/action/create/createExpense")}
         />
         </View>
       );
     } else if (page === "spends") {
       return (
-        <View style={styles.screen}>
-        <ScrollView style={styles.container}>
+        <View style={globalStyles.screen}>
+        <ScrollView style={globalStyles.viewContainer}>
               
-            <View style = {styles.header}>
+            <View style = {globalStyles.viewHeader}>
                 <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
-                  <Text style={styles.headerText}>Activity</Text>
+                  <Text style={globalStyles.headerText}>Activity</Text>
               </View>
-              <View style={styles.navbar}>
+              <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={false}/>
               </View>
               {numberOfPersonalTransactions>0?(<View >
@@ -172,26 +168,26 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                 <Text style= {styles.noText}>No spends found</Text>
+                 <Text style= {globalStyles.noText}>No spends found</Text>
                 }
     
             </ScrollView>
             <FAB
             label="Add Spend"
-            style={styles.fab}
+            style={globalStyles.fab}
             onPress={() => router.push("/action/create/createTransaction")}
         />
         </View>
       );
     } else {
       return (
-        <View style={styles.screen}>
-        <ScrollView style={styles.container}>
-          <View style = {styles.header}>
+        <View style={globalStyles.screen}>
+        <ScrollView style={globalStyles.viewContainer}>
+          <View style = {globalStyles.viewHeader}>
             <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
-              <Text style={styles.headerText}>Activity</Text>
+              <Text style={globalStyles.headerText}>Activity</Text>
           </View>
-              <View style={styles.navbar}>
+              <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={false}/>
               </View>
               
@@ -223,7 +219,7 @@ export default function ActivityScreen() {
                     </View>
                   ))}
                 </View>):
-                 <Text style= {styles.noText}>No settlements found</Text>
+                 <Text style= {globalStyles.noText}>No settlements found</Text>
                 }
             </ScrollView>
           </View>
@@ -232,89 +228,10 @@ export default function ActivityScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen:{
-    flex:1  
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    paddingInline: 15
-  },
-  header: {
-    color: "black",
-    backgroundColor: "white",
-    paddingInline: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10
-  },
-  headerText: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "black"
-  },
-  navbar: {
-    marginBottom: 20,
-    // backgroundColor: '#f8f8f8',
-    // borderBottomColor: '#ddd',
-    // borderRadius: 20,
-    // elevation: 2,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    marginTop: 25,
-    // shadowRadius: 2,
-    left : 2,
-  },
-  navItem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  navText: {
-    color: 'black',
-    fontSize: 16,
-    fontWeight: '400',
-  },
-  todayText: {
-    marginLeft: 20,
-    color: "black",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  transactionsContainer: {
-    alignItems: "flex-start",
-    width: "100%",
-    paddingVertical: 10,
-  },
-
   sectionTitle: { 
     fontSize: 18, 
     fontWeight: "bold", 
     marginBottom: 10,
     color: "black"
   },
-  fab: {
-    position: "absolute",
-    margin: 16,
-    backgroundColor:"#f8f9fa",
-    right: 0,
-    bottom: 0,
-},
-noText: {
-  height: 100,
-  justifyContent: 'center',
-  alignItems: 'center',
-  textAlign: 'center',
-  fontSize: 16,
-  color: 'gray',
-  padding: 16,
-  backgroundColor: "white"
-},
 });

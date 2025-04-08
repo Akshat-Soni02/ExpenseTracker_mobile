@@ -14,7 +14,7 @@ import ToggleSwitch from "@/components/ToggleSwitch";
 import SplitWithSelector from "@/components/SplitWithSelector";
 import { useUpdateBillMutation , useGetBillQuery} from "@/store/billApi";
 import _ from "lodash";
-
+import { globalStyles } from "@/styles/globalStyles";
 
 export default function CreateBillScreen() {
       let {id} = useLocalSearchParams();
@@ -121,12 +121,12 @@ export default function CreateBillScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <ScrollView style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>Edit Bill</Text>
+        <Text style={globalStyles.headerText}>Edit Bill</Text>
       </View>
 
       {/* Bill Title and amount */}
@@ -137,7 +137,7 @@ export default function CreateBillScreen() {
       <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} edit = {true} title="Share with"/>
 
       {/* Initial Budget & Date */}
-      <View style={styles.dateTimeContainer}>
+      <View style={globalStyles.dateTimeContainer}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Due Date"/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" />
       </View>
@@ -146,40 +146,7 @@ export default function CreateBillScreen() {
 
       {/* Save Button */}
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onBillSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-});

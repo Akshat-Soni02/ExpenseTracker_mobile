@@ -7,7 +7,7 @@ import moment from "moment";
 import { useRemindAllGroupBorrowersMutation ,useLazyLeaveGroupQuery,  useSimplifyDebtsMutation} from "@/store/groupApi";
 import { FAB, Portal, PaperProvider, Menu, Divider } from 'react-native-paper';
 import { useLazyGetUserFriendsQuery } from "@/store/userApi";
-
+import { globalStyles } from "@/styles/globalStyles";
 const GroupDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   const [modalVisible, setModalVisible] = useState(false);
@@ -116,10 +116,10 @@ const GroupDetailsScreen = () => {
     <PaperProvider>
 
     <View style={{flex:1}}>
-    <View style={styles.container}>
+    <View style={globalStyles.viewContainer}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
         {/* Menu Component */}
@@ -127,7 +127,7 @@ const GroupDetailsScreen = () => {
             visible={menuVisible}
             onDismiss={() => setMenuVisible(false)}
             anchor={
-              <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+              <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
                 <Entypo name="dots-three-vertical" size={20} color="black" />
               </TouchableOpacity>
             }
@@ -306,22 +306,11 @@ const GroupDetailsScreen = () => {
 export default GroupDetailsScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-    padding: 20,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "white",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
   },
   settlementRow: {
     flexDirection: "row",

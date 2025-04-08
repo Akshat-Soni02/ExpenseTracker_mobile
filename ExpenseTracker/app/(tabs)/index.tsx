@@ -1,40 +1,30 @@
-import { StyleSheet ,ScrollView,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar,Pressable} from 'react-native';
-import EditScreenInfo from '@/components/EditScreenInfo';
-// import {  View } from '@/components/Themed';
+import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar,Pressable,Alert} from 'react-native';
 import { useRouter } from "expo-router";
-import ImageIcon from '@/components/ImageIcon';
 import * as React from 'react';
-// import { Card, Text } from 'react-native-paper';
-import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent';
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Divider, PaperProvider, Portal, Modal} from 'react-native-paper';
+import { Ionicons } from "@expo/vector-icons";
+import { PaperProvider, Portal, Modal} from 'react-native-paper';
 import TransactionCard from '@/components/TransactionCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
-import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery } from '@/store/userApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery,useUpdateUserAccessTokenMutation } from '@/store/userApi';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthProvider';
 import { LinearGradient } from 'expo-linear-gradient';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Make sure to install this
-
-
-const transactions = [
-  { id: "1", title:"Paytmqr28100743...",imageType: "expense", amount: "₹60", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-  { id: "2",title:"Paytmqr28100743...", imageType: "income", amount: "₹90", time: "6:16 pm · 19 Feb" ,transactionType: "income"},
-  { id: "3", title:"Paytmqr28100743...",imageType: "expense", amount: "₹80", time: "6:16 pm · 19 Feb" ,transactionType: "expense"},
-];
-
-// const groups = [{id:"1",group_title:"AnyGroupA"}, {id:"2",group_title:"AnyGroupB"}, {id:"3",group_title:"AnyGroupC"}];
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; 
+import {PermissionsAndroid} from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 
 export default function HomeScreen() {
+
   const router = useRouter();
-    const [modalVisible, setModalVisible] = React.useState(false);
-    const [selectedTransaction, setSelectedTransaction] = React.useState(null);
-  
-  const { authToken, loading, logout } = useAuth();
-  const [user, setUser] = useState();
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedTransaction, setSelectedTransaction] = React.useState(null);
+  const { authToken, loading} = useAuth();
+  const [updateUserAccessToken] = useUpdateUserAccessTokenMutation();
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', remoteMessage);
+  });
 
   useEffect(() => {
     if (!loading && !authToken) {
@@ -42,6 +32,40 @@ export default function HomeScreen() {
     }
   }, [authToken, loading]);
 
+  useEffect(() => {
+    requestPermissionAndroid();
+  }, []);
+  const requestPermissionAndroid = async () => {
+    const granted = await   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) { 
+      console.log("Notification permission granted");
+      getToken();
+    } else {
+      console.log("Notification permission denied");
+    }
+  }
+
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('🔥 FCM Foreground:', remoteMessage);
+      Alert.alert(
+        remoteMessage?.data?.title || 'Notification',
+        remoteMessage?.data?.body || 'You have a new message!'
+      );
+    });
+  
+    return unsubscribe;
+  }, []);
+
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    updateUserAccessToken({token:token});
+    console.log("Token:",token);
+  }
+  useEffect(() => { ////Only if permission granted
+    getToken();
+  }, []);
   useEffect(() => {
     StatusBar.setBarStyle('dark-content');
     StatusBar.setBackgroundColor('#ffffff');

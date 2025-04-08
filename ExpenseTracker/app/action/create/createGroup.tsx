@@ -9,7 +9,7 @@ import AddPeopleInput from "@/components/AddPeopleInput";
 import InitialBudget from "@/components/InitialBudget";
 import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import { useCreateGroupMutation } from "@/store/groupApi";
-
+import { globalStyles } from "@/styles/globalStyles";
 export default function CreateGroupScreen() {
   const [createGroup, {isLoading}] = useCreateGroupMutation();
   const [errorMessage, setErrorMessage] = useState("");
@@ -64,12 +64,12 @@ export default function CreateGroupScreen() {
 
     if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <ScrollView style={globalStyles.viewContainer}>
+      <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Group</Text>
+        <Text style={globalStyles.headerText}>New Group</Text>
       </View>
 
       {/* Group Title */}
@@ -79,52 +79,14 @@ export default function CreateGroupScreen() {
       <AddPeopleInput control={control} />
 
       {/* Initial Budget & Date */}
-      <View style={styles.dateTimeContainer}>
+      <View style={globalStyles.dateTimeContainer}>
         <InitialBudget control={control} />
         <CustomDateTimePicker control={control} name="settleUpDate" label="Date" heading="Settle-up Date"/>
       </View>
 
       {/* Save Button */}
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onGroupSubmit)} style={styles.button}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onGroupSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 10,
-  }
-});

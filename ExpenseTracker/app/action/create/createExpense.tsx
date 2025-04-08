@@ -13,6 +13,7 @@ import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import CategorySelector from "@/components/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
+import {globalStyles} from "@/styles/globalStyles";
 export default function AddExpenseScreen() {
   let {group_id, group_name,detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
   let detectedAmountNumber = Number(detectedAmount);
@@ -158,78 +159,32 @@ export default function AddExpenseScreen() {
 
   if(isLoadingExpense) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
-    <ScrollView style={styles.container}>
-        <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <ScrollView style={globalStyles.viewContainer}>
+        <View style={globalStyles.viewHeader}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Split</Text>
+        <Text style={globalStyles.headerText}>New Split</Text>
       </View>
       {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
       {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>):(<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>)}
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} group_id = {group_id} IncludePaidBy/>
       <NotesInput control={control} name="notes" />
 
-      <View style={styles.walletPhotoContainer}>
+      <View style={globalStyles.walletPhotoContainer}>
         <WalletSelector control={control} name="wallet"/>
         <PhotoSelector control={control} />
       </View>
 
       <CategorySelector control={control} />
 
-      <View style={styles.dateTimeContainer}>
+      <View style={globalStyles.dateTimeContainer}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
       
       {errorMessage && (Alert.alert("Error",errorMessage))}
-      <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button} disabled = {!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE}>{(!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE) ? ("Split amount must match total") : ("Save")}</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled = {!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE}>{(!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE) ? ("Split amount must match total") : ("Save")}</CustomButton>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 10
-  },
-  backButton: {
-    padding: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
-  },
-  walletPhotoContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 130,
-    justifyContent: "space-between"
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    // gap: 1,
-    width: "100%",
-    height: 100,
-    justifyContent: "space-between"
-  },
-  button: {
-    marginVertical: 15,
-    alignSelf: "center",
-  },
-  error: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 10,
-  }
-});
