@@ -6,11 +6,11 @@ import { useGetUserWalletsQuery } from "@/store/userApi";
 interface WalletSelectorProps {
   control: any;
   name: string;
-  isFrozen?;boolean;
+  isFrozen?: boolean;
 }
 
 const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name,isFrozen=false }) => {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
   const { data, isLoading } = useGetUserWalletsQuery();
   const TotalWallets = data?.data?.length || 0;
   
@@ -24,12 +24,8 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name,isFrozen=
           
           {!isLoading && (
             <View style={[styles.selectionContainer, isFrozen && styles.disabledInputWrapper]}>
-            {/* <TouchableOpacity
-              style={styles.selectionContainer}
-              onPress={() => setModalVisible(true)}
-            > */}
             <TouchableOpacity
-              disabled={isFrozen} // Freezing selection
+              disabled={isFrozen}
               onPress={() => !isFrozen && setModalVisible(true)}
             >
               <Text style={[styles.tap, isFrozen && styles.disabledText]}>{value?.wallet_title || "Tap to select"}</Text>

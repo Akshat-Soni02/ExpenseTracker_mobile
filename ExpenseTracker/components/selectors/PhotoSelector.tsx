@@ -9,8 +9,8 @@ interface Props {
 }
 
 const PhotoSelector: React.FC<Props> = ({ control }) => {
-  const [loading, setLoading] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [uploadedFile, setUploadedFile] = useState<string>("");
 
   const pickImage = async (onChange: (uri: string) => void) => {
     setLoading(true);

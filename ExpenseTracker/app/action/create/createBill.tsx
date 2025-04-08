@@ -3,26 +3,54 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+
+import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
+import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
+import CategorySelector from "@/components/selectors/CategorySelector";
+import ToggleSwitch from "@/components/inputs/ToggleSwitch";
+import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
 import CustomButton from "@/components/button/CustomButton";
-import TitleInput from "@/components/TitleInput";
-import AddPeopleInput from "@/components/AddPeopleInput";
-import InitialBudget from "@/components/InitialBudget";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
-import AmountDescriptionInput from "@/components/AmountDescriptionInput";
-import CategorySelector from "@/components/CategorySelector";
-import ToggleSwitch from "@/components/ToggleSwitch";
-import SplitWithSelector from "@/components/SplitWithSelector";
-import { useCreateBillMutation } from "@/store/billApi";
 import { globalStyles } from "@/styles/globalStyles";
+
+import { Member, useCreateBillMutation } from "@/store/billApi";
+
+type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  amount?: error;
+  Title?: error;
+}
+
+type BillMember = {
+  user_id: string;
+  amount: number;
+  status: "pending";
+}
+
+type Data = {
+  date: Date;
+  time: Date;
+  splitWith: { user_id: string, amount: number}[];
+  Title: string;
+  amount: number;
+  category?: string;
+  recurring: boolean;
+  members?: Member[];
+}
+
 export default function CreateBillScreen() {
-  const [createBill, {isLoading}] = useCreateBillMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
-  const { control, handleSubmit, setValue, reset, watch } = useForm({
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  const [createBill, {isLoading, error: errorBill}] = useCreateBillMutation();
+
+  const { control, handleSubmit, setValue, reset, watch } = useForm<Data>({
     defaultValues: {
       amount: 0,
-      title: "",
-      splitWith: [{ user_id: "1", amount: 0 }],
+      Title: "",
+      splitWith: [],
       members: [],
       date: new Date(),
       time: new Date(new Date().setHours(0, 0, 0, 0)),
@@ -36,17 +64,24 @@ export default function CreateBillScreen() {
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
       const messages = [
-        childErrors.amount?.message,
-        childErrors.Title?.message
+        childErrors?.amount?.message,
+        childErrors?.Title?.message
       ].filter(Boolean).join("\n");
   
       Alert.alert("Invalid data", messages);
     }
   }, [childErrors]);
 
-//   bill_title, amount, bill_category, due_date_time, recurring, members
-  const onBillSubmit = async (data: any) => {
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+  
+
+  const onBillSubmit = async (data: Data) => {
     try {
+      console.log("bill data: ",data);
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
 
@@ -58,7 +93,8 @@ export default function CreateBillScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
-      let members = [];
+
+      let members: BillMember[] = [];
       data?.splitWith.forEach((split) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
       });
@@ -86,6 +122,7 @@ export default function CreateBillScreen() {
   };
 
   if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+
   return (
     <ScrollView style={globalStyles.viewContainer}>
       <View style={globalStyles.viewHeader}>
@@ -95,23 +132,18 @@ export default function CreateBillScreen() {
         <Text style={globalStyles.headerText}>New Bill</Text>
       </View>
 
-      {/* Bill Title and amount */}
       <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors}/>
 
-      {/* Add Members to share */}
-      {/* <AddPeopleInput control={control} /> */}
       <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
 
-      {/* Initial Budget & Date */}
       <View style={globalStyles.dateTimeContainer}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Due Date"/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" useDefaultToday/>
       </View>
+
       <CategorySelector control={control}/>
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
-      {/* Save Button */}
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );

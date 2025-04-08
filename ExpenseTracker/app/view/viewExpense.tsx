@@ -3,26 +3,30 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Ale
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
-import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import moment from "moment";
+
+import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
-import moment from "moment";
 import { globalStyles } from "@/styles/globalStyles";
-// router.push({ pathname: "/viewTransaction", params: {id: "67cf2e67b3452d6bb43d2a23"} })
+
 
 const ExpenseDetailScreen = () => {
-  const { id } = useLocalSearchParams();
+
+  const { id } = useLocalSearchParams() as {id: string};
+  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
+  const [borrowerNames, setBorrowerNames] = useState<Record<string, string>>({});
+  const [lenderName, setLenderName] = useState<string>("Unknown");
+  const [userState, setUserState] = useState<number | null>(null);
+  const [paidByName,setPaidByName] = useState<string | null>(null);
+  const [menuVisible, setMenuVisible] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
   const [deleteExpense, {isLoading: deleteLoading, error: deleteError}] = useDeleteExpenseMutation();
-  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
-  const [borrowerNames, setBorrowerNames] = useState<Record<string, string>>({});
-  const [lenderName, setLenderName] = useState("Unknown");
-  const [userState, setUserState] = useState(null);
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
-  const [paidByName,setPaidByName] = useState(null);
-  const [menuVisible, setMenuVisible] = useState(false);
 
   const expense = data?.data;
 
@@ -86,26 +90,44 @@ const ExpenseDetailScreen = () => {
     }, [])
   );
 
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+
   const handleExpenseDelete = async () => {
     try {
-      const response = await deleteExpense(id);
-      if(!response || deleteError) {
-        console.log(error);
-        // setMenuVisible(false);
-      }
+      await deleteExpense(id);
       router.back();
     } catch (error) {
-      
+      console.log("error deleting split",error);
+      const err = error as { data?: { message?: string } };
+      if (err?.data?.message) {
+        setErrorMessage(err.data.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
     }
   }
 
   if (isLoading || deleteLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  if (error) return <Text>Error loading expense details</Text>;
+  
+  if (error) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in error) {
+      errorMessage = `Server Error: ${JSON.stringify(error.data)}`;
+    } else if ("message" in error) {
+      errorMessage = `Client Error: ${error.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
+
   if (!data?.data || !loggedInUserId) return <Text>No expense found</Text>;
 
-  const isLender = expense.lenders.some((lender) => lender.user_id === loggedInUserId);
-  const isBorrower = expense.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
-
+  const isLender = expense?.lenders.some((lender) => lender.user_id === loggedInUserId);
+  const isBorrower = expense?.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
   const themeColor = isLender ? "#10B981" : isBorrower ? "#EF4444" : "#374151";
 
   return (
@@ -115,7 +137,6 @@ const ExpenseDetailScreen = () => {
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
 
-        {/* Menu Component */}
         <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
@@ -128,26 +149,27 @@ const ExpenseDetailScreen = () => {
           <Menu.Item onPress={() => router.push({ pathname: "/action/edit/editExpense", params: {id:id,paidByName:paidByName} })} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => Alert.alert(
-                                  "Delete split", 
-                                  `Are you sure you want to delete ${expense.description}`, 
-                                  [
-                                    { text: "Cancel", style: "cancel" },
-                                    { text: "Yes", onPress: () => handleExpenseDelete()}
-                                  ]
-                                )} title="Delete" />
+                      "Delete split", 
+                      `Are you sure you want to delete ${expense?.description}`, 
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        { text: "Yes", onPress: () => handleExpenseDelete()}
+                      ]
+                    )} title="Delete" />
         </Menu>
       </View>
 
       <View style={globalStyles.viewActivityDetailContainer}>
-        <Text style={globalStyles.viewActivityTitle}>{expense.description}</Text>
+        
+        <Text style={globalStyles.viewActivityTitle}>{expense?.description}</Text>
         <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{userState?.toFixed(2) || 0}</Text>
-        {isLender && expense.wallet_id && (
+        {isLender && expense?.wallet_id && (
           <Text style={globalStyles.viewActivityAccountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
         )}
-        <Text style={globalStyles.viewActivityDate}>{moment(expense.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
+        <Text style={globalStyles.viewActivityDate}>{moment(expense?.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
       </View>
 
-      {expense.notes && (
+      {expense?.notes && (
         <View style={globalStyles.viewActivityNotesContainer}>
           <Text style={globalStyles.viewActivityNotesTitle}>Notes</Text>
           <Text style={globalStyles.viewActivityNotesText}>{expense.notes}</Text>
@@ -156,16 +178,9 @@ const ExpenseDetailScreen = () => {
 
       <View style={globalStyles.viewActivitySplitContainer}>
         <Text style={globalStyles.viewActivityPaidBy}>
-          {lenderName} paid <Text style={globalStyles.viewActivityBoldText}>₹{expense.total_amount}</Text>
+          {lenderName} paid <Text style={globalStyles.viewActivityBoldText}>₹{expense?.total_amount}</Text>
         </Text>
-        {/* {expense.borrowers.map((borrower) => (
-          {borrowerNames[borrower.user_id]==="You" ? (<Text key={borrower.user_id} style={styles.oweText}>
-            You owe ₹{borrower.amount}
-          </Text>):(<Text key={borrower.user_id} style={styles.oweText}>
-            {borrowerNames[borrower.user_id] || "Unknown"} owes ₹{borrower.amount}
-          </Text>)}
-        ))} */}
-        {expense.borrowers.map((borrower) => (
+        {expense?.borrowers.map((borrower) => (
           <Text key={borrower.user_id} style={globalStyles.viewActivityOweText}>
             {borrowerNames[borrower.user_id] === "You"
               ? `You owe ₹${borrower.amount}`
@@ -174,9 +189,9 @@ const ExpenseDetailScreen = () => {
         ))}
       </View>
 
-      {expense.media && (
+      {expense?.media && (
         <View style={styles.mediaContainer}>
-          <Image source={{ uri: expense.media.url }} style={styles.previewImage} />
+          <Image source={{ uri: expense?.media.url }} style={styles.previewImage} />
       </View>
       )}
     </View>

@@ -4,10 +4,11 @@ import { ExpenseMedia } from "./expenseApi";
 export type Transaction = {
   _id: string;
   transaction_type: "expense" | "income";
+  description: string;
   wallet_id?: string;
   media?: ExpenseMedia;
   transaction_category?: string;
-  created_at_date_time?: string;
+  created_at_date_time: Date;
   notes?: string;
   amount: number;
   budget_id?: string;
@@ -27,7 +28,7 @@ type UpdateTransactionRequest = Partial<CreateTransactionRequest>;
 
 export const personalTransactionApi = api.injectEndpoints({
     endpoints: (builder) => ({
-      createPersonalTransaction: builder.mutation<GetTransactionResponse,CreateTransactionRequest>({
+      createPersonalTransaction: builder.mutation<GetTransactionResponse,FormData>({
         query: (body) => ({
           url: `/personal-transactions/new`,
           method: "POST",
