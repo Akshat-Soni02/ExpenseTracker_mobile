@@ -10,18 +10,22 @@ import CustomButton from "../button/CustomButton";
 import { useLazyGetGroupQuery } from "@/store/groupApi";
 import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi";
 import { people } from "./AddPeopleInput";
+import { Member } from "@/store/billApi";
 const { width } = Dimensions.get("window");
 
 type FormValues = { 
   amount: number; 
-  title: string; 
-  splitWith: { user_id: string; amount: number }[];
-  paidBy?: { user_id: string, name: string, profile_photo?: string };
-  members: never[]; 
+  Title: string; 
+  splitWith: { user_id: string; amount: number }[] | [];
+  paidBy?: { user_id: string, name: string, profile_photo?: string } | null;
+  members?: Member[]; 
   date: Date; 
   time: Date; 
-  category: string; 
-  recurring: boolean; 
+  category?: string; 
+  Description?: string;
+  notes?: string;
+  wallet?: string | null;
+  photo?: string | null;
 };
 
 interface Props {

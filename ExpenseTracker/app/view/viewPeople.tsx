@@ -2,13 +2,45 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+
 import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/userApi";
 
+type LocalParams = {
+  id: string;
+  amount: string;
+}
+
 const ViewPeopleScreen = () => {
-    const {id, amount} = useLocalSearchParams();
-    let amountNumber = Number(amount);
+
+  const {id, amount} = useLocalSearchParams() as LocalParams;
+  let amountNumber = Number(amount);
+
   const { data, isLoading } = useGetUserByIdQuery(id);
   const [remindBorrower, {isLoading: loadingBorrowReq}] = useRemindUserBorrowerMutation();
+
+
+  const handleRemind = async () => {
+    try {
+      const response = await remindBorrower({borrower_id: id}).unwrap();
+      Alert.alert(
+        "Remainder Sent", 
+        "A remainder has been sent", 
+        [
+          { text: "ok", style: "cancel" },
+        ]
+      )
+    } catch (error) {
+      console.error("Error sending borrowers mail:", error);
+      const err = error as { data?: { message?: string } };
+      Alert.alert(
+        "Remainder Error", 
+        `${err?.data?.message}`, 
+        [
+          { text: "ok", style: "cancel" },
+        ]
+      )
+    }
+  };
 
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
@@ -20,61 +52,45 @@ const ViewPeopleScreen = () => {
     );
   }
 
-  const handleRemind = async () => {
-      try {
-        const response = await remindBorrower({borrower_id: id}).unwrap();
-        Alert.alert(
-          "Remainder Sent", 
-          "A remainder has been sent", 
-          [
-            { text: "ok", style: "cancel" },
-          ]
-        )
-      } catch (error) {
-        console.error("Error sending borrowers mail:", error);
-        const err = error as { data?: { message?: string } };
-        Alert.alert(
-          "Remainder Error", 
-          `${err?.data?.message}`, 
-          [
-            { text: "ok", style: "cancel" },
-          ]
-        )
-      }
-    };
-
   return (
     <View style={styles.container}>
-      {/* Header Section */}
+
       <View style={styles.header}>
+
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
+
         <View style={styles.profileSection}>
           {data.data.profile_photo ? (
             <Image source={{ uri: data.data.profile_photo.url }} style={styles.profileImage} />
           ) : (
             <View style={styles.profileImage} />
           )}
+
           <Text style={styles.name}>{data.data.name}</Text>
+
           <Text style={styles.email}>{data.data.email}</Text>
         </View>
+
         <View style={styles.buttonContainer}>
+
           <TouchableOpacity 
-                    style={styles.remindButton}
-                    onPress={() => 
-                      Alert.alert(
-                        "Remind All", 
-                        `This will send a remainder email to ${data.data.name}!`, 
-                        [
-                          { text: "Cancel", style: "cancel" },
-                          { text: "Yes", onPress: () => handleRemind()}
-                        ]
-                      )
-                    }
-                  >
+            style={styles.remindButton}
+            onPress={() => 
+              Alert.alert(
+                "Remind All", 
+                `This will send a remainder email to ${data.data.name}!`, 
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Yes", onPress: () => handleRemind()}
+                ]
+              )
+            }
+          >
             <Text style={styles.buttonText}>Remind</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/action/create/createSettlement", params: { fetched_amount:amountNumber,receiver_id : id,name: data.data.name } })}>
             <Text style={styles.buttonText}>Settle Up</Text>
           </TouchableOpacity>
@@ -83,6 +99,7 @@ const ViewPeopleScreen = () => {
 
       {/* Debt Summary */}
       <View style={styles.summaryContainer}>
+
         {amountNumber > 0 ? (
           <Text style={styles.summaryText}>
             You lend <Text style={styles.greenAmount}>₹{amountNumber.toFixed(2)}</Text> to {data.data.name}
@@ -96,6 +113,7 @@ const ViewPeopleScreen = () => {
             You are settled with {data.data.name}
           </Text>
         )}
+        
       </View>
     </View>
   );

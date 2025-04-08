@@ -1,48 +1,73 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import _ from "lodash";
+
 import CustomButton from "@/components/button/CustomButton";
-import TitleInput from "@/components/inputs/TitleInput";
-import AddPeopleInput from "@/components/peopleSelectors/AddPeopleInput";
-import InitialBudget from "@/components/inputs/InitialBudget";
 import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 import CategorySelector from "@/components/selectors/CategorySelector";
 import ToggleSwitch from "@/components/inputs/ToggleSwitch";
 import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
-import { useUpdateBillMutation , useGetBillQuery} from "@/store/billApi";
-import _ from "lodash";
+import { useUpdateBillMutation , useGetBillQuery, Bill, Member} from "@/store/billApi";
+import { globalStyles } from "@/styles/globalStyles";
 
+type error = {
+  message: string;
+}
 
-export default function CreateBillScreen() {
-      let {id} = useLocalSearchParams();
-      const { data:billData, isLoading:billIsLoading, error:billError, refetch } = useGetBillQuery(id);
-      const splitWithArray = billData.data.members.map(m => ({
-        amount: m.amount,
-        user_id: m.user_id
-      }));
+type ChildErrors = {
+  amount?: error;
+  Title?: error;
+}
+
+type BillMember = {
+  user_id: string;
+  amount: number;
+  status: "pending";
+}
+
+type Data = {
+  date: Date;
+  time: Date;
+  splitWith: { user_id: string, amount: number}[];
+  Title: string;
+  amount: number;
+  category?: string;
+  recurring: boolean;
+  members?: Member[];
+}
+
+export default function EditBillScreen() {
+  const router = useRouter();
+  let {id} = useLocalSearchParams() as {id: string};
+
   const [updateBill, {isLoading}] = useUpdateBillMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  const { data: billData, isLoading: billIsLoading, error: errorBill, refetch } = useGetBillQuery(id);
+
+  const splitWithArray = billData?.data.members?.map(m => ({
+    amount: m.amount,
+    user_id: m.user_id
+  }));
+
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
-      amount: billData.data.amount,
-      Title: billData.data.bill_title,
-      // Description:billData.data.bill_title,
-      // splitWith: [{ user_id: "1", amount: 0 }],
-      splitWith:splitWithArray,
-      members: billData.data.members,
-      date: new Date(billData.data.due_date_time),
-      time: new Date(billData.data.due_date_time),
-      category: billData.data.bill_category,
-      recurring: billData.data.recurring
+      amount: billData?.data.amount || 0,
+      Title: billData?.data.bill_title || "",
+      splitWith:splitWithArray || [],
+      members: billData?.data.members,
+      date: billData ? new Date(billData.data.due_date_time) : new Date(),
+      time: billData ? new Date(billData.data.due_date_time) : new Date(),
+      category: billData?.data.bill_category,
+      recurring: billData?.data.recurring || false,
     },
   });
-
-  const router = useRouter();
 
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
@@ -55,8 +80,14 @@ export default function CreateBillScreen() {
     }
   }, [childErrors]);
 
-//   bill_title, amount, bill_category, due_date_time, recurring, members
-  const onBillSubmit = async (data: any) => {
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+
+
+  const onBillSubmit = async (data: Data) => {
     try {
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
@@ -73,33 +104,30 @@ export default function CreateBillScreen() {
       data?.splitWith.forEach((split) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
       });
-      // const filteredSplit = data.splitWith.filter((user) => user.user_id !== data.paidBy.user_id);
 
+      let dataObj: Partial<Bill> = {};
 
-      let dataObj: { amount?: number; bill_title?:string;bill_category?:string;due_date_time?:any;recurring?:boolean;members?:any} = {};
-      if(data.amount!==billData.data.amount){
+      if(data.amount!==billData?.data.amount){
         dataObj.amount = data.amount;
       }
-      if(data.Title!==billData.data.bill_title){
+      if(data.Title!==billData?.data.bill_title){
         dataObj.bill_title = data.Title;
       }
-      if(data.category!==billData.data.bill_category){
+      if(data.category!==billData?.data.bill_category){
         dataObj.bill_category= data.category;
       }
-      if(due_date_time!==billData.data.due_date_time){
-        dataObj.due_date_time = data.due_date_time;
+      if(due_date_time!==billData?.data.due_date_time){
+        dataObj.due_date_time = due_date_time;
       }
-      if(data.recurring!==billData.data.recurring){
+      if(data.recurring!==billData?.data.recurring){
         dataObj.recurring=data.recurring;
       }
-      // if(data.members!==billData.data.members){
-      //   dataObj.members=data.members;
-      // }
+      
       const borrowersData = data.splitWith.map((user) => ({ ...user, amount: Number(user.amount) }));
       const simplifiedBorrowers = borrowersData.map(({ user_id, amount }) => ({ user_id, amount }));
-      const prevBorrowers = billData.data.members.map(({ user_id, amount }) => ({ user_id, amount }));
+      const prevBorrowers = billData?.data.members?.map(({ user_id, amount }) => ({ user_id, amount }));
       if (!_.isEqual(simplifiedBorrowers, prevBorrowers)) {
-            let members = [];
+            let members: BillMember[] = [];
             data?.splitWith.forEach((split) => {
               members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
             });
@@ -117,11 +145,24 @@ export default function CreateBillScreen() {
         setErrorMessage("Something went wrong. Please try again.");
       }
     }
-    
   };
+
+  if(isLoading || billIsLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+
+  if (errorBill) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in errorBill) {
+      errorMessage = `Server Error: ${JSON.stringify(errorBill.data)}`;
+    } else if ("message" in errorBill) {
+      errorMessage = `Client Error: ${errorBill.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
 
   return (
     <ScrollView style={styles.container}>
+
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
@@ -129,11 +170,9 @@ export default function CreateBillScreen() {
         <Text style={styles.header}>Edit Bill</Text>
       </View>
 
-      {/* Bill Title and amount */}
       <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors}/>
 
       {/* Add Members to share */}
-      {/* <AddPeopleInput control={control} /> */}
       <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} edit = {true} title="Share with"/>
 
       {/* Initial Budget & Date */}
@@ -145,7 +184,6 @@ export default function CreateBillScreen() {
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
       {/* Save Button */}
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onBillSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

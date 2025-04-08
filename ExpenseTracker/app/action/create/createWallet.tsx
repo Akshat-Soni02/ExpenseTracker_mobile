@@ -3,28 +3,43 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+
 import CustomButton from "@/components/button/CustomButton";
-import TitleInput from "@/components/inputs/TitleInput";
-import AddPeopleInput from "@/components/peopleSelectors/AddPeopleInput";
-import InitialBudget from "@/components/inputs/InitialBudget";
-import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 import LowerLimit from "@/components/inputs/LowerLimit";
 import { useCreateWalletMutation } from "@/store/walletApi";
 
+export type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  amount?: error;
+  Name?: error;
+}
+
+type Data = {
+  amount: number;
+  lowerLimit?: number;
+  Name: string;
+}
+
 export default function CreateWalletScreen() {
+  const router = useRouter();
+
   const [createWallet, {isLoading}] = useCreateWalletMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
-  const { control, handleSubmit, setValue, reset } = useForm({
+
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       amount: 0,
-      title: "",  //Change to Name
-      lower_limit: 0
+      Name: "",
+      lowerLimit: undefined,
     },
   });
 
-  const router = useRouter();
 
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
@@ -36,9 +51,14 @@ export default function CreateWalletScreen() {
       Alert.alert("Invalid data", messages);
     }
   }, [childErrors]);
-// amount, wallet_title, lower_limit
 
-  const onWalletSubmit = async (data: any) => {
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+
+  const onWalletSubmit = async (data: Data) => {
     try {
       const response = await createWallet({
         amount: data.amount,
@@ -75,7 +95,6 @@ export default function CreateWalletScreen() {
       <LowerLimit control={control}/>
 
       {/* Save Button */}
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onWalletSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

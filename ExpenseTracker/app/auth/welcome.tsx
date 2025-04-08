@@ -1,18 +1,20 @@
 import { StyleSheet, Image, StatusBar } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 import { useAuth } from "@/context/AuthProvider";
-import { useEffect } from "react";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+
   const { authToken, loading } = useAuth();
 
   useEffect(() => {
     if (!loading && authToken) {
-      router.replace("(tabs)");
+      router.replace("/(tabs)");
     }
   }, [authToken, loading]);
 
@@ -23,6 +25,7 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
+
       <Image source={require("../../assets/images/1.png")} style={styles.image} />
       <Text style={globalStyles.title}>Explore the app</Text>
       <Text style={styles.subtitle}>
@@ -30,16 +33,16 @@ export default function WelcomeScreen() {
       </Text>
 
       <CustomButton style={styles.signInButton} onPress={() => router.push("/auth/login")}>
-  Sign In
-</CustomButton>
+        Sign In
+      </CustomButton>
 
-<CustomButton
-  style={styles.createAccountButton}
-  variant="outline"
-  onPress={() => router.push("/auth/signup")}
->
-  Create Account
-</CustomButton>
+      <CustomButton
+        style={styles.createAccountButton}
+        variant="outline"
+        onPress={() => router.push("/auth/signup")}
+      >
+        Create Account
+      </CustomButton>
     </View>
   );
 }

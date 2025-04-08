@@ -1,30 +1,41 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
-import { FontAwesome, Ionicons, Entypo } from "@expo/vector-icons";
+import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
-import { useDeleteBillMutation, useGetBillQuery, useUpdateUserStatusOfBillMutation } from "@/store/billApi";
 import moment from "moment";
-import TransactionCard from "@/components/readComponents/TransactionCard";
-import { useLazyGetUserByIdQuery } from "@/store/userApi";
-import CustomButton from "@/components/button/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Menu, Divider } from "react-native-paper";
 
+import { Bill, useDeleteBillMutation, useGetBillQuery, useUpdateUserStatusOfBillMutation } from "@/store/billApi";
+import TransactionCard from "@/components/readComponents/TransactionCard";
+import { useLazyGetUserByIdQuery } from "@/store/userApi";
+import CustomButton from "@/components/button/CustomButton";
+import { globalStyles } from "@/styles/globalStyles";
+
+type MyStateInBill = {
+  user_id: string;
+  amount: number;
+  wallet_id?: string;
+  status: "pending" | "paid";
+}
+
 const BillDetailsScreen = () => {
-  const { id } = useLocalSearchParams();
-  const [deleteBill, {isLoading: deleteLoading, error: deleteError}] = useDeleteBillMutation();
+  const { id } = useLocalSearchParams() as {id: string};
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
-  const [myBill, setMyBill] = useState(null);
+  const [myBill, setMyBill] = useState<MyStateInBill | null>(null);
+  const [memberNames, setMemberNames] = useState<Record<string, string>>({});
+  const [localLoading, setLocalLoading] = useState<boolean>(false);
+  const [menuVisible, setMenuVisible] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  
+  const [deleteBill, {isLoading: deleteLoading, error: deleteError}] = useDeleteBillMutation();
   const { data, isLoading, error, refetch } = useGetBillQuery(id);
   const [getUserById, { data: userData, isLoading: loading }] = useLazyGetUserByIdQuery();
   const [updateUserStatus, {isLoading: load}] = useUpdateUserStatusOfBillMutation();
-  const [memberNames, setMemberNames] = useState<Record<string, string>>({});
-  const [localLoading, setLocalLoading] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
+
   const bill = data?.data;
   const totalMembers = bill?.members?.length;
   const members = bill?.members;
-//   {billId: id, body: }
 
   useEffect(() => {
     if (id) {
@@ -41,7 +52,7 @@ const BillDetailsScreen = () => {
     }
     };
     fetchUserId();
-}, []);
+  }, []);
 
   useEffect(() => {
     if (members) {
@@ -53,88 +64,116 @@ const BillDetailsScreen = () => {
                     const res = await getUserById(member.user_id).unwrap();
                     newNames[member.user_id] = res?.data?.name || "Unknown";
                 } catch (error) {
-                    newNames[member.user_id] = "Unknown"; // Handle API errors
+                    newNames[member.user_id] = "Unknown";
                 }
             }));
             setMemberNames(newNames);
-            setLocalLoading(false); // Ensure loading state updates only after all data is fetched
-
+            setLocalLoading(false);
         })();
-        }
-    }, [data, getUserById]);
+    }
+  }, [data, getUserById]);
 
-    useEffect(() => {
-        if (members && loggedInUserId) {
-            const userBill = members.find((member) => member.user_id === loggedInUserId);
-            setMyBill(userBill || null);
-        }
-    }, [members, loggedInUserId]);
+  useEffect(() => {
+      if (members && loggedInUserId) {
+          const userBill = members.find((member) => member.user_id === loggedInUserId);
+          setMyBill(userBill || null);
+      }
+  }, [members, loggedInUserId]);
 
-    useFocusEffect(
-        useCallback(() => {
-          setMenuVisible(false);
-        }, [])
-      );
+  useFocusEffect(
+    useCallback(() => {
+      setMenuVisible(false);
+    }, [])
+  );
+
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
 
 
-    const handleStatusChange = (bill) => {
-        if (bill.status === "paid") {
-          markAsPending();
+  const handleStatusChange = (bill: MyStateInBill) => {
+    if (bill.status === "paid") {
+      markAsPending();
+    } else {
+      markAsPaid();
+    }
+  };
+      
+  const markAsPaid = async () => {
+    try {
+        // setLocalLoading(true);
+        const res = await updateUserStatus({billId: id, body: {status: "paid"}}).unwrap();
+    } catch (error) {
+        console.log("Error updating bill status");
+        const err = error as { data?: { message?: string } };
+        if (err?.data?.message) {
+          setErrorMessage(err.data.message);
         } else {
-          markAsPaid();
+          setErrorMessage("Something went wrong. Please try again.");
         }
-      };
+    } finally {
+        // setLocalLoading(false);
+    }
+  };
       
-      const markAsPaid = async () => {
-        try {
-            // setLocalLoading(true);
-            const res = await updateUserStatus({billId: id, body: {status: "paid"}}).unwrap();
-        } catch (error) {
-            console.log("Error updating bill status");
-        } finally {
-            // setLocalLoading(false);
+  const markAsPending = async () => {
+    try {
+        // setLocalLoading(true);
+        const res = await updateUserStatus({billId: id, body: {status: "pending"}}).unwrap();
+    } catch (error) {
+        console.log("Error updating bill status");
+        const err = error as { data?: { message?: string } };
+        if (err?.data?.message) {
+          setErrorMessage(err.data.message);
+        } else {
+          setErrorMessage("Something went wrong. Please try again.");
         }
-      };
-      
-      const markAsPending = async () => {
-        try {
-            // setLocalLoading(true);
-            const res = await updateUserStatus({billId: id, body: {status: "pending"}}).unwrap();
-        } catch (error) {
-            console.log("Error updating bill status");
-        } finally {
-            // setLocalLoading(false);
-        }
-      };
+    } finally {
+        // setLocalLoading(false);
+    }
+  };
 
-      const handleBillDelete = async () => {
-          try {
-            const response = await deleteBill(id);
-            console.log("bill deleting response",response);
-            if(!response || deleteError) {
-              console.log(error);
-              // setMenuVisible(false);
-            }
-            router.back();
-          } catch (error) {
-            
-          }
-        }
-      
-
+  const handleBillDelete = async () => {
+    try {
+      const response = await deleteBill(id);
+      console.log("bill deleting response",response);
+      router.back();
+    } catch (error) {
+      const err = error as { data?: { message?: string } };
+      if (err?.data?.message) {
+        setErrorMessage(err.data.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
+    }
+  }
 
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  if (error) return <Text>Error loading bill details</Text>;
+
+  if (error) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in error) {
+      errorMessage = `Server Error: ${JSON.stringify(error.data)}`;
+    } else if ("message" in error) {
+      errorMessage = `Client Error: ${error.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
+
   if (!data?.data) return <Text>No bill found</Text>;
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+
       <View style={styles.header}>
+
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="arrow-left" size={22} color="black" />
         </TouchableOpacity>
-        {/* Menu Component */}
+        
         <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
@@ -147,37 +186,35 @@ const BillDetailsScreen = () => {
           <Menu.Item onPress={() => router.push({pathname:"/action/edit/editBill",params : {id:id}})} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => Alert.alert(
-                        "Delete bill", 
-                        `Are you sure you want to delete ${bill.bill_title}`, 
-                        [
-                          { text: "Cancel", style: "cancel" },
-                          { text: "Yes", onPress: () => handleBillDelete()}
-                        ]
-                      )} title="Delete" />
+              "Delete bill", 
+              `Are you sure you want to delete ${bill?.bill_title}`, 
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Yes", onPress: () => handleBillDelete()}
+              ]
+            )} title="Delete" />
         </Menu>
-        {/* <TouchableOpacity onPress={()=> router.push({pathname:"/editBill",params : {id:id}})}>
-          <Ionicons name="settings-outline" size={22} color="black" />
-        </TouchableOpacity> */}
       </View>
 
       <View style={styles.detailContainer}>
-        <Text style={styles.title}>{bill.bill_title}</Text>
-        <Text style={styles.date}>Due on: {moment(bill.due_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
-        {/* <Text style={[styles.amount, { color: themeColor }]}>₹{bill.amount}</Text> */}
-        {/* {bill.bill_category && (<Text style={styles.date}>Category: {bill.bill_category}</Text>)} */}
+        <Text style={styles.title}>{bill?.bill_title}</Text>
+        <Text> Due on: {moment(bill?.due_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
       </View>
 
       <View style={styles.members}>
-        <Text style={styles.title}>Total bill amount: ₹{bill.amount}</Text>
+
+        <Text style={styles.title}>Total bill amount: ₹{bill?.amount}</Text>
+
         {localLoading && (
             <View style = {styles.loaderContainer}>
                 <ActivityIndicator color="#000"/>
             </View>
         )}
-        {totalMembers > 1 && !localLoading && Object.keys(memberNames).length === totalMembers && (
+
+        {totalMembers && totalMembers > 1 && !localLoading && Object.keys(memberNames).length === totalMembers && (
             <FlatList
                 data={members}
-                keyExtractor={(item) => item._id}
+                keyExtractor={(item) => item.user_id}
                 renderItem={({ item }) => (
                     <TransactionCard
                         title={memberNames[item.user_id]}
@@ -202,7 +239,6 @@ const BillDetailsScreen = () => {
             </CustomButton>
         )}
       </View>
-
 
     </View>
   );
@@ -261,5 +297,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "Poppins_700Bold",
     marginVertical: 5,
+  },
+  menuButton: {
+    padding: 10,
   },
 });

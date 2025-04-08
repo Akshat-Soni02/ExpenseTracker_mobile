@@ -1,20 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TextInputKeyPressEventData, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import CustomButton from "../../components/button/CustomButton";
 import { FontAwesome } from "@expo/vector-icons";
+
+import CustomButton from "../../components/button/CustomButton";
 import { useVerifyOtpMutation, useSendOtpMutation } from "@/store/userApi";
 
 export default function OTPVerificationScreen() {
+  const router = useRouter();
+  const {email} = useLocalSearchParams() as {email: string};
+
   const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
   const [timer, setTimer] = useState<number>(20);
   const inputRefs = useRef<Array<TextInput | null>>([]);
-  const {email} = useLocalSearchParams();
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const [sendOtp, { isLoading }] = useSendOtpMutation();
   const [verifyOtp, {isLoading: loadinging}] = useVerifyOtpMutation();
-  const [errorMessage, setErrorMessage] = useState("");
 
-  const router = useRouter();
 
   // Timer logic
   useEffect(() => {
@@ -106,8 +109,8 @@ export default function OTPVerificationScreen() {
 
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       {/* Verify Button */}
-      <CustomButton onPress={handleOtpSubmit} style={styles.verifyButton} disabled={isLoading}>
-        {isLoading ? <ActivityIndicator color="#fff" /> : "Verify"}
+      <CustomButton onPress={handleOtpSubmit} style={styles.verifyButton} disabled={loadinging}>
+        {loadinging ? <ActivityIndicator color="#fff" /> : "Verify"}
       </CustomButton>
 
       {/* Resend Timer */}
@@ -117,7 +120,14 @@ export default function OTPVerificationScreen() {
         style={styles.resendContainer}
       >
         <Text style={styles.resendText}>
-          Send code again {timer > 0 ? `  00:${timer < 10 ? `0${timer}` : timer}` : ""}
+        {isLoading ? (
+          <Text>Sending...</Text>
+        ) : (
+          <Text>
+            Send code again
+            {timer > 0 ? `  00:${timer < 10 ? `0${timer}` : timer}` : ""}
+          </Text>
+        )}
         </Text>
       </TouchableOpacity>
     </View>

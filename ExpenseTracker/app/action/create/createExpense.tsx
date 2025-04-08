@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
@@ -13,38 +14,88 @@ import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import CategorySelector from "@/components/selectors/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
-export default function AddExpenseScreen() {
-  let {group_id, group_name,detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
-  let detectedAmountNumber = Number(detectedAmount);
-  const date_time = new Date(detectedCreated_at_date_time);
-  const parsedDate = new Date(date_time);
-  const dateOnly = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
-  const timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
 
+export type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  amount?: error;
+  Description?: error;
+}
+
+type LocalParams = {
+  group_id?: string;
+  group_name?: string;
+  detectedId?: string;
+  detectedAmount?: string;
+  detectedDescription?: string;
+  detectedCreated_at_date_time?: string | Date;
+  detectedNotes?: string;
+}
+
+type Data = {
+  date: Date | string;
+  time: Date | string;
+  splitWith: { user_id: string, amount: number }[];
+  paidBy: { user_id: string, name: string, profile_photo?: string };
+  photo?: string;
+  wallet?: {_id: string} | null;
+  amount: number;
+  category?: string;
+  notes?: string;
+  Description: string;
+  Title?: string;// these fields are just dummy fields to remove typescript errors
+  recurring?: boolean;// these fields are just dummy fields to remove typescript errors
+}
+
+export default function AddExpenseScreen() {
+
+  let {group_id, group_name,detectedId, detectedAmount ,detectedDescription, detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams() as LocalParams;
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
 
   const [createExpense, {isLoading:isLoadingExpense}] = useCreateExpenseMutation();
+  
+  //need to delete the detected transaction if we convert it to a spend but for now not deleting
   const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
 
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
+  let detectedAmountNumber = Number(detectedAmount);
+  let dateOnly: Date | undefined;
+  let timeOnly: Date | undefined;
+
+  if (detectedCreated_at_date_time) {
+    const parsedDate = new Date(detectedCreated_at_date_time);
+
+    if (!isNaN(parsedDate.getTime())) {
+      dateOnly = new Date(parsedDate.toDateString());
+      timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
+    } else {
+      console.warn("Invalid date:", detectedCreated_at_date_time);
+    }
+  }
+
+
   const { control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
     defaultValues: detectedId
       ? {
           amount: detectedAmountNumber,
           Description: detectedDescription,
-          splitWith: null,
+          splitWith: [],
           paidBy: null,
           notes: detectedNotes,
           wallet: null,
           category: "",
-          date:dateOnly,
-          time:timeOnly,
+          date:dateOnly || new Date(),
+          time:timeOnly || new Date(),
           photo: null,
+          Title: "",// these fields are just dummy fields to remove typescript errors
+          recurring: false// these fields are just dummy fields to remove typescript errors
         }
       : {
-          amount: null,
+          amount: 0,
           Description: "",
-          splitWith: null,
+          splitWith: [],
           paidBy: null,
           notes: "",
           wallet: null,
@@ -52,14 +103,15 @@ export default function AddExpenseScreen() {
           date: new Date(),
           time: new Date(),
           photo: null,
+          Title: "",// these fields are just dummy fields to remove typescript errors
+          recurring: false// these fields are just dummy fields to remove typescript errors
         },
   });
   
   
   const router = useRouter();
   const amount = watch("amount");
-  const splitWith = watch("splitWith");
-
+  const splitWith: { user_id: string, amount: number }[] = watch("splitWith");
   const TOLERANCE = 0.1;
 
   useEffect(() => {
@@ -74,25 +126,28 @@ export default function AddExpenseScreen() {
     }
   }, [childErrors]);
 
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
 
-  // description,
-  // lenders,
-  // borrowers,
-  // wallet_id,
-  // total_amount,
-  // expense_category,
-  // notes,
-  // group_id,
-  // created_at_date_time,
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Data) => {
+
     try {
-      const totalSplit = splitWith.reduce((sum, person) => sum + Number(person.amount), 0);
-  
+
+      if(splitWith.length === 1) {
+        Alert.alert("Invalid data", "Please select people to split with");
+        return;
+      }
+
+      const totalSplit = splitWith?.reduce((sum, person) => sum + Number(person.amount), 0);
       if (Math.abs(totalSplit - amount) > TOLERANCE) {
         alert("Total split amount must match the entered amount");
         return;
       }
+
       // Constructing the datetime properly
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
@@ -157,16 +212,20 @@ export default function AddExpenseScreen() {
   
 
   if(isLoadingExpense) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+
   return (
     <ScrollView style={styles.container}>
-        <View style={styles.headerContainer}>
+
+      <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
         <Text style={styles.header}>New Split</Text>
       </View>
+
       {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
       {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>):(<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>)}
+
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} group_id = {group_id} IncludePaidBy/>
       <NotesInput control={control} name="notes" />
 
@@ -182,7 +241,6 @@ export default function AddExpenseScreen() {
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
       
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onSubmit)} style={styles.button} disabled = {!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE}>{(!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE) ? ("Split amount must match total") : ("Save")}</CustomButton>
     </ScrollView>
   );

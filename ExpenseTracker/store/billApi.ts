@@ -1,6 +1,6 @@
 import api from "./api";
 
-type member = {
+export type Member = {
   user_id: string;
   amount: number;
   wallet_id?: string;
@@ -18,7 +18,7 @@ export type Bill = {
   recurring?: boolean;
   status: "pending" | "missed" | "paid";
   creator_id?: string;
-  members?: member[];
+  members?: Member[];
 };
 
 type GetBillResponse = {

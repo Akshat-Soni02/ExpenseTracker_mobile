@@ -15,38 +15,55 @@ import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useGetUserQuery, useLogoutUserMutation, useUpdateUserDetailsMutation } from "@/store/userApi";
-import { useAuth } from "@/context/AuthProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { handleGoogleSignOut } from "@/components/button/GoogleButton";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Feather from '@expo/vector-icons/Feather';
 import { useDispatch, UseDispatch } from "react-redux";
-import api from "@/store/api";
 const { width } = Dimensions.get("window");
+
+import { useGetUserQuery, useLogoutUserMutation, useUpdateUserDetailsMutation } from "@/store/userApi";
+import { useAuth } from "@/context/AuthProvider";
+import { handleGoogleSignOut } from "@/components/button/GoogleButton";
+import api from "@/store/api";
+import { globalStyles } from "@/styles/globalStyles";
+
+type UserData = {
+  name: string;
+  phone_number: string;
+  daily_limit: string;
+}
 
 const ProfileScreen = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [localLoading, setLocalLoading] = useState(false);
+
+  const [localLoading, setLocalLoading] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [userData, setUserData] = useState<UserData>({ name: "", phone_number: "", daily_limit: ""});
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const { logout, loading } = useAuth();
   const [logoutUser, { isLoading: isLoggingOut }] = useLogoutUserMutation();
   const [updateUser, {isLoading}] = useUpdateUserDetailsMutation();
-  const [isEditing, setIsEditing] = useState(false);
-  const { data: dataUser, isLoading: isLoadingUser, error: errorUser, refetch } = useGetUserQuery({});
-  const [userData, setUserData] = useState({ name: "", phone_number: "", daily_limit: ""});
-  const [selectedImage, setSelectedImage] = useState(null);
+  const { data: dataUser, isLoading: isLoadingUser, error: errorUser, refetch } = useGetUserQuery();
 
   useEffect(() => {
     console.log("data",dataUser);
     if (dataUser?.data) {
       setUserData({
         name: dataUser.data.name,
-        phone_number: dataUser.data.phone_number? dataUser.data.phone_number : "",
-        daily_limit: dataUser.data.daily_limit ? dataUser.data.daily_limit : 0,
+        phone_number: dataUser.data.phone_number ? dataUser.data.phone_number.toString() : "",
+        daily_limit: dataUser.data.daily_limit ? dataUser.data.daily_limit.toString() : "0",
       });
     }
   }, [dataUser]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
 
   const handleLogout = async () => {
     setLocalLoading(true);
@@ -59,6 +76,12 @@ const ProfileScreen = () => {
       router.replace("/auth/welcome");
     } catch (error) {
       console.error("Logout failed:", error);
+      const err = error as { data?: { message?: string } };
+      if (err?.data?.message) {
+        setErrorMessage(err.data.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
     } finally {
       setLocalLoading(false);
     }
@@ -90,18 +113,17 @@ const ProfileScreen = () => {
         await AsyncStorage.setItem("user", JSON.stringify(res.data));
       } catch (error) {
         console.error("Update failed:", error);
+        const err = error as { data?: { message?: string } };
+        if (err?.data?.message) {
+          setErrorMessage(err.data.message);
+        } else {
+          setErrorMessage("Something went wrong. Please try again.");
+        }
       }
     }
     setIsEditing(!isEditing);
     refetch();
   };
-  
-
-  if (localLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-
-  if (errorUser) {
-    return <Text style={styles.errorText}>Error: {errorUser?.message || JSON.stringify(errorUser)}</Text>;
-  }
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -120,11 +142,26 @@ const ProfileScreen = () => {
       setSelectedImage(result.assets[0].uri);
     }
   };
+  
+
+  if (localLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+
+  if (errorUser) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in errorUser) {
+      errorMessage = `Server Error: ${JSON.stringify(errorUser.data)}`;
+    } else if ("message" in errorUser) {
+      errorMessage = `Client Error: ${errorUser.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
 
   return (
     <SafeAreaView style={styles.screen}>
+
       <View style={styles.container}>
-        {/* Header */}
+
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <FontAwesome name="arrow-left" size={22} color="black" />
@@ -132,18 +169,19 @@ const ProfileScreen = () => {
           {isEditing ? (<Feather name="check" size={24} color="black" onPress={handleEditToggle}/>) : (<MaterialCommunityIcons name="account-edit-outline" size={30} color="black" onPress={handleEditToggle}/>)}
         </View>
 
-        {/* Profile Image */}
         <View style={styles.profileSection}>
-        <TouchableOpacity onPress={isEditing ? pickImage : null} activeOpacity={isEditing ? 0.7 : 1}>
-          {selectedImage || dataUser?.data?.profile_photo ? (
-            <Image
-              source={{ uri: selectedImage || dataUser.data.profile_photo.url }}
-              style={styles.profileImage}
-            />
-          ) : (
-            <LinearGradient colors={["#2C2C2C", "#555555"]} style={styles.profileImageContainer} />
-          )}
-        </TouchableOpacity>
+
+          <TouchableOpacity onPress={isEditing ? pickImage : undefined} activeOpacity={isEditing ? 0.7 : 1}>
+            {selectedImage || dataUser?.data?.profile_photo ? (
+              <Image
+                source={{ uri: selectedImage || dataUser?.data.profile_photo?.url }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <LinearGradient colors={["#2C2C2C", "#555555"]} style={styles.profileImageContainer} />
+            )}
+          </TouchableOpacity>
+
           {isEditing ? (
             <TextInput
               style={styles.inputName}
@@ -155,25 +193,25 @@ const ProfileScreen = () => {
           ) : (
             <Text style={styles.profileName}>{userData.name}</Text>
           )}
+
         </View>
 
-        {/* User Info Cards */}
         <View style={styles.card}>
+
           <Text style={styles.label}>Phone Number:</Text>
+
           {isEditing ? (
             <View style={styles.phoneInputContainer}>
               <Text style={styles.phonePrefix}>+91</Text>
               <TextInput
                 style={styles.phoneInput}
                 keyboardType="numeric"
-                maxLength={10} // Ensures only 10 digits can be entered
+                maxLength={10}
                 defaultValue={userData?.phone_number?.toString() || ""}
                 value={userData.phone_number}
                 placeholder="Enter phone number"
                 onChangeText={(text) => {
-                  // Remove any non-digit characters
                   const cleanedText = text.replace(/\D/g, "");
-                  // Limit input to 10 digits
                   if (cleanedText.length <= 10) {
                     setUserData({ ...userData, phone_number: cleanedText });
                   }
@@ -183,8 +221,8 @@ const ProfileScreen = () => {
           ) : (
             <Text style={styles.value}>{userData.phone_number ? `+91 ${userData.phone_number}` : "-"}</Text>
           )}
-        </View>
 
+        </View>
 
         <View style={styles.card}>
           <Text style={styles.label}>Email ID:</Text>
@@ -207,7 +245,6 @@ const ProfileScreen = () => {
           )}
         </View>
 
-        {/* Logout Button */}
         {!isEditing && (
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             {isLoading ? (
@@ -220,12 +257,12 @@ const ProfileScreen = () => {
             )}
           </TouchableOpacity>
         )}
+
       </View>
     </SafeAreaView>
   );
 };
 
-// Updated Styles
 const styles = StyleSheet.create({
   screen: {
     flex: 1,

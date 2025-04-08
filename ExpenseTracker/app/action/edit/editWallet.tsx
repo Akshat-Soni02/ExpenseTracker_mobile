@@ -1,32 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+
 import CustomButton from "@/components/button/CustomButton";
-import TitleInput from "@/components/inputs/TitleInput";
-import AddPeopleInput from "@/components/peopleSelectors/AddPeopleInput";
-import InitialBudget from "@/components/inputs/InitialBudget";
-import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 import LowerLimit from "@/components/inputs/LowerLimit";
-import { useUpdateWalletMutation } from "@/store/walletApi";
+import { useUpdateWalletMutation, Wallet } from "@/store/walletApi";
 
-export default function CreateWalletScreen() {
-  let {fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit} = useLocalSearchParams();
+export type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  amount?: error;
+  Name?: error;
+}
+
+type LocalParams = {
+  fetchedId: string;
+  fetchedAmount: string;
+  fetchedName: string;
+  fetchedLowerLimit?: string;
+}
+
+type Data = {
+  amount: number;
+  lowerLimit?: number;
+  Name: string;
+}
+
+export default function EditWalletScreen() {
+  const router = useRouter();
+  let { fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit } = useLocalSearchParams() as LocalParams;
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
   let fetchedAmountNumber = Number(fetchedAmount);
+  let fetchedLowerLimitNumber = Number(fetchedLowerLimit);
+
   const [updateWallet, {isLoading}] = useUpdateWalletMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       amount: fetchedAmountNumber,
       Name: fetchedName,
-      lowerLimit: fetchedLowerLimit,
+      lowerLimit: fetchedLowerLimitNumber,
     },
   });
 
-  const router = useRouter();
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
       const messages = [
@@ -38,21 +60,26 @@ export default function CreateWalletScreen() {
     }
   }, [childErrors]);
 
-// amount, wallet_title, lower_limit
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
 
-  const onWalletSubmit = async (data: any) => {
+
+  const onWalletSubmit = async (data: Data) => {
     try {
-      let dataObj: { amount?: number; lower_limit?: number; wallet_title?: string } = {};
+      let dataObj: Partial<Wallet> = {};
       if(data.amount!==fetchedAmountNumber){
         dataObj.amount = data.amount;
       }
       if(data.lowerLimit!==fetchedLowerLimit){
-        dataObj.lower_limit = data.lowerLimit;
+        dataObj.lower_limit = Number(data.lowerLimit);
       }
       if(data.Name!==fetchedName){
         dataObj.wallet_title = data.Name;
       }
-      const response = await updateWallet({id:fetchedId,body:dataObj}).unwrap();
+      const response = await updateWallet({id: fetchedId, body: dataObj}).unwrap();
       reset();
       router.back();
     } catch (error) {
@@ -66,23 +93,22 @@ export default function CreateWalletScreen() {
     }
   };
 
+  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+
   return (
     <ScrollView style={styles.container}>
+
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={styles.header}>New Wallet</Text>
+        <Text style={styles.header}>Edit Wallet</Text>
       </View>
 
-      {/* wallet Title and Amount */}
       <AmountDescriptionInput control={control} label = "Name" onErrorsChange={setChildErrors}/>
 
-      {/* lower limit */}
       <LowerLimit control={control}/>
 
-      {/* Save Button */}
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onWalletSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

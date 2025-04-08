@@ -68,8 +68,12 @@ type LoginUserResponse = {
   userData: User;
 }
 
-type CreateUserRequest = Omit<User, "_id" | "lended" | "borrowed" | "settled" | "futureFriends" | "otp" | "otpExpiry">;
-type UpdateUserRequest = Partial<CreateUserRequest>;
+type CreateUserRequest = {
+  email: string;
+  password: string;
+}
+
+type UpdateUserRequest = Partial<Omit<User, "_id" | "lended" | "borrowed" | "settled" | "futureFriends" | "otp" | "otpExpiry">>;
 
 export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -247,7 +251,7 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
-    updateUserDetails: builder.mutation<GetUserResponse, UpdateUserRequest>({
+    updateUserDetails: builder.mutation<GetUserResponse, FormData>({
       query: ( body ) => ({
         url: `/users/profile-details`,
         method: "PUT",

@@ -41,7 +41,7 @@ type UpdateExpenseRequest = Partial<CreateExpenseRequest>;
 
 export const expenseApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    createExpense: builder.mutation<GetExpenseResponse, CreateExpenseRequest>({
+    createExpense: builder.mutation<GetExpenseResponse, FormData>({
       query: (body) => ({
         url: `/expenses/new`,
         method: "POST",
@@ -70,7 +70,7 @@ export const expenseApi = api.injectEndpoints({
       query: (id) => `/expenses/${id}`,
       providesTags: ["expense"],
     }),
-    updateExpense: builder.mutation<GetExpenseResponse, {expense_id: string, body: UpdateExpenseRequest}>({
+    updateExpense: builder.mutation<GetExpenseResponse, {expense_id: string, body: FormData}>({
       query: ({ expense_id, body }) => ({
         url: `/expenses/${expense_id}`,
         method: "PUT",

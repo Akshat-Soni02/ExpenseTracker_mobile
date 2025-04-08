@@ -10,7 +10,7 @@ import CategorySelector from "@/components/selectors/CategorySelector";
 import ToggleSwitch from "@/components/inputs/ToggleSwitch";
 import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
 import CustomButton from "@/components/button/CustomButton";
-import { useCreateBillMutation } from "@/store/billApi";
+import { Member, useCreateBillMutation } from "@/store/billApi";
 
 type error = {
   message: string;
@@ -27,17 +27,28 @@ type BillMember = {
   status: "pending";
 }
 
+type Data = {
+  date: Date;
+  time: Date;
+  splitWith: { user_id: string, amount: number}[];
+  Title: string;
+  amount: number;
+  category?: string;
+  recurring: boolean;
+  members?: Member[];
+}
+
 export default function CreateBillScreen() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
 
   const [createBill, {isLoading, error: errorBill}] = useCreateBillMutation();
 
-  const { control, handleSubmit, setValue, reset, watch } = useForm({
+  const { control, handleSubmit, setValue, reset, watch } = useForm<Data>({
     defaultValues: {
       amount: 0,
-      title: "",
-      splitWith: [{ user_id: "1", amount: 0 }],
+      Title: "",
+      splitWith: [],
       members: [],
       date: new Date(),
       time: new Date(new Date().setHours(0, 0, 0, 0)),
@@ -66,8 +77,9 @@ export default function CreateBillScreen() {
   }, [errorMessage]);
   
 
-  const onBillSubmit = async (data: any) => {
+  const onBillSubmit = async (data: Data) => {
     try {
+      console.log("bill data: ",data);
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
 
@@ -79,8 +91,9 @@ export default function CreateBillScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
+
       let members: BillMember[] = [];
-      data?.splitWith.forEach((split:{ user_id: string, amount: number}) => {
+      data?.splitWith.forEach((split) => {
         members.push({user_id: split.user_id, amount: split.amount, status: "pending"})
       });
 

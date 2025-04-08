@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+
 import CustomButton from "@/components/button/CustomButton";
 import TitleInput from "@/components/inputs/TitleInput";
 import AddPeopleInput from "@/components/peopleSelectors/AddPeopleInput";
@@ -10,14 +11,31 @@ import InitialBudget from "@/components/inputs/InitialBudget";
 import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import { useCreateGroupMutation } from "@/store/groupApi";
 
+type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  Title?: error;
+}
+
+type Data = {
+  title: string;
+  selectedUsers: string[];
+  initialBudget?: number;
+  settleUpDate?: Date | null;
+}
+
 export default function CreateGroupScreen() {
   const [createGroup, {isLoading}] = useCreateGroupMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
+
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
   const { control, handleSubmit, setValue, reset, formState: {errors} } = useForm({
     defaultValues: {
       title: "",
-      members: [],
+      selectedUsers: [],
       initialBudget: 0,
       settleUpDate: null,
     },
@@ -36,12 +54,13 @@ export default function CreateGroupScreen() {
     }
   }, [childErrors]);
 
-//   group_title,
-//     memberIds = [],
-//     initial_budget,
-//     settle_up_date,
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
 
-  const onGroupSubmit = async (data: any) => {
+  const onGroupSubmit = async (data: Data) => {
     try {
       const response = await createGroup({
         group_title: data.title,
@@ -85,7 +104,6 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Save Button */}
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onGroupSubmit)} style={styles.button}>Save</CustomButton>
     </ScrollView>
   );

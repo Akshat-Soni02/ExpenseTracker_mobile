@@ -1,26 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { globalStyles } from "../../styles/globalStyles";
-import CustomButton from "../../components/button/CustomButton";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import CustomButton from "../../components/button/CustomButton";
 import GoogleButton from "@/components/button/GoogleButton";
 import { useLoginUserMutation } from "@/store/userApi";
-import { UseDispatch } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/context/AuthProvider";
+
+type Data = {
+  email: string;
+  password: string;
+}
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginUser, { isLoading }] = useLoginUserMutation(); // RTK Query login mutation
-  const [errorMessage, setErrorMessage] = useState("");
+
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  
   const { authToken, loading, login } = useAuth();
+  const [loginUser, { isLoading }] = useLoginUserMutation();
+  
 
   useEffect(() => {
     if (!loading && authToken) {
-      router.replace("(tabs)");
+      router.replace("/(tabs)");
     }
   }, [authToken, loading]);
 
@@ -28,10 +35,9 @@ export default function LoginScreen() {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = async (data: { email: string; password: string }) => {
+  const onSubmit = async (data: Data) => {
     try {
       const response = await loginUser(data).unwrap();
-      // dispatch(setCredentials({ token: response.token, user: response.user }));
       await login(response.token);
       await AsyncStorage.setItem("user", JSON.stringify(response.userData));
       router.push("/(tabs)");
@@ -43,9 +49,6 @@ export default function LoginScreen() {
       } else {
         setErrorMessage("Something went wrong. Please try again.");
       }
-    }
-    finally{
-
     }
   };
 
