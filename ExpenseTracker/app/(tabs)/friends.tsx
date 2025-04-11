@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { FAB } from "react-native-paper";
 
-import {friends, useGetUserFriendsQuery} from '@/store/userApi';
+import {friend, useGetUserFriendsQuery} from '@/store/userApi';
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import { globalStyles } from "@/styles/globalStyles";
 
@@ -26,7 +26,7 @@ export default function PeopleScreen() {
     return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
   }
 
-  const people: friends[] = dataPeople?.data || [];
+  const people: friend[] = dataPeople?.data || [];
   const numberOfPeople: number = people.length;
 
   return (
