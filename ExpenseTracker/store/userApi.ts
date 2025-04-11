@@ -215,6 +215,11 @@ export const userApi = api.injectEndpoints({
       providesTags: ["user"],
     }),
 
+    getTodaysSpend: builder.query<{ data: number | null }, void>({
+      query: () => `/users/todays-spend`,
+      providesTags: ["user"],
+    }),
+
     getUserCurrentExchangeStatus: builder.query<{data: {lendedAmount: number, borrowedAmount: number}}, void>({
       query: () => `/users/current-exchange-status`,
       providesTags: ["user"],
@@ -307,5 +312,6 @@ export const {
   useUpdateUserAccessTokenMutation,
   useUpdateUserProfilePhotoMutation,
   useAddUserFriendsMutation,
-  useAutoaddFriendsMutation
+  useAutoaddFriendsMutation,
+  useGetTodaysSpendQuery,
 } = userApi;

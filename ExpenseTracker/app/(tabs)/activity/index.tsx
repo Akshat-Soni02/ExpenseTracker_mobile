@@ -71,11 +71,11 @@ else if (errorSettlement) {
   const personalTransactions: Transaction[] = dataPersonalTransaction?.data || [];
   const numberOfPersonalTransactions: number = personalTransactions.length;
 
-  const groupTransactionsByDate = <T extends { created_at_date_time: string }>(transactions: T[]) => {
+  const groupTransactionsByDate = <T extends { created_at_date_time: Date }>(transactions: T[]) => {
     const grouped: Record<string, T[]> = {};
   
     transactions.forEach((transaction) => {
-      const date = transaction.created_at_date_time.split('T')[0];
+      const date = transaction.created_at_date_time.toString().split('T')[0];
       if (!grouped[date]) {
         grouped[date] = [];
       }
@@ -142,7 +142,7 @@ else if (errorSettlement) {
                             title={item.description}
                             imageType={undefined}
                             amount={`₹${item.total_amount}`}
-                            subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')}
+                            subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
                             transactionType={undefined}
                           />
                         )}
@@ -200,7 +200,7 @@ else if (errorSettlement) {
                             title={item.description}
                             imageType={item.transaction_type}
                             amount={`₹${item.amount}`}
-                            subtitle={format(parseISO(item.created_at_date_time), 'hh:mm a')}
+                            subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
                             transactionType={item.transaction_type}
                           />
                         )}

@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { FAB } from "react-native-paper";
 
-import {friends, useGetUserFriendsQuery} from '@/store/userApi';
+import {friend, useGetUserFriendsQuery} from '@/store/userApi';
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import { globalStyles } from "@/styles/globalStyles";
 
@@ -27,16 +27,16 @@ export default function PeopleScreen() {
     return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
   }
 
-  const people: friends[] = dataPeople?.data || [];
+  const people: friend[] = dataPeople?.data || [];
   const numberOfPeople: number = people.length;
 
   return (
     <View style={[{flex:1}]}>
-        <ScrollView style={styles.container}>
+        <ScrollView style={globalStyles.viewContainer}>
 
-          <View style = {styles.header}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style={styles.backButton}/>
-            <Text style={styles.headerText}>Friends</Text>
+          <View style = {globalStyles.viewHeader}>
+            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style={globalStyles.backButton}/>
+            <Text style={globalStyles.headerText}>Friends</Text>
           </View>
 
           <View style={styles.transactionsContainer}>
@@ -60,14 +60,14 @@ export default function PeopleScreen() {
                 <View style={{  height: 5 , backgroundColor: 'white'}} />
               )}
               contentContainerStyle={{ paddingBottom: 5 }}
-              />) : <Text style = {styles.noPeopleText}>No Friends yet</Text>}
+              />) : <Text style = {globalStyles.noText}>No Friends yet</Text>}
           </View>
 
         </ScrollView>
 
         <FAB
         label="Add Friends"
-        style={styles.fab}
+        style={globalStyles.fab}
         onPress={() => router.push("/action/create/addPeopleManual")}
         />
 

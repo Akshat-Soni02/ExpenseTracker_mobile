@@ -92,9 +92,9 @@ const WalletDetailsScreen = () => {
       </View>
 
       <View style={globalStyles.viewActivityDetailContainer}>
-        <Text style={globalStyles.viewActivityTitle}>{wallet.wallet_title}</Text>
-        <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{wallet.amount}</Text>
-        {wallet.lower_limit && (<Text style={globalStyles.viewActivityDate}>Lower limit : {wallet.lower_limit}</Text>)}
+        <Text style={globalStyles.viewActivityTitle}>{wallet?.wallet_title}</Text>
+        <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{wallet?.amount}</Text>
+        {wallet?.lower_limit && (<Text style={globalStyles.viewActivityDate}>Lower limit : {wallet.lower_limit}</Text>)}
       </View>
 
     </View>

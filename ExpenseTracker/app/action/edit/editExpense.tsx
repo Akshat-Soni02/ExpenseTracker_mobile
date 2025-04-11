@@ -19,7 +19,6 @@ import { useGetExpenseQuery } from "@/store/expenseApi";
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useGetWalletQuery } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
-import _ from "loadash";
 export type error = {
   message: string;
 }

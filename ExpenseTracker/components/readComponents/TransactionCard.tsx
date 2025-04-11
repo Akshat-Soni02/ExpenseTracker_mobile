@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 interface TransactionCardProps {
   imageName?: string;
   title: string;
-  subtitle?: string;
+  subtitle?: string | null | Date;
   amount?: string;
   optionText?: string;
   imageType?:string;
@@ -33,7 +33,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
 
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
-        {subtitle && (<Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle}</Text>)}
+        {subtitle && (<Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle.toString()}</Text>)}
       </View>
 
       <View style={styles.amountDetails}>

@@ -56,7 +56,6 @@ export default function DetectedTransactionsScreen() {
     <View style={globalStyles.screen}>
       
         <ScrollView style={globalStyles.viewContainer}>
-          <View style = {globalStyles.viewHeader}>
           <TouchableOpacity onPress={() => router.replace("/(tabs)")} style={globalStyles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      

@@ -126,7 +126,7 @@ export default function CreateBillScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
       <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
         <Text style={globalStyles.headerText}>New Bill</Text>

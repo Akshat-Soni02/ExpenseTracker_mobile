@@ -1,4 +1,4 @@
-import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar,Pressable} from 'react-native';
+import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar,Pressable,Alert} from 'react-native';
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { PaperProvider, Portal, Modal} from 'react-native-paper';
@@ -15,18 +15,29 @@ import messaging from '@react-native-firebase/messaging';
 
 import TransactionCard from '@/components/readComponents/TransactionCard';
 import { globalStyles } from '@/styles/globalStyles';
-import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery } from '@/store/userApi';
+import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery,useUpdateUserAccessTokenMutation,useGetTodaysSpendQuery } from '@/store/userApi';
 import { Detected } from '@/store/detectedTransactionApi';
 import { Group } from '@/store/groupApi';
-import ModalSkeleton from '@/components/skeleton/ModalSkeleton';
+import useSMS from '@/app/misc/useSMS';
 
+export const requestPermissionAndroid = async () => {
+  const granted = await   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+  if (granted === PermissionsAndroid.RESULTS.GRANTED) { 
+    console.log("Notification permission granted");
+    // getToken();
+  } else {
+    console.log("Notification permission denied");
+  }
+}
 
 export default function HomeScreen() {
 
   const router = useRouter();
+  const { startReadCycle } = useSMS();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Detected | null>(null);
-  
+  const { checkPermissions, requestReadSMSPermission } = useSMS();
+
   const { authToken, loading } = useAuth();
   const [updateUserAccessToken] = useUpdateUserAccessTokenMutation();
   messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -39,18 +50,19 @@ export default function HomeScreen() {
     }
   }, [authToken, loading]);
 
+  // useEffect(() => {
+  //   startReadCycle();
+  // }, []);
   useEffect(() => {
-    requestPermissionAndroid();
+    const init = async () => {
+      const hasSMSPermission = await checkPermissions();
+      if (hasSMSPermission) {
+        startReadCycle();
+      }
+    };
+    init();
   }, []);
-  const requestPermissionAndroid = async () => {
-    const granted = await   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) { 
-      console.log("Notification permission granted");
-      getToken();
-    } else {
-      console.log("Notification permission denied");
-    }
-  }
+  
 
 
   useEffect(() => {
@@ -70,9 +82,19 @@ export default function HomeScreen() {
     updateUserAccessToken({token:token});
     console.log("Token:",token);
   }
-  useEffect(() => { ////Only if permission granted
-    getToken();
+  // useEffect(() => { ////Only if permission granted
+  //   getToken();
+  // }, []);
+  useEffect(() => {
+    const init = async () => {
+      const hasNotificationPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+      if (hasNotificationPermission) {
+        getToken();
+      }
+    };
+    init();
   }, []);
+
   useEffect(() => {
     StatusBar.setBarStyle('dark-content');
     StatusBar.setBackgroundColor('#ffffff');
@@ -80,6 +102,7 @@ export default function HomeScreen() {
 
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error: errorExchange} = useGetUserCurrentExchangeStatusQuery();
+  // const {data:todaysSpend, isLoading: isLoadingSpend, error: errorSpend} = useGetTodaysSpendQuery();
   const {data:dataDetected, isLoading:isLoadingDetected, error: errorDetected} = useGetUserDetectedTransactionsQuery();
   const {data:dataGroup, isLoading:isLoadingGroup, error:errorGroup} = useGetUserGroupsQuery();
 
