@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext, ReactNode } from
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { requestPermissionAndroid } from "@/app/(tabs)";
 import { PermissionsAndroid } from "react-native";
-import useSMS from "@/app/misc/useSMS";
+// import useSMS from "@/app/misc/useSMS";
 interface AuthContextType {
   authToken: string | null;
   login: (token: string) => Promise<void>;
@@ -15,7 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { checkPermissions, requestReadSMSPermission } = useSMS();
+  // const { checkPermissions, requestReadSMSPermission } = useSMS();
 
   useEffect(() => {
     const loadToken = async () => {
@@ -38,11 +38,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!hasNotificationPermission) {
       await requestPermissionAndroid();
     }
-    const hasSMSPermission = await checkPermissions();
-    console.log("Receive sms permission status:", hasSMSPermission);
-    if (!hasSMSPermission) {
-      await requestReadSMSPermission();
-    }
+    // const hasSMSPermission = await checkPermissions();
+    // console.log("Receive sms permission status:", hasSMSPermission);
+    // if (!hasSMSPermission) {
+    //   await requestReadSMSPermission();
+    // }
   };
 
   const login = async (token: string) => {

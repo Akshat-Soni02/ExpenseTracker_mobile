@@ -18,7 +18,7 @@ import { globalStyles } from '@/styles/globalStyles';
 import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery,useUpdateUserAccessTokenMutation,useGetTodaysSpendQuery } from '@/store/userApi';
 import { Detected } from '@/store/detectedTransactionApi';
 import { Group } from '@/store/groupApi';
-import useSMS from '@/app/misc/useSMS';
+// import useSMS from '@/app/misc/useSMS';
 
 export const requestPermissionAndroid = async () => {
   const granted = await   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
@@ -33,10 +33,10 @@ export const requestPermissionAndroid = async () => {
 export default function HomeScreen() {
 
   const router = useRouter();
-  const { startReadCycle } = useSMS();
+  // const { startReadCycle } = useSMS();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Detected | null>(null);
-  const { checkPermissions, requestReadSMSPermission } = useSMS();
+  // const { checkPermissions, requestReadSMSPermission } = useSMS();
 
   const { authToken, loading } = useAuth();
   const [updateUserAccessToken] = useUpdateUserAccessTokenMutation();
@@ -53,15 +53,15 @@ export default function HomeScreen() {
   // useEffect(() => {
   //   startReadCycle();
   // }, []);
-  useEffect(() => {
-    const init = async () => {
-      const hasSMSPermission = await checkPermissions();
-      if (hasSMSPermission) {
-        startReadCycle();
-      }
-    };
-    init();
-  }, []);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     const hasSMSPermission = await checkPermissions();
+  //     if (hasSMSPermission) {
+  //       startReadCycle();
+  //     }
+  //   };
+  //   init();
+  // }, []);
   
 
 
