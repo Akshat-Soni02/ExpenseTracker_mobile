@@ -141,7 +141,7 @@ else if (errorSettlement) {
                             pressFunction = {() => router.push({ pathname: "/view/viewExpense", params: { id:item._id} })}
                             title={item.description}
                             imageType={undefined}
-                            amount={`₹${item.total_amount}`}
+                            amount={`₹${item.total_amount.toFixed(2)}`}
                             subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
                             transactionType={undefined}
                           />
@@ -199,7 +199,7 @@ else if (errorSettlement) {
                             pressFunction = {() => router.push({ pathname: "/view/viewTransaction", params: { id:item._id} })}
                             title={item.description}
                             imageType={item.transaction_type}
-                            amount={`₹${item.amount}`}
+                            amount={`₹${item.amount.toFixed(2)}`}
                             subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
                             transactionType={item.transaction_type}
                           />
@@ -258,7 +258,7 @@ else if (errorSettlement) {
                           pressFunction={() => router.push({ pathname: "/view/viewSettlement", params: { id:item._id} })}
                           title={item.settlement_description}
                           imageType={undefined}
-                          amount={`₹${item.amount}`}
+                          amount={`₹${item.amount.toFixed(2)}`}
                           subtitle={format(parseISO(new Date().toISOString()), 'hh:mm a')}
                           transactionType={undefined}
                         />

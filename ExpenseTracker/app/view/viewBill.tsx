@@ -203,7 +203,7 @@ const BillDetailsScreen = () => {
 
       <View style={styles.members}>
 
-        <Text style={styles.title}>Total bill amount: ₹{bill?.amount}</Text>
+        <Text style={styles.title}>Total bill amount: ₹{bill?.amount.toFixed(2)}</Text>
 
         {localLoading && (
             <View style = {styles.loaderContainer}>
@@ -219,7 +219,7 @@ const BillDetailsScreen = () => {
                     <TransactionCard
                         title={memberNames[item.user_id]}
                         imageType={undefined}
-                        amount={`₹${item.amount}`}
+                        amount={`₹${item.amount.toFixed(2)}`}
                         subtitle={undefined}
                         transactionType={undefined}
                         cardStyle={item.status === "pending" ? { backgroundColor: "#FFCDD2" } : { backgroundColor: "#e6f7e6" }}
