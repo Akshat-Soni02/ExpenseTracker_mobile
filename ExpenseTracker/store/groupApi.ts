@@ -17,12 +17,12 @@ export type Group = {
   _id: string;
   group_title: string;
   initial_budget?: number;
-  settle_up_date?: string;
+  settle_up_date?: Date | null;
   members: Array<GroupMember>;
   creator_id?: string;
 }
 
-type GroupExchangeDetail = {
+export type GroupExchangeDetail = {
   other_member_name: string;
   other_member_profile_photo?: string;
   amount: number;
@@ -46,7 +46,7 @@ export type GetGroupsResponse = {
   data: Group[];
 }
 
-type CreateGroupRequest = Omit<Group, "_id" | "creator_id">;
+type CreateGroupRequest = Omit<Group, "_id" | "creator_id" | "members"> & {memberIds: string[]};
 type UpdateGroupRequest = Partial<CreateGroupRequest>;
 
 
@@ -76,7 +76,7 @@ export const groupApi = api.injectEndpoints({
       },
     }),
 
-    getUserExchangeStateInGroup: builder.query<{data: GroupExchangeDetail}, {group_id: string}>({
+    getUserExchangeStateInGroup: builder.query<{data: GroupExchangeDetail[]}, {group_id: string}>({
       query: ({ group_id }) => `/groups/exchange-state/${group_id}`,
       providesTags: ["group"],
     }),

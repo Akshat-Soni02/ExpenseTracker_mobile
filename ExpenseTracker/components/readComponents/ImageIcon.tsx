@@ -2,13 +2,13 @@ import React from "react";
 import { View, Image, StyleSheet,Text } from "react-native";
 
 interface ImageIconProps {
-  imageUrl?: string; // URL of the profile image
-  size?: number; // Size of the circle
-  imagetitle?: string; // Title of the image
+  imageUrl?: string;
+  size?: number;
+  imagetitle?: string;
 }
 
 const ImageIcon: React.FC<ImageIconProps> = ({ imageUrl, size = 100,imagetitle }) => {
-  // Function to generate a random color
+
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -32,19 +32,19 @@ const ImageIcon: React.FC<ImageIconProps> = ({ imageUrl, size = 100,imagetitle }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center', // Center the circle and text horizontally
+    alignItems: 'center',
   },
   circle: {
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "#355C7D", // Optional border color
+    borderColor: "#355C7D",
   },
   image: {
     width: "100%",
     height: "100%",
-    borderRadius: 50, // Half of the size to make it circular
+    borderRadius: 50,
   },
   title: {
     fontSize: 16,

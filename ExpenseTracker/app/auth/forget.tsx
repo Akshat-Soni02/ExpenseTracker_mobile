@@ -3,23 +3,33 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator 
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
+import { useState } from "react";
+
 import CustomButton from "../../components/button/CustomButton";
 import { useSendOtpMutation } from "@/store/userApi";
-import { useState } from "react";
+
+type Data = {
+  email: string;
+}
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+
   const [sendOtp, { isLoading }] = useSendOtpMutation();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      email: "yourmail@gmail.com",
+    },
+  });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Data) => {
     setErrorMessage("");
     try {
       const response = await sendOtp({ email: data.email }).unwrap();
@@ -35,21 +45,18 @@ export default function ForgotPasswordScreen() {
     }
   };
 
-  if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <View style={styles.container}>
-      {/* Back Button */}
+
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <FontAwesome name="arrow-left" size={20} color="black" />
       </TouchableOpacity>
 
-      {/* Header */}
       <Text style={styles.header}>Forgot password?</Text>
       <Text style={styles.subtext}>
         Don't worry! It happens. Please enter the email associated with your account.
       </Text>
 
-      {/* Email Input with Validation */}
       <Text style={styles.label}>Email address</Text>
       <Controller
         control={control}
@@ -72,10 +79,13 @@ export default function ForgotPasswordScreen() {
           />
         )}
       />
+
       {typeof errors.email?.message === "string" && (
-              <Text style={styles.error}>{errors.email.message}</Text>
-            )}
+        <Text style={styles.error}>{errors.email.message}</Text>
+      )}
+
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+
       {/* Submit Button */}
       <View style={styles.sendCodeView}>
         <CustomButton
@@ -83,7 +93,7 @@ export default function ForgotPasswordScreen() {
           style={styles.sendCodeButton}
           disabled={isLoading}
         >
-          Send code
+          {isLoading ? <ActivityIndicator color="#fff" /> : "Send code"}
         </CustomButton>
       </View>
 

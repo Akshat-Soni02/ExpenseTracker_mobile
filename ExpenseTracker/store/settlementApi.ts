@@ -9,6 +9,7 @@ export type Settlement = {
   receiver_id: string;
   amount: number;
   group_id?: string;
+  createdAt?: Date;
 }
 
 type GetSettlementResponse = {
@@ -19,7 +20,17 @@ export type GetSettlementsResponse = {
   data: Settlement[];
 }
 
-type CreateSettlementRequest = Omit<Settlement, "_id">;
+type CreateSettlementRequest = {
+  settlement_description: string;
+  payer_wallet_id?: string;
+  payer_id?: string;
+  receiver_wallet_id?: string;
+  receiver_id?: string;
+  amount: number;
+  group_id?: string;
+  status: string;
+}
+
 type updateSettlementRequest = Partial<CreateSettlementRequest>;
 
 export const settlementApi = api.injectEndpoints({

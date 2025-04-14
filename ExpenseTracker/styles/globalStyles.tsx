@@ -166,6 +166,15 @@ export const globalStyles = StyleSheet.create({
     width: "100%",
     marginVertical: 10,
   },
+  pageMidError: {
+    height: "100%",
+    width: "100%",
+    alignSelf: "center",
+    textAlignVertical: "center",
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center"
+  }
 });
 
 // container: {

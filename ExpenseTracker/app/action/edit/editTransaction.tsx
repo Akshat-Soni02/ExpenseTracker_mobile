@@ -1,53 +1,76 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
-import CustomButton from "@/components/button/CustomButton";
-import AmountDescriptionInput from "@/components/AmountDescriptionInput";
-import NotesInput from "@/components/NotesInput";
-import WalletSelector from "@/components/WalletSelector";
-import PhotoSelector from "@/components/PhotoSelector";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
-import CategorySelector from "@/components/CategorySelector";
-import { useUpdatePersonalTransactionMutation ,useGetPersonalTransactionQuery} from "@/store/personalTransactionApi";
-import { useGetUserWalletsQuery } from "@/store/userApi";
 import { useLocalSearchParams } from "expo-router";
-import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
+
+import CustomButton from "@/components/button/CustomButton";
+import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
+import NotesInput from "@/components/inputs/NotesInput";
+import WalletSelector from "@/components/selectors/WalletSelector";
+import PhotoSelector from "@/components/selectors/PhotoSelector";
+import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
+import CategorySelector from "@/components/selectors/CategorySelector";
+
+import { useUpdatePersonalTransactionMutation ,useGetPersonalTransactionQuery, Transaction} from "@/store/personalTransactionApi";
 import { useEffect } from "react";
 import {useGetWalletQuery} from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
-export default function EditTransactionScreen() {
-  let {fetchedId} = useLocalSearchParams();
-  const { data:fetchedData, isLoading, error, refetch } = useGetPersonalTransactionQuery(fetchedId);
-  let walletData, walletIsLoading, walletError;
 
-  if (fetchedData.data.wallet_id) {
+export type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  amount?: error;
+  Description?: error;
+}
+
+type Data = {
+  date: Date | string;
+  time: Date | string;
+  photo?: string | null;
+  wallet?: {_id: string} | null;
+  amount: number;
+  category?: string;
+  notes?: string;
+  Description: string;
+}
+
+export default function EditTransactionScreen() {
+  const router = useRouter();
+  let {fetchedId} = useLocalSearchParams() as {fetchedId: string};
+
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [transactionType, setTransactionType] = useState<"expense" | "income">("expense");
+
+  const { data:fetchedData, isLoading, error: transactionError, refetch } = useGetPersonalTransactionQuery(fetchedId);
+  const [updatePersonalTransaction, {isLoading:isLoadingPersonal}] = useUpdatePersonalTransactionMutation();
+
+  let walletData, walletIsLoading, walletError;
+  if (fetchedData?.data.wallet_id) {
       ({ data: walletData, isLoading: walletIsLoading, error: walletError } = useGetWalletQuery(fetchedData.data.wallet_id));
   }
-  const [updatePersonalTransaction, {isLoading:isLoadingPersonal}] = useUpdatePersonalTransactionMutation();
-//   const { refetch } = useGetUserWalletsQuery();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
+
   const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues:{
-      amount: fetchedData?.data.amount,
-      Description: fetchedData?.data.description,
+      amount: fetchedData?.data.amount || 0,
+      Description: fetchedData?.data.description || "",
       transactionType: fetchedData?.data.transaction_type,
       notes: fetchedData?.data.notes,
       wallet: walletData?.data,
       category: fetchedData?.data.transaction_category,
-      date: new Date(fetchedData?.data.created_at_date_time),
-      time: new Date(fetchedData?.data.created_at_date_time),
+      date: fetchedData ? new Date(fetchedData?.data.created_at_date_time) : new Date(),
+      time: fetchedData ? new Date(fetchedData?.data.created_at_date_time) : new Date(),
       photo: null,
     }
   });
 
 
-  const [transactionType, setTransactionType] = useState("expense");
-  const router = useRouter();
   useEffect(() => {
-    if(!isLoading && fetchedData.data.transaction_type) {
+    if(!isLoading && fetchedData?.data.transaction_type) {
       setTransactionType(fetchedData.data.transaction_type);
     }
   }, [fetchedData]);
@@ -62,23 +85,17 @@ export default function EditTransactionScreen() {
       Alert.alert("Invalid data", messages);
     }
   }, [childErrors]);
-//   useEffect(() => {
-//     if (detectedId) {
-//       if(detectedTransaction_type==="credit"){
-//         setTransactionType("expense");
-//         setValue("transactionType", "expense");
-//       }
-//       else{
-//         setTransactionType("income");
-//         setValue("transactionType", "income");
-//       }
-      
-//     }
-//   }, [detectedId, setValue]);
 
-//   {transaction_type, description, wallet_id, media, transaction_category, notes,amount, created_at_date_time}
-  const onTransactionSubmit = async (data: any) => {
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+
+
+  const onTransactionSubmit = async (data: Data) => {
     try {
+      console.log("Transaction edit data, ",data);
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
 
@@ -90,30 +107,27 @@ export default function EditTransactionScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
-      let dataObj: { amount?: number; transaction_type?:string;description?:string;wallet_id?:string;media?:any;transaction_category?:string;notes?:string;created_at_date_time?:any } = {};
-      if(data.amount!==fetchedData.data.amount){
+      let dataObj: Partial<Transaction> = {};
+      if(data.amount!==fetchedData?.data.amount){
         dataObj.amount = data.amount;
       }
-      if(transactionType!==fetchedData.data.transaction_type){
+      if(transactionType!==fetchedData?.data.transaction_type){
         dataObj.transaction_type = transactionType;
       }
-      if(data.Description!==fetchedData.data.description){
+      if(data.Description!==fetchedData?.data.description){
         dataObj.description = data.Description;
       }
-      if(data?.wallet?.wallet_title!==fetchedData?.data?.wallet_title){
+      if(data?.wallet?._id && data.wallet._id !== fetchedData?.data?.wallet_id){
         dataObj.wallet_id = data.wallet._id;
       }
-    //   if(data.photo!==fetchedData.data.media){
-    //     dataObj.media = data.photo;
-    //   }
-      if(data.category!==fetchedData.data.transaction_category){
+      if(data.category!==fetchedData?.data.transaction_category){
         dataObj.transaction_category=data.category;
       }
-      if(data.notes!==fetchedData.data.notes){
+      if(data.notes!==fetchedData?.data.notes){
         dataObj.notes = data.notes;
       }
-      if(created_at_date_time!==fetchedData.data.created_at_date_time){
-        dataObj.created_at_date_time=created_at_date_time;
+      if(created_at_date_time && created_at_date_time!==fetchedData?.data.created_at_date_time){
+        dataObj.created_at_date_time = created_at_date_time;
       }
       const response = await updatePersonalTransaction({id:fetchedId,body:dataObj}).unwrap();
       router.back();
@@ -127,8 +141,23 @@ export default function EditTransactionScreen() {
         }
     }
   };
+
+  if(isLoading || isLoadingPersonal) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  
+  if (transactionError) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in transactionError) {
+      errorMessage = `Server Error: ${JSON.stringify(transactionError.data)}`;
+    } else if ("message" in transactionError) {
+      errorMessage = `Client Error: ${transactionError.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
+
   return (
     <ScrollView style={globalStyles.viewContainer}>
+
       <View style={globalStyles.viewHeader}>
         <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
@@ -136,9 +165,8 @@ export default function EditTransactionScreen() {
         <Text style={globalStyles.headerText}>Edit Spend</Text>
       </View>
 
-      {/* Transaction Type Selector */}
       <View style={styles.transactionTypeContainer}>
-        {["expense", "income"].map((type) => (
+        {(["expense", "income"] as const).map((type) => (
           <TouchableOpacity
             key={type}
             style={[
@@ -151,7 +179,7 @@ export default function EditTransactionScreen() {
             }}
           >
             <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText,// Change text color if frozen
-]}>
+            ]}>
               {type === "expense" ? "Expense" : "Income"}
             </Text>
           </TouchableOpacity>
@@ -172,7 +200,6 @@ export default function EditTransactionScreen() {
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
 
-       {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );

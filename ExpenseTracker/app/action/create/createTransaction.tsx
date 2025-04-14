@@ -3,45 +3,88 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
+
 import CustomButton from "@/components/button/CustomButton";
-import AmountDescriptionInput from "@/components/AmountDescriptionInput";
-import NotesInput from "@/components/NotesInput";
-import WalletSelector from "@/components/WalletSelector";
-import PhotoSelector from "@/components/PhotoSelector";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
-import CategorySelector from "@/components/CategorySelector";
+import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
+import NotesInput from "@/components/inputs/NotesInput";
+import WalletSelector from "@/components/selectors/WalletSelector";
+import PhotoSelector from "@/components/selectors/PhotoSelector";
+import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
+import CategorySelector from "@/components/selectors/CategorySelector";
 import { useCreatePersonalTransactionMutation } from "@/store/personalTransactionApi";
 import { useGetUserWalletsQuery } from "@/store/userApi";
-import { useLocalSearchParams } from "expo-router";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
-import { useEffect } from "react";
-import {globalStyles} from "@/styles/globalStyles";
-export default function AddTransactionScreen() {
-  let {detectedId, detectedAmount,detectedTransaction_type,detectedDescription,detectedFrom_account,detectedTo_account,detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams();
-  let detectedAmountNumber = Number(detectedAmount);
+import { globalStyles } from "@/styles/globalStyles";
 
-  const date_time = new Date(detectedCreated_at_date_time);
-  const parsedDate = new Date(date_time);
-  const dateOnly = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
-  const timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
-  const [childErrors, setChildErrors] = useState({});
-  
+export type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  amount?: error;
+  Description?: error;
+}
+
+type LocalParams = {
+  detectedId?: string;
+  detectedAmount?: string;
+  detectedDescription?: string;
+  detectedCreated_at_date_time?: string | Date;
+  detectedNotes?: string;
+  detectedTransaction_type?: "credit" | "debit";
+}
+
+type Data = {
+  date: Date | string;
+  time: Date | string;
+  photo?: string | null;
+  wallet?: {_id: string} | null;
+  amount: number;
+  category?: string;
+  notes?: string;
+  Description: string;
+}
+
+export default function AddTransactionScreen() {
+  const router = useRouter();
+  let { detectedId, detectedAmount, detectedTransaction_type, detectedDescription, detectedCreated_at_date_time, detectedNotes} = useLocalSearchParams() as LocalParams;
+
   const [createPersonalTransaction, {isLoading:isLoadingPersonal}] = useCreatePersonalTransactionMutation();
   const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
-  
   const { refetch } = useGetUserWalletsQuery();
-  const [errorMessage, setErrorMessage] = useState("");
-  const { control, handleSubmit, watch, setValue, reset } = useForm({
+
+  const [transactionType, setTransactionType] = useState<"expense" | "income">("expense");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  let detectedAmountNumber = Number(detectedAmount);
+  let dateOnly: Date | undefined;
+  let timeOnly: Date | undefined;
+
+  if (detectedCreated_at_date_time) {
+    const parsedDate = new Date(detectedCreated_at_date_time);
+
+    if (!isNaN(parsedDate.getTime())) {
+      dateOnly = new Date(parsedDate.toDateString());
+      timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
+    } else {
+      console.warn("Invalid date:", detectedCreated_at_date_time);
+    }
+  }
+
+  const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: detectedId
-    ?{
+    ? {
       amount: detectedAmountNumber,
-      Description: detectedDescription,
-      transactionType: detectedTransaction_type,
+      Description: detectedDescription || "",
+      transactionType: detectedTransaction_type === "credit" ? "income" : "expense",
       notes: detectedNotes,
-      wallet: "",
+      wallet: null,
       category: "",
-      date: dateOnly,
-      time: timeOnly,
+      date: dateOnly || new Date(),
+      time: timeOnly || new Date(),
       photo: null,
     }
     :{
@@ -49,13 +92,14 @@ export default function AddTransactionScreen() {
       Description: "",
       transactionType: "expense",
       notes: "",
-      wallet: "",
+      wallet: null,
       category: "",
       date: new Date(),
       time: new Date(),
       photo: null,
     },
   });
+
 
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
@@ -68,25 +112,28 @@ export default function AddTransactionScreen() {
     }
   }, [childErrors]);
 
-
-  const [transactionType, setTransactionType] = useState("expense");
-  const router = useRouter();
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+  
   useEffect(() => {
     if (detectedId) {
       if(detectedTransaction_type==="credit"){
-        setTransactionType("expense");
-        setValue("transactionType", "expense");
-      }
-      else{
         setTransactionType("income");
         setValue("transactionType", "income");
+      }
+      else{
+        setTransactionType("expense");
+        setValue("transactionType", "expense");
       }
       
     }
   }, [detectedId, setValue]);
 
-//   {transaction_type, description, wallet_id, media, transaction_category, notes,amount, created_at_date_time}
-  const onTransactionSubmit = async (data: any) => {
+
+  const onTransactionSubmit = async (data: Data) => {
     try {
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
@@ -146,8 +193,10 @@ export default function AddTransactionScreen() {
   };
 
   if(isLoadingPersonal) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+
   return (
     <ScrollView style={globalStyles.viewContainer}>
+      
       <View style={globalStyles.viewHeader}>
         <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
@@ -157,7 +206,7 @@ export default function AddTransactionScreen() {
 
       {/* Transaction Type Selector */}
       <View style={styles.transactionTypeContainer}>
-        {["expense", "income"].map((type) => (
+        {(["expense", "income"] as const).map((type) => (
           <TouchableOpacity
             key={type}
             style={[
@@ -176,7 +225,7 @@ export default function AddTransactionScreen() {
 
           >
             <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText, detectedId && styles.disabledText, // Change text color if frozen
-]}>
+            ]}>
               {type === "expense" ? "Expense" : "Income"}
             </Text>
           </TouchableOpacity>

@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, FlatList, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
+
 import { useAddUserFriendsMutation } from "@/store/userApi";
+import { globalStyles } from "@/styles/globalStyles";
 
 
-// a replacement function to add people without accessing contacts
 const AddEmailManuallyScreen = () => {
   const router = useRouter();
-  const [addFriends, { isLoading }] = useAddUserFriendsMutation();
-  const [emails, setEmails] = useState([""]);
+  const [emails, setEmails] = useState<string[]>([""]);
+
+  const [addFriends, { isLoading, error: errorFriend }] = useAddUserFriendsMutation();
 
   // handle updating filled emails
   const handleEmailChange = (index: number, value: string) => {
@@ -39,12 +41,17 @@ const AddEmailManuallyScreen = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
-        <ActivityIndicator color="#000" />
-      </View>
-    );
+  if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+
+  if (errorFriend) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in errorFriend) {
+      errorMessage = `Server Error: ${JSON.stringify(errorFriend.data)}`;
+    } else if ("message" in errorFriend) {
+      errorMessage = `Client Error: ${errorFriend.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
   }
 
   return (

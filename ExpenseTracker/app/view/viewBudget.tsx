@@ -2,45 +2,51 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert} from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesome ,Entypo} from "@expo/vector-icons";
-import { useUpdateBudgetMutation, useGetBudgetQuery,useDeleteBudgetMutation } from "@/store/budgetApi";
 import { useLocalSearchParams } from "expo-router";
-import AmountDescriptionInput from "@/components/AmountDescriptionInput";
-import CategorySelector from "@/components/CategorySelector";
-import PeriodSelector from "@/components/PeriodSelector";
-import { useForm } from "react-hook-form";
 import {Menu, Divider } from "react-native-paper";
+
+import { useGetBudgetQuery,useDeleteBudgetMutation } from "@/store/budgetApi";
 import { globalStyles } from "@/styles/globalStyles";
 
-export default function ViewBudgetScreen() {
-  const { id } = useLocalSearchParams();
-  const router = useRouter();
 
-  const [updateBudget, { isLoading }] = useUpdateBudgetMutation();
+export default function ViewBudgetScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams() as {id: string};
+  const [menuVisible, setMenuVisible] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const { data: dataBudget, isLoading: isLoadingBudget, error: errorBudget, refetch } = useGetBudgetQuery(id);
-  const [menuVisible, setMenuVisible] = useState(false);
   const [deleteBudget, {isLoading: deleteLoading, error: deleteError}] = useDeleteBudgetMutation();
 
-  // const [isEditing, setIsEditing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
+  
   useEffect(() => {
-      if (id) {
-        refetch();
+    if (id) {
+      refetch();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+
+  const handleBudgetDelete = async () => {
+    try {
+      const response = await deleteBudget(id);
+      router.back();
+    } catch (error) {
+      console.log("Error deleting budget", error);
+      const err = error as { data?: { message?: string } };
+      if (err?.data?.message) {
+        setErrorMessage(err.data.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
       }
-    }, [id]);
-const handleBudgetDelete = async () => {
-          try {
-            const response = await deleteBudget(id);
-            console.log("bill deleting response",response);
-            if(!response || deleteError) {
-              console.log(error);
-            }
-            router.back();
-          } catch (error) {
-            
-          }
-        }
-  if (isLoadingBudget) {
+    }
+  }
+
+  if (isLoadingBudget || deleteLoading) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
@@ -49,16 +55,25 @@ const handleBudgetDelete = async () => {
   }
 
   if (errorBudget) {
-    return <Text style={styles.errorMessage}>Error: {errorBudget?.message || JSON.stringify(errorBudget)}</Text>;
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in errorBudget) {
+      errorMessage = `Server Error: ${JSON.stringify(errorBudget.data)}`;
+    } else if ("message" in errorBudget) {
+      errorMessage = `Client Error: ${errorBudget.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
   }
 
   return (
     <ScrollView style={globalStyles.viewContainer}>
-      {/* Header */}
+
       <View style={globalStyles.viewHeader}>
+
         <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
+
         <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
@@ -71,46 +86,55 @@ const handleBudgetDelete = async () => {
           <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/action/edit/editBudget",params : {id:id}})}} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => Alert.alert(
-                        "Delete bill", 
-                        `Are you sure you want to delete ${dataBudget.data.budget_title}`, 
-                        [
-                          { text: "Cancel", style: "cancel" },
-                          { text: "Yes", onPress: () => handleBudgetDelete()}
-                        ]
-                      )} title="Delete" />
+            "Delete bill", 
+            `Are you sure you want to delete ${dataBudget?.data.budget_title}`, 
+            [
+              { text: "Cancel", style: "cancel" },
+              { text: "Yes", onPress: () => handleBudgetDelete()}
+            ]
+          )} title="Delete" />
         </Menu>
       </View>
 
         <View style={styles.card}>
+
           <View style={styles.amountContainer}>
             <Text style={[styles.label,{fontSize:25}]}>Current Spend</Text>
-            <Text style={[styles.amount   , { color: dataBudget.data.current_spend >= dataBudget.data.amount ? 'red' : 'green' }]}>₹{dataBudget.data.current_spend}</Text>
+            <Text style={[styles.amount, {color: (dataBudget && dataBudget.data.current_spend >= dataBudget.data.amount) ? 'red' : 'green'}]}>₹{dataBudget?.data.current_spend}</Text>
           </View>
+
           <View style={styles.amountContainer}>
             <Text style={styles.label}>Limit</Text>
-            <Text style={[styles.amount,{color:"#555",fontSize:20}]}>₹{dataBudget.data.amount}</Text>
+            <Text style={[styles.amount,{color:"#555",fontSize:20}]}>₹{dataBudget?.data.amount}</Text>
           </View>
+
           <View style={styles.section}>
             <Text style={styles.label}>Description</Text>
-            <Text style={styles.value}>{dataBudget.data.budget_title}</Text>
+            <Text style={styles.value}>{dataBudget?.data.budget_title}</Text>
           </View>
+
           <View style={styles.section}>
             <Text style={styles.label}>Category</Text>
-            <Text style={styles.value}>{dataBudget.data.budget_category}</Text>
+            <Text style={styles.value}>{dataBudget?.data.budget_category}</Text>
           </View>
+
           <View style={styles.section}>
             <Text style={styles.label}>Period</Text>
-            <Text style={styles.value}>{dataBudget.data.period}</Text>
+            <Text style={styles.value}>{dataBudget?.data.period}</Text>
           </View>
-        </View>
 
-      {errorMessage && (Alert.alert("Error",errorMessage))}
+        </View>
     </ScrollView>
   );
 }
 
 
 const styles = StyleSheet.create({
+  
+  menuButton: {
+    padding: 10,
+  },
+  
   card: {
     backgroundColor: "white",
     padding: 20,

@@ -7,12 +7,14 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "lib": ["esnext", "dom"]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "react-native-expo-read-sms.d.ts",
   ]
 }

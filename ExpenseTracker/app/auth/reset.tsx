@@ -3,16 +3,24 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator 
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
+
 import CustomButton from "../../components/button/CustomButton";
 import { useResetPasswordMutation } from "@/store/userApi";
 
+type Data = {
+  password: string;
+  confirmPassword: string;
+}
+
 export default function ResetPasswordScreen() {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const {email} = useLocalSearchParams() as {email: string};
+
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
-  const {email} = useLocalSearchParams();
-  const [errorMessage, setErrorMessage] = useState("");
 
   const {
     control,
@@ -28,7 +36,7 @@ export default function ResetPasswordScreen() {
 
   const password = watch("password");
 
-  const onSubmit = async (data: { password: string; confirmPassword: string }) => {
+  const onSubmit = async (data: Data) => {
     setErrorMessage("");
     try {
       await resetPassword({email, newPassword: data.confirmPassword}).unwrap();
@@ -46,6 +54,7 @@ export default function ResetPasswordScreen() {
 
   return (
     <View style={styles.container}>
+
       {/* Back Button */}
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <FontAwesome name="arrow-left" size={20} color="black" />
@@ -62,12 +71,12 @@ export default function ResetPasswordScreen() {
           name="password"
           rules={{
             required: "Password is required",
-            minLength: { value: 8, message: "Password must be at least 8 characters" },
+            minLength: { value: 6, message: "Password must be at least 6 characters" },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="must be 8 characters"
+              placeholder="must be 6 characters"
               secureTextEntry={!showPassword}
               onBlur={onBlur}
               onChangeText={onChange}
@@ -75,6 +84,7 @@ export default function ResetPasswordScreen() {
             />
           )}
         />
+
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
           <FontAwesome name={showPassword ? "eye" : "eye-slash"} size={20} color="#888" />
         </TouchableOpacity>
@@ -101,6 +111,7 @@ export default function ResetPasswordScreen() {
             />
           )}
         />
+
         <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
           <FontAwesome name={showConfirmPassword ? "eye" : "eye-slash"} size={20} color="#888" />
         </TouchableOpacity>

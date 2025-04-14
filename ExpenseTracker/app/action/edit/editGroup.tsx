@@ -1,66 +1,84 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+
 import CustomButton from "@/components/button/CustomButton";
-import TitleInput from "@/components/TitleInput";
-import AddPeopleInput from "@/components/AddPeopleInput";
-import InitialBudget from "@/components/InitialBudget";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
-import { useUpdateGroupMutation,useGetGroupQuery } from "@/store/groupApi";
-import {globalStyles} from "@/styles/globalStyles";
-export default function CreateGroupScreen() {
-    const {id} = useLocalSearchParams();
-    const { data:groupData, isLoading:groupIsLoading, error:groupError, refetch } = useGetGroupQuery(id);
+import TitleInput from "@/components/inputs/TitleInput";
+import InitialBudget from "@/components/inputs/InitialBudget";
+import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
+import { useUpdateGroupMutation,useGetGroupQuery, Group } from "@/store/groupApi";
+import { globalStyles } from "@/styles/globalStyles";
+
+type error = {
+  message: string;
+}
+
+type ChildErrors = {
+  Title?: error;
+}
+
+type Data = {
+  title: string;
+  initialBudget?: number;
+  settleUpDate?: Date | null;
+}
+
+export default function EditGroupScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams() as { id: string };
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  const { data: groupData, isLoading: groupIsLoading, error: errorGroup, refetch } = useGetGroupQuery(id);
   const [updateGroup, {isLoading}] = useUpdateGroupMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [childErrors, setChildErrors] = useState({});
-  const membersArray = groupData.data.members.map(m => ({
-    amount: m.amount,
-    user_id: m.user_id
-  }));
+
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
-      title: groupData.data.group_title,
-      initialBudget: groupData.data.initial_budget,
-      settleUpDate: new Date(groupData.data.settle_up_date),
+      title: groupData?.data.group_title || "",
+      initialBudget: groupData?.data.initial_budget,
+      settleUpDate: groupData?.data?.settle_up_date ? new Date(groupData.data.settle_up_date) : null,
     },
   });
 
-  const router = useRouter();
+  // const membersArray = groupData?.data.members.map(m => ({
+  //   amount: m.amount,
+  //   user_id: m.user_id
+  // }));
+
 
   useEffect(() => {
-      if (Object.keys(childErrors).length !== 0) {
-        const messages = [
-          childErrors.Title?.message
-        ].filter(Boolean).join("\n");
-    
-        Alert.alert("Invalid data", messages);
-      }
-    }, [childErrors]);
+    if (Object.keys(childErrors).length !== 0) {
+      const messages = [
+        childErrors.Title?.message
+      ].filter(Boolean).join("\n");
+  
+      Alert.alert("Invalid data", messages);
+    }
+  }, [childErrors]);
 
-//   group_title,
-//     memberIds = [],
-//     initial_budget,
-//     settle_up_date,
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
 
-  const onGroupSubmit = async (data: any) => {
+
+  const onGroupSubmit = async (data: Data) => {
     try {
-
-      let dataObj: {group_title?:string;initial_budget?:Number;settle_up_date?:any} = {};
-      if(data.title!==groupData.data.group_title){
+      let dataObj: Partial<Group> = {};
+      if(data.title!==groupData?.data.group_title){
         dataObj.group_title = data.title;
       }
-      if(data.initialBudget!==groupData.data.initial_budget){
+      if(data.initialBudget!==groupData?.data.initial_budget){
         dataObj.initial_budget = data.initialBudget;
       }
-      if(data.settleUpDate!==groupData.data.settle_up_date){
+      if(data.settleUpDate!==groupData?.data.settle_up_date){
         dataObj.settle_up_date= data.settleUpDate;
       }
-      
 
-      const response = await updateGroup({id:id,body:dataObj}).unwrap();
+      const response = await updateGroup({id: id, body: dataObj}).unwrap();
       router.back();
     } catch (error) {
       console.error("group failed to update:", error);
@@ -70,11 +88,26 @@ export default function CreateGroupScreen() {
         } else {
           setErrorMessage("Something went wrong. Please try again.");
         }
-      }
-    };
+    }
+  };
+
+  if(isLoading || groupIsLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  
+  if (errorGroup) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in errorGroup) {
+      errorMessage = `Server Error: ${JSON.stringify(errorGroup.data)}`;
+    } else if ("message" in errorGroup) {
+      errorMessage = `Client Error: ${errorGroup.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
+
 
   return (
     <ScrollView style={globalStyles.viewContainer}>
+
       <View style={globalStyles.viewHeader}>
         <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
@@ -82,19 +115,14 @@ export default function CreateGroupScreen() {
         <Text style={globalStyles.headerText}>Edit Group</Text>
       </View>
 
-      {/* Group Title */}
       <TitleInput control={control} onErrorsChange={setChildErrors}/>
 
-      {/* Add Members */}
-
-      {/* Initial Budget & Date */}
       <View style={globalStyles.dateTimeContainer}>
         <InitialBudget control={control} />
         <CustomDateTimePicker control={control} name="settleUpDate" label="Date" heading="Settle-up Date"/>
       </View>
 
       {/* Save Button */}
-      {errorMessage && (Alert.alert("Error",errorMessage))}
       <CustomButton onPress={handleSubmit(onGroupSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
     </ScrollView>
   );

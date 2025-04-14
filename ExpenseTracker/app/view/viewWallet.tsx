@@ -3,15 +3,18 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } fr
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
+
 import { useGetWalletQuery,useDeleteWalletMutation } from "@/store/walletApi";
-import {globalStyles} from "@/styles/globalStyles";
+import { globalStyles } from "@/styles/globalStyles";
+
 const WalletDetailsScreen = () => {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams() as {id: string};
+
+  const [menuVisible, setMenuVisible] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const { data, isLoading, error, refetch } = useGetWalletQuery(id);
-  
-  const [menuVisible, setMenuVisible] = useState(false);
   const [deleteWallet, {isLoading:isLoadingDelete}] = useDeleteWalletMutation();
-  const [errorMessage, setErrorMessage] = useState("");
 
   const wallet = data?.data;
 
@@ -21,13 +24,28 @@ const WalletDetailsScreen = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert("Error", errorMessage);
+    }
+  }, [errorMessage]);
+
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  if (error) return <Text>Error loading wallet details</Text>;
+
+  if (error) {
+    let errorMessage = "An unknown error occurred";
+  
+    if ("status" in error) {
+      errorMessage = `Server Error: ${JSON.stringify(error.data)}`;
+    } else if ("message" in error) {
+      errorMessage = `Client Error: ${error.message}`;
+    }
+    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
+  }
+
   if (!data?.data) return <Text>No wallet found</Text>;
 
-
-
-  const themeColor = wallet.lower_limit <= wallet.amount ? "#10B981" : "#EF4444";
+  const themeColor = (wallet && wallet.lower_limit) ? (wallet.lower_limit <= wallet.amount) ? "#10B981" : "#EF4444" : "#000";
 
   const onDelete = async () => {
     try {
@@ -51,7 +69,6 @@ const WalletDetailsScreen = () => {
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
 
-        {/* Menu Component */}
         <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
@@ -61,24 +78,25 @@ const WalletDetailsScreen = () => {
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/action/edit/editWallet",params:{fetchedId:id,fetchedAmount:wallet.amount,fetchedName:wallet.wallet_title,fetchedLowerLimit:wallet.lower_limit}})}} title="Edit" />
+          <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/action/edit/editWallet",params:{fetchedId:id,fetchedAmount:wallet?.amount,fetchedName:wallet?.wallet_title,fetchedLowerLimit:wallet?.lower_limit}})}} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => Alert.alert(
-                                "Delete wallet", 
-                                `Are you sure you want to delete ${wallet.wallet_title}`, 
-                                [
-                                  { text: "Cancel", style: "cancel" },
-                                  { text: "Yes", onPress: () => onDelete()}
-                                ]
-                              )} title="Delete" />
+                        "Delete wallet", 
+                        `Are you sure you want to delete ${wallet?.wallet_title}`, 
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          { text: "Yes", onPress: () => onDelete()}
+                        ]
+                      )} title="Delete" />
         </Menu>
       </View>
 
       <View style={globalStyles.viewActivityDetailContainer}>
-        <Text style={globalStyles.viewActivityTitle}>{wallet.wallet_title}</Text>
-        <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{wallet.amount}</Text>
-        {wallet.lower_limit && (<Text style={globalStyles.viewActivityDate}>Lower limit : {wallet.lower_limit}</Text>)}
+        <Text style={globalStyles.viewActivityTitle}>{wallet?.wallet_title}</Text>
+        <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{wallet?.amount}</Text>
+        {wallet?.lower_limit && (<Text style={globalStyles.viewActivityDate}>Lower limit : {wallet.lower_limit}</Text>)}
       </View>
+
     </View>
   );
 };

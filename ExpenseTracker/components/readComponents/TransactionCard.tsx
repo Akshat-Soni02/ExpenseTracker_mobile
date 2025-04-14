@@ -1,14 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import ImageIcon from "./ImageIcon"; // Adjust the import path as necessary
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { Divider} from 'react-native-paper';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 interface TransactionCardProps {
-  imageName?: string; // Name of the profile image
-  title: string; // Title of the card
-  subtitle?: string; // Optional subtitle
-  amount?: string; // Amount text
-  optionText?: string; // Optional text above the amount
+  imageName?: string;
+  title: string;
+  subtitle?: string | null | Date;
+  amount?: string;
+  optionText?: string;
   imageType?:string;
   transactionType?:string;
   pressFunction?:any;
@@ -19,30 +18,24 @@ interface TransactionCardProps {
 const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction, cardStyle, amountStyle }) => {
   const isDebit = (transactionType === "debit" || transactionType === "expense");
   const isCredit = (transactionType === "credit" || transactionType === "income");
+
   return (
-    // <View style={styles.card}>
-    //   {imageName&&<ImageIcon size={50} />}
-    //   <View style={styles.textContainer}>
-    //     <Text style={styles.title}>{title}</Text>
-    //     {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-    //   </View>
-    //   <View style={styles.amountContainer}>
-    //     {optionText && <Text style={styles.optionText}>{optionText}</Text>}
-    //     <Text style={styles.amount}>{amount}</Text>
-    //   </View>
-    // </View>
     <TouchableOpacity onPress={pressFunction}>
     <View style={[styles.transactionItem, cardStyle]} >
+
       {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
+
       {imageType&&<MaterialCommunityIcons
         name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
         size={20}
         color={isDebit ? "red" : "green"}
       />}
+
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
-        {subtitle && (<Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle}</Text>)}
+        {subtitle && (<Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle.toString()}</Text>)}
       </View>
+
       <View style={styles.amountDetails}>
         {optionText&&<Text style={styles.topAmountText}>{optionText}</Text>}
         <Text
@@ -54,13 +47,14 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, sub
                 ? "green" 
                 : isDebit
                 ? "red" 
-                : "black" // Default color if transactionType is undefined
+                : "black"
             }
           ]}
         >
           {amount}
         </Text>
       </View>
+      
     </View>
     </TouchableOpacity>
   );
