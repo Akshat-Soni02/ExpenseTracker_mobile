@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "41930990796",
+    "project_id": "expensetracker-451815",
+    "storage_bucket": "expensetracker-451815.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:41930990796:android:e459ec0044109366904e69",
+        "android_client_info": {
+          "package_name": "com.searce.splitexpensetracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "41930990796-v0crd8n8lnpnolcjuqgd9do6mm4cfe5b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxRuIFbKqZ_ktmlGwXNcfvBPh5rKrmXXg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "41930990796-v0crd8n8lnpnolcjuqgd9do6mm4cfe5b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
