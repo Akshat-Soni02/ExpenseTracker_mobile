@@ -31,6 +31,14 @@ export const budgetApi = api.injectEndpoints({
       }),
       invalidatesTags: ["budget"],
     }),
+    predictBudget: builder.mutation<{next_month_budget : number,note?:string}, {transaction_category: string}>({
+      query: (body) => ({
+        url: `/budgets/predict`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["budget"],
+    }),
 
     getBudget: builder.query<GetBudgetResponse, string>({
       query: (id) => `/budgets/${id}`,
@@ -67,4 +75,5 @@ export const {
   useDeleteBudgetMutation,
   useUpdateBudgetMutation,
   useGetBudgetQuery,
+  usePredictBudgetMutation,
 } = budgetApi;
