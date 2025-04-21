@@ -28,6 +28,7 @@
     "@react-navigation/stack": "^7.1.2",
     "@reduxjs/toolkit": "^2.6.0",
     "@shopify/flash-list": "^1.7.3",
+    "cloc": "^2.4.0-cloc",
     "date-fns": "^4.1.0",
     "eas-cli": "^16.3.0",
     "expo": "~52.0.37",

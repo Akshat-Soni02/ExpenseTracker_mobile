@@ -101,6 +101,7 @@ function RootLayoutNav() {
         <Stack.Screen name="action/create/createBudget" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewPeople" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewBudget" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewPredictedBudget" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewProfile" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewExpense" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewTransaction" options={{headerShown:false}}/>
