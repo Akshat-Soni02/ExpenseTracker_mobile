@@ -9,12 +9,13 @@ import TransactionCard from "@/components/readComponents/TransactionCard";
 import {useGetUserBudgetsQuery} from '@/store/userApi'; 
 import { globalStyles } from "@/styles/globalStyles";
 import { Budget } from "@/store/budgetApi";
+import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 
 export default function BudgetsScreen() {
   const router = useRouter();
   const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGetUserBudgetsQuery();
 
-  if (isLoadingBudget) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  // if (isLoadingBudget) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (errorBudget) {
     let errorMessage = "An unknown error occurred";
@@ -39,8 +40,18 @@ export default function BudgetsScreen() {
             <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {globalStyles.backButton}/>     
             <Text style={globalStyles.headerText}>Budgets</Text>
           </View>
-          
-          {numberOfBudgets>0 ? (
+
+          {isLoadingBudget ? (
+            <>
+              {[...Array(6)].map((_, index) => (
+                <View key={index} style={{ marginBottom: 20 }}>
+                  <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+                </View>
+              ))}
+            </>
+          ) : (
+            <>
+            {numberOfBudgets>0 ? (
             <FlatList
             data={budgets}
             keyExtractor={(item) => item._id}
@@ -61,6 +72,8 @@ export default function BudgetsScreen() {
             contentContainerStyle={{ paddingBottom: 5 }}
             nestedScrollEnabled={true}
           />) : (<Text style={globalStyles.noText}>Create a budget to keep track categorical track of your expenses</Text>)}
+            </>
+          )}
           
         </ScrollView>
 

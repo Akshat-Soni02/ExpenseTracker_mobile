@@ -136,7 +136,7 @@ export default function CreateBillScreen() {
 
       <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
 
-      <View style={globalStyles.dateTimeContainer}>
+      <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Due Date"/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" useDefaultToday/>
       </View>

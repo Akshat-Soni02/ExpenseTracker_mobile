@@ -18,6 +18,7 @@ import { globalStyles } from '@/styles/globalStyles';
 import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery,useUpdateUserAccessTokenMutation,useGetTodaysSpendQuery } from '@/store/userApi';
 import { Detected } from '@/store/detectedTransactionApi';
 import { Group } from '@/store/groupApi';
+import SkeletonPlaceholder from '@/components/skeleton/SkeletonPlaceholder';
 // import useSMS from '@/app/misc/useSMS';
 
 export const requestPermissionAndroid = async () => {
@@ -106,9 +107,9 @@ export default function HomeScreen() {
   const {data:dataDetected, isLoading:isLoadingDetected, error: errorDetected} = useGetUserDetectedTransactionsQuery();
   const {data:dataGroup, isLoading:isLoadingGroup, error:errorGroup} = useGetUserGroupsQuery();
 
-  if (isLoadingDetected || isLoadingGroup || isLoadingUser || isLoading) {
-    return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  }
+  // if (isLoadingDetected || isLoadingGroup || isLoadingUser || isLoading) {
+  //   return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  // }
 
   if (errorUser) {
     let errorMessage = "An unknown error occurred";
@@ -149,45 +150,77 @@ export default function HomeScreen() {
     <PaperProvider>
       <View style={styles.page}>
         <View style={styles.container}>
+
+          {/* skeleton */}
+          {isLoadingUser ? (
+            <View style={styles.profileCard}>
+              <View style={styles.profileColumn1}>
+                <View style={styles.profileInfo}>
+                  <SkeletonPlaceholder style={styles.avatar} />
+                  <View style={{ marginLeft: 10 }}>
+                    <SkeletonPlaceholder style={{ width: 100, height: 16, borderRadius: 4, marginBottom: 6 }} />
+                    <SkeletonPlaceholder style={{ width: 150, height: 20, borderRadius: 4 }} />
+                  </View>
+                </View>
+                <View style={styles.totalSpend}>
+                  <SkeletonPlaceholder style={{ width: 100, height: 16, marginBottom: 6, borderRadius: 4 }} />
+                  <SkeletonPlaceholder style={{ width: 60, height: 20, borderRadius: 4 }} />
+                </View>
+              </View>
+
+              <View style={styles.profileColumn2}>
+                <View style={styles.financialSummary}>
+                  <View style={styles.textContainer}>
+                    <SkeletonPlaceholder style={{ width: 80, height: 16, marginBottom: 6, borderRadius: 4 }} />
+                    <SkeletonPlaceholder style={{ width: 70, height: 20, borderRadius: 4 }} />
+                  </View>
+                  <View>
+                    <SkeletonPlaceholder style={{ width: 80, height: 16, marginBottom: 6, borderRadius: 4 }} />
+                    <SkeletonPlaceholder style={{ width: 70, height: 20, borderRadius: 4 }} />
+                  </View>
+                </View>
+              </View>
+            </View>
+          ) : (
+              <View style={styles.profileCard}>
+
+              <View style={styles.profileColumn1}>
+                <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("/view/viewProfile")}>
+                  {dataUser?.data?.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.avatar} />) : ( <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
+                  <View>
+                    <Text style={styles.greeting}>Good afternoon</Text>
+                    <Text style={styles.name}>{dataUser?.data?.name}</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <View style={styles.totalSpend}>
+                  <View>
+                    <Text style={styles.label}>Today's spend</Text>
+                    <Text style={styles.spend}>₹0</Text>
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.profileColumn2}>
+
+                <View style={styles.financialSummary}>
+
+                  <View style={styles.textContainer}>
+                    <Text style={styles.label}>You owe</Text>
+                    {!isLoading && (<Text style={styles.debit}>₹{exchangeData?.data?.borrowedAmount?.toFixed(2)}</Text>)}
+                  </View>
+
+                  <View>
+                    <Text style={styles.label}>You lended</Text>
+                    {!isLoading && (<Text style={styles.credit}>₹{exchangeData?.data?.lendedAmount?.toFixed(2)}</Text>)}
+                  </View>
+
+                </View>
+              </View>
+
+            </View>
+          )}
           
-          {/* Profile Card */}
-          <View style={styles.profileCard}>
-
-            <View style={styles.profileColumn1}>
-              <TouchableOpacity style={styles.profileInfo} onPress={()=>router.push("/view/viewProfile")}>
-                {dataUser?.data?.profile_photo ? (<Image source={{ uri: dataUser.data.profile_photo.url }} style={styles.avatar} />) : ( <LinearGradient colors={["#FFFFFF", "#F3F4F6"]} style={styles.avatar} />)}
-                <View>
-                  <Text style={styles.greeting}>Good afternoon</Text>
-                  <Text style={styles.name}>{dataUser?.data?.name}</Text>
-                </View>
-              </TouchableOpacity>
-
-              <View style={styles.totalSpend}>
-                <View>
-                  <Text style={styles.label}>Today's spend</Text>
-                  <Text style={styles.spend}>₹0</Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.profileColumn2}>
-
-              <View style={styles.financialSummary}>
-
-                <View style={styles.textContainer}>
-                  <Text style={styles.label}>You owe</Text>
-                  {!isLoading && (<Text style={styles.debit}>₹{exchangeData?.data?.borrowedAmount?.toFixed(2)}</Text>)}
-                </View>
-
-                <View>
-                  <Text style={styles.label}>You lended</Text>
-                  {!isLoading && (<Text style={styles.credit}>₹{exchangeData?.data?.lendedAmount?.toFixed(2)}</Text>)}
-                </View>
-
-              </View>
-            </View>
-
-          </View>
 
 
           {/* Quick Actions */}
@@ -209,33 +242,51 @@ export default function HomeScreen() {
 
 
           {/* Transactions */}
-          <View style={styles.titleContainer}>
-            <Text style={styles.sectionTitle}>Transactions</Text>
-            <Button style={styles.viewButton} onPress={()=>router.push("/activity/detectedTransactions")}>
-              View all
-            </Button>
-          </View>
+          {isLoadingDetected ? (
+            <>
+              <View style={styles.titleContainer}>
+                <Text style={styles.sectionTitle}>Transactions</Text>
+                <SkeletonPlaceholder style={{ width: 60, height: 20, borderRadius: 4 }} />
+              </View>
 
-          {numberOfTransactions > 0 ? (
-            <FlatList
-            data={dataDetected?.data?.slice(0,3)}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-              <TransactionCard 
-              pressFunction = {() => openModal(item)}
-              title = {item.description}
-              imageType = {item.transaction_type}
-              amount={`₹${item.amount}`}
-              subtitle={moment(item.created_at_date_time).format("DD MMM YYYY, HH MM A")}
-              transactionType={item.transaction_type}
-              />
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{  height: 2, backgroundColor: 'white'}} />
-            )}
-            contentContainerStyle={{ paddingBottom: 0 }}
-          />) :
-          <Text style={styles.noTransactionsText}>No transactions for today</Text>}
+              {[...Array(3)].map((_, index) => (
+                <View key={index} style={{ marginBottom: 10 }}>
+                  <SkeletonPlaceholder style={{ height: 70, borderRadius: 10 }} />
+                </View>
+              ))}
+            </>
+          ) : (
+            <>
+              <View style={styles.titleContainer}>
+                <Text style={styles.sectionTitle}>Transactions</Text>
+                <Button style={styles.viewButton} onPress={() => router.push("/activity/detectedTransactions")}>
+                  View all
+                </Button>
+              </View>
+
+              {numberOfTransactions > 0 ? (
+                <FlatList
+                  data={dataDetected?.data?.slice(0, 3)}
+                  keyExtractor={(item) => item._id}
+                  renderItem={({ item }) => (
+                    <TransactionCard
+                      pressFunction={() => openModal(item)}
+                      title={item.description}
+                      imageType={item.transaction_type}
+                      amount={`₹${item.amount}`}
+                      subtitle={moment(item.created_at_date_time).format("DD MMM YYYY, hh:mm A")}
+                      transactionType={item.transaction_type}
+                    />
+                  )}
+                  ItemSeparatorComponent={() => <View style={{ height: 2, backgroundColor: 'white' }} />}
+                  contentContainerStyle={{ paddingBottom: 0 }}
+                />
+              ) : (
+                <Text style={styles.noTransactionsText}>No transactions for today</Text>
+              )}
+            </>
+          )}
+
           
 
           {/* Groups */}
@@ -269,17 +320,17 @@ export default function HomeScreen() {
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
 
             <View style={styles.modalHeader}>
-              <Text style={styles.modalText}>Choose an action</Text>
-              <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/>
+              <Text style={styles.modalText}>Convert Transaction</Text>
+              {/* <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/> */}
             </View>
 
             {selectedTransaction?.transaction_type.toString()==="debit" && <Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
-                <Text style={styles.buttonText}>Convert to split</Text>
+                <Text style={styles.buttonText}>Split</Text>
               </Pressable>
             } 
 
             <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
-              <Text style={styles.buttonText}>Convert to spend</Text>
+              <Text style={styles.buttonText}>Spend</Text>
             </Pressable>
 
           </Modal>
@@ -301,7 +352,7 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     // alignItems: "center",
     // paddingHorizontal: 16,
     paddingLeft: 16,
@@ -502,7 +553,7 @@ button: {
   width: "100%",
   padding: 14,
   marginVertical: 8,
-  backgroundColor: "#475569",
+  backgroundColor: "#f8f9fa",
   borderRadius: 10,
   alignItems: "center",
 },
@@ -510,8 +561,8 @@ cancelButton: {
   backgroundColor: "#a94442", // Red for cancel to indicate action
 },
 buttonText: {
-  color: "white",
+  color: "black",
   fontSize: 16,
-  fontWeight: "600",
+  fontWeight: "500",
 },
 });

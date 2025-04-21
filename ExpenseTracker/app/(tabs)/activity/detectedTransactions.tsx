@@ -6,7 +6,6 @@ import { FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { Modal,Portal } from 'react-native-paper';
 import * as React from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
 
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import {useGetUserDetectedTransactionsQuery} from '@/store/userApi';
@@ -52,14 +51,15 @@ export default function DetectedTransactionsScreen() {
   };
 
   return (
-    <PaperProvider>
     <View style={globalStyles.screen}>
       
         <ScrollView style={globalStyles.viewContainer}>
+          <View style = {[globalStyles.viewHeader,{marginBottom: 15}]}>
           <TouchableOpacity onPress={() => router.replace("/(tabs)")} style={globalStyles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      
           <Text style={globalStyles.headerText}>Transactions</Text>
+          </View>
           
           {numberOfDetectedTransactions>0 ? (
             <FlatList
@@ -85,35 +85,33 @@ export default function DetectedTransactionsScreen() {
         </ScrollView>
 
         <Portal>
-
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
+
             <View style={styles.modalHeader}>
-              <Text style={styles.modalText}>Choose an action</Text>
-              <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/>
+              <Text style={styles.modalText}>Convert Transaction</Text>
+              {/* <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/> */}
             </View>
 
-            {selectedTransaction?.transaction_type.toString()==="debit" &&
-              <Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
-                <Text style={styles.buttonText}>Convert to split</Text>
+            {selectedTransaction?.transaction_type.toString()==="debit" && <Pressable style={styles.button} onPress={() => handleSelection("to Split")}>
+                <Text style={styles.buttonText}>Split</Text>
               </Pressable>
-            }
+            } 
 
             <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
-              <Text style={styles.buttonText}>Convert to spend</Text>
+              <Text style={styles.buttonText}>Spend</Text>
             </Pressable>
-          </Modal>
 
+          </Modal>
         </Portal>
 
     </View>
-    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
     modalHeader: {
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "center",
       paddingLeft: 16,
       width: "100%",
     },
@@ -150,7 +148,7 @@ const styles = StyleSheet.create({
       width: "100%",
       padding: 14,
       marginVertical: 8,
-      backgroundColor: "#475569",
+      backgroundColor: "#f8f9fa",
       borderRadius: 10,
       alignItems: "center",
     },
@@ -158,7 +156,7 @@ const styles = StyleSheet.create({
       backgroundColor: "#b52b27",
     },
     buttonText: {
-      color: "white",
+      color: "black",
       fontSize: 16,
       fontWeight: "600",
     },

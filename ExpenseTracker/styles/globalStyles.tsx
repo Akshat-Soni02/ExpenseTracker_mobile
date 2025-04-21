@@ -130,6 +130,7 @@ export const globalStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
+    height: "auto",
   },
   walletPhotoContainer: {
     flexDirection: "row",

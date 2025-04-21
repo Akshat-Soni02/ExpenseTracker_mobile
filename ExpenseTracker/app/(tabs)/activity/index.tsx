@@ -13,6 +13,7 @@ import { globalStyles } from "@/styles/globalStyles";
 import { Expense } from "@/store/expenseApi";
 import { Settlement } from "@/store/settlementApi";
 import { Transaction } from "@/store/personalTransactionApi";
+import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 
 
 export default function ActivityScreen() {
@@ -23,9 +24,9 @@ export default function ActivityScreen() {
   const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery();
   const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery();
   
-  if (isLoadingExpense || isLoadingPersonalTransaction || isLoadingSettlement) {
-      return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  }
+  // if (isLoadingExpense || isLoadingPersonalTransaction || isLoadingSettlement) {
+  //     return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  // }
   
 
 if (errorExpense) {
@@ -93,7 +94,8 @@ else if (errorSettlement) {
     const grouped: Record<string, Settlement[]> = {};
   
     transactions.forEach((transaction) => {
-      const date = new Date().toISOString().split('T')[0];
+      let date = new Date().toISOString().split('T')[0];
+      if(transaction.createdAt) date = transaction.createdAt.toString().split('T')[0];
       if (!grouped[date]) {
         grouped[date] = [];
       }
@@ -124,38 +126,50 @@ else if (errorSettlement) {
             <View style={globalStyles.navbar}>
               <SegmentedControl value={page} setValue={setPage} isBill={false}/>
             </View>
-    
-            {numberOfExpenses>0 ? (
-              <View >
-                  {expenseDates.map(date => (
-                    <View key={date} style={{backgroundColor:"white"}}>
-                      <Text style={styles.sectionTitle}>
-                          {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
-                      </Text>
 
-                      <FlatList
-                        data={groupedExpenses[date]}
-                        keyExtractor={(item) => item._id}
-                        renderItem={({ item }) => (
-                          <TransactionCard 
-                            pressFunction = {() => router.push({ pathname: "/view/viewExpense", params: { id:item._id} })}
-                            title={item.description}
-                            imageType={undefined}
-                            amount={`₹${item.total_amount}`}
-                            subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
-                            transactionType={undefined}
-                          />
-                        )}
-                        ItemSeparatorComponent={() => (
-                          <View style={{ height: 5 , backgroundColor: 'white' }} />
-                        )}
-                        contentContainerStyle={{ paddingBottom: 5 }}
-                        nestedScrollEnabled={true}
-                      />
-
+            {isLoadingExpense ? (
+              <>
+                  {[...Array(6)].map((_, index) => (
+                    <View key={index} style={{ marginBottom: 20 }}>
+                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
                     </View>
                   ))}
-                </View>) : <Text style= {globalStyles.noText}>No splits</Text>}
+              </>
+            ) : (
+              <>
+              {numberOfExpenses>0 ? (
+                <View style={{paddingBottom: 20}}>
+                    {expenseDates.map(date => (
+                      <View key={date} style={{backgroundColor:"white"}}>
+                        <Text style={styles.sectionTitle}>
+                            {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
+                        </Text>
+  
+                        <FlatList
+                          data={groupedExpenses[date]}
+                          keyExtractor={(item) => item._id}
+                          renderItem={({ item }) => (
+                            <TransactionCard 
+                              pressFunction = {() => router.push({ pathname: "/view/viewExpense", params: { id:item._id} })}
+                              title={item.description}
+                              imageType={undefined}
+                              amount={`₹${item.total_amount}`}
+                              subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
+                              transactionType={undefined}
+                            />
+                          )}
+                          ItemSeparatorComponent={() => (
+                            <View style={{ height: 5 , backgroundColor: 'white' }} />
+                          )}
+                          contentContainerStyle={{ paddingBottom: 5 }}
+                          // nestedScrollEnabled={true}
+                        />
+  
+                      </View>
+                    ))}
+                  </View>) : <Text style= {globalStyles.noText}>No splits</Text>}
+                  </>
+                )}
 
             </ScrollView>
 
@@ -182,8 +196,18 @@ else if (errorSettlement) {
                 <SegmentedControl value={page} setValue={setPage} isBill={false}/>
               </View>
 
-              {numberOfPersonalTransactions>0 ? (
-                <View>
+              {isLoadingPersonalTransaction ? (
+                <>
+                  {[...Array(6)].map((_, index) => (
+                    <View key={index} style={{ marginBottom: 20 }}>
+                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+                    </View>
+                  ))}
+                </>
+              ) : (
+                <>
+                    {numberOfPersonalTransactions>0 ? (
+                <View style={{paddingBottom: 30}}>
                   {personalTransactionDates.map(date => (
                     <View key={date} style={{backgroundColor:"white"}}>
 
@@ -208,12 +232,14 @@ else if (errorSettlement) {
                           <View style={{ height: 5 , backgroundColor: 'white' }} />
                         )}
                         contentContainerStyle={{ paddingBottom: 0 }}
-                        nestedScrollEnabled={true}
+                        // nestedScrollEnabled={true}
                       />
 
                     </View>
                   ))}
                 </View>) : <Text style= {globalStyles.noText}>No spends found</Text>}
+                </>
+              )}
     
             </ScrollView>
 
@@ -239,9 +265,19 @@ else if (errorSettlement) {
             <View style={globalStyles.navbar}>
               <SegmentedControl value={page} setValue={setPage} isBill={false}/>
             </View>
-              
-            {numberOfSettlements>0? ( 
-              <View>
+
+            {isLoadingSettlement ? (
+              <>
+                {[...Array(6)].map((_, index) => (
+                  <View key={index} style={{ marginBottom: 20 }}>
+                    <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+                  </View>
+                ))}
+              </>
+            ) : (
+              <>
+                  {numberOfSettlements>0? ( 
+              <View style={{paddingBottom: 30}}>
 
                 {settlementDates.map(date => (
                   <View key={date} style={{backgroundColor:"white"}}>
@@ -267,13 +303,14 @@ else if (errorSettlement) {
                         <View style={{ height: 5 , backgroundColor: 'white' }} />
                       )}
                       contentContainerStyle={{ paddingBottom: 0 }}
-                      nestedScrollEnabled={true}
+                      // nestedScrollEnabled={true}
                     />
 
                   </View>
                 ))}
               </View>) : <Text style= {globalStyles.noText}>No settlements</Text>}
-
+              </>
+            )}
             </ScrollView>
 
           </View>);

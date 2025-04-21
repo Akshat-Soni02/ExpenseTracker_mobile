@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useRef } from "react";
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface TransactionCardProps {
@@ -8,135 +8,128 @@ interface TransactionCardProps {
   subtitle?: string | null | Date;
   amount?: string;
   optionText?: string;
-  imageType?:string;
-  transactionType?:string;
-  pressFunction?:any;
+  imageType?: string;
+  transactionType?: string;
+  pressFunction?: any;
   cardStyle?: object;
   amountStyle?: object;
 }
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ imageName, title, subtitle, amount, optionText,imageType,transactionType, pressFunction, cardStyle, amountStyle }) => {
-  const isDebit = (transactionType === "debit" || transactionType === "expense");
-  const isCredit = (transactionType === "credit" || transactionType === "income");
+const TransactionCard: React.FC<TransactionCardProps> = ({
+  imageName,
+  title,
+  subtitle,
+  amount,
+  optionText,
+  imageType,
+  transactionType,
+  pressFunction,
+  cardStyle,
+  amountStyle
+}) => {
+  const isDebit = transactionType === "debit" || transactionType === "expense";
+  const isCredit = transactionType === "credit" || transactionType === "income";
+
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      speed: 50,
+      bounciness: 10,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 5,
+    }).start(() => {
+      if (pressFunction) pressFunction();
+    });
+  };
 
   return (
-    <TouchableOpacity onPress={pressFunction}>
-    <View style={[styles.transactionItem, cardStyle]} >
+    <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.transactionItem, cardStyle, { transform: [{ scale: scaleAnim }] }]}>
+        {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
 
-      {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
+        {imageType && (
+          <MaterialCommunityIcons
+            name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
+            size={20}
+            color={isDebit ? "red" : "green"}
+          />
+        )}
 
-      {imageType&&<MaterialCommunityIcons
-        name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
-        size={20}
-        color={isDebit ? "red" : "green"}
-      />}
+        <View style={styles.transactionDetails}>
+          <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
+          {subtitle && (
+            <Text style={styles.transactionSubtitle} numberOfLines={1}>
+              {subtitle.toString()}
+            </Text>
+          )}
+        </View>
 
-      <View style={styles.transactionDetails}>
-        <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
-        {subtitle && (<Text style={styles.transactionSubtitle} numberOfLines={1}>{subtitle.toString()}</Text>)}
-      </View>
-
-      <View style={styles.amountDetails}>
-        {optionText&&<Text style={styles.topAmountText}>{optionText}</Text>}
-        <Text
-          style={[
-            styles.transactionAmount,
-            amountStyle,
-            { 
-              color: isCredit
-                ? "green" 
-                : isDebit
-                ? "red" 
-                : "black"
-            }
-          ]}
-        >
-          {amount}
-        </Text>
-      </View>
-      
-    </View>
-    </TouchableOpacity>
+        <View style={styles.amountDetails}>
+          {optionText && <Text style={styles.topAmountText}>{optionText}</Text>}
+          <Text
+            style={[
+              styles.transactionAmount,
+              amountStyle,
+              {
+                color: isCredit ? "green" : isDebit ? "red" : "black"
+              }
+            ]}
+          >
+            {amount}
+          </Text>
+        </View>
+      </Animated.View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
+  transactionItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2, 
+    padding: 15,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 10,
+    marginBottom: 2
   },
   profileImage: {
     height: 50,
     width: 50,
     borderRadius: 25
   },
-  textContainer: {
+  transactionDetails: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10
   },
-  title: {
+  transactionTitle: {
+    fontSize: 16
+  },
+  transactionSubtitle: {
+    color: "#888",
+    fontSize: 12
+  },
+  amountDetails: {
+    flex: 1,
+    alignItems: "flex-end"
+  },
+  transactionAmount: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
+    fontWeight: "bold"
   },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-  },
-  amountContainer: {
-    alignItems: "flex-end",
-  },
-  optionText: {
-    fontSize: 12,
-    color: "#999",
-  },
-  amount: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#355C7D",
-  },
-  transactionItem: { 
-    flexDirection: "row", 
-    alignItems: "center", 
-    padding: 15, 
-    backgroundColor: "#f8f9fa", 
-    borderRadius: 10, 
-    marginBottom: 2 
-  },
-  transactionDetails: { 
-    flex: 1,
-    marginLeft: 10 
-  },
-  amountDetails:{
-    flex:1,
-    alignItems:"flex-end"
-  },
-  transactionTitle: { 
-    fontSize: 16 
-  },
-  transactionSubtitle: { 
-    color: "#888", 
-    fontSize: 12 
-  },
-  transactionAmount: { 
-    fontSize: 16, 
-    fontWeight: "bold" 
-  },
-  topAmountText:{
-    color: "#888", 
-    fontSize: 12 
-  },
+  topAmountText: {
+    color: "#888",
+    fontSize: 12
+  }
 });
 
 export default TransactionCard;

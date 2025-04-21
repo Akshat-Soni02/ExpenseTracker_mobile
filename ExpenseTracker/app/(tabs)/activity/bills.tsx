@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import SegmentedControl from "@/components/readComponents/SegmentedControl";
 import { globalStyles } from "@/styles/globalStyles";
 import { Bill } from "@/store/billApi";
+import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 
 
 export default function BillsScreen() {
@@ -22,7 +23,7 @@ export default function BillsScreen() {
   const {data: dataMissedBills, isLoading: isLoadingMissedBills, error: errorMissedBills} = useGetUserBillsQuery({ status: "missed" });
   const {data: dataCompletedBills, isLoading: isLoadingCompletedBills, error: errorCompletedBills} = useGetUserBillsQuery({ status: "paid" });
 
-  if (isLoadingPendingBills || isLoadingMissedBills || isLoadingCompletedBills) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  // if (isLoadingPendingBills || isLoadingMissedBills || isLoadingCompletedBills) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     
   if (errorPendingBills) {
     let errorMessage = "An unknown error occurred";
@@ -80,8 +81,17 @@ export default function BillsScreen() {
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
 
-              {numberOfPendingBills>0 ? (
-
+              {isLoadingPendingBills ? (
+                <>
+                  {[...Array(6)].map((_, index) => (
+                    <View key={index} style={{ marginBottom: 20 }}>
+                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+                    </View>
+                  ))}
+                </>
+              ) : (
+                <>
+                  {numberOfPendingBills>0 ? (
                 <FlatList
                 data={pendingBills}
                 keyExtractor={(item) => item._id}
@@ -104,6 +114,8 @@ export default function BillsScreen() {
               />):
                 <Text style={globalStyles.noText}>No pending bills</Text>
               }
+                </>
+              )}
               
             </ScrollView>
 
@@ -120,13 +132,24 @@ export default function BillsScreen() {
             <View style={globalStyles.screen}>
                 <ScrollView style={globalStyles.viewContainer}>
                   
-                <View style = {globalStyles.viewHeader}>
-                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-                <Text style={globalStyles.headerText}>Bills</Text>
-              </View>
+                <View style = {[globalStyles.viewHeader,{marginBottom: 0}]}>
+                  <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
+                  <Text style={globalStyles.headerText}>Bills</Text>
+                </View>
               <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
+
+              {isLoadingCompletedBills ? (
+                <>
+                  {[...Array(6)].map((_, index) => (
+                    <View key={index} style={{ marginBottom: 20 }}>
+                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+                    </View>
+                  ))}
+                </>
+              ) : (
+                <>
                   {numberOfMissedBills>0?(<FlatList
                     data={missedBills}
                     keyExtractor={(item) => item._id}
@@ -149,6 +172,8 @@ export default function BillsScreen() {
                   />):
                     <Text style={globalStyles.noText}>No missed bills</Text>
                   }
+                </>
+              )}
                   
                 </ScrollView>
 
@@ -165,13 +190,24 @@ export default function BillsScreen() {
             <View style={globalStyles.screen}>
                 <ScrollView style={globalStyles.viewContainer}>
                   
-                <View style = {globalStyles.viewHeader}>
-                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-                <Text style={globalStyles.headerText}>Bills</Text>
-              </View>
+                <View style = {[globalStyles.viewHeader,{marginBottom: 0}]}>
+                  <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
+                  <Text style={globalStyles.headerText}>Bills</Text>
+                </View>
               <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
+
+              {isLoadingMissedBills ? (
+                <>
+                  {[...Array(6)].map((_, index) => (
+                    <View key={index} style={{ marginBottom: 20 }}>
+                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+                    </View>
+                  ))}
+                </>
+              ) : (
+                <>
                   {numberOfCompletedBills>0?(<FlatList
                     data={completedBills}
                     keyExtractor={(item) => item._id}
@@ -194,6 +230,8 @@ export default function BillsScreen() {
                   />):
                     <Text style={globalStyles.noText}>No completed bills</Text>
                   }
+                </>
+              )}
                   
                 </ScrollView>
 

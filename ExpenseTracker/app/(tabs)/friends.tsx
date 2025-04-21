@@ -7,6 +7,7 @@ import { FAB } from "react-native-paper";
 import {friend, useGetUserFriendsQuery} from '@/store/userApi';
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import { globalStyles } from "@/styles/globalStyles";
+import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 
 export default function PeopleScreen() {
 
@@ -14,7 +15,7 @@ export default function PeopleScreen() {
 
   const {data: dataPeople, isLoading: isLoadingPeople, error: errorPeople} = useGetUserFriendsQuery();
 
-  if (isLoadingPeople) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  // if (isLoadingPeople) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (errorPeople) {
     let errorMessage = "An unknown error occurred";
@@ -40,8 +41,17 @@ export default function PeopleScreen() {
           </View>
 
           <View style={styles.transactionsContainer}>
-
-            {numberOfPeople>0 ? (
+            {isLoadingPeople ? (
+              <>
+                {[...Array(6)].map((_, index) => (
+                  <View key={index} style={{ marginBottom: 20 }}>
+                    <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+                  </View>
+                ))}
+              </>
+            ) : (
+              <>
+                  {numberOfPeople>0 ? (
               <FlatList
               data={people}
               keyExtractor={(item) => item._id}
@@ -61,6 +71,9 @@ export default function PeopleScreen() {
               )}
               contentContainerStyle={{ paddingBottom: 5 }}
               />) : <Text style = {globalStyles.noText}>No Friends yet</Text>}
+              </>
+            )}
+            
           </View>
 
         </ScrollView>

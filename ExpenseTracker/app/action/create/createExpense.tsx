@@ -237,7 +237,7 @@ export default function AddExpenseScreen() {
 
       <CategorySelector control={control} />
 
-      <View style={globalStyles.dateTimeContainer}>
+      <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
         <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
