@@ -1,6 +1,6 @@
 import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
 import * as React from 'react';
-import { FAB } from 'react-native-paper';
+import { FAB ,PaperProvider , Portal} from 'react-native-paper';
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { Text, View } from "@/components/Themed";
@@ -14,6 +14,7 @@ import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 export default function BudgetsScreen() {
   const router = useRouter();
   const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGetUserBudgetsQuery();
+  const [state, setState] = React.useState({ open: false });
 
   // if (isLoadingBudget) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
@@ -28,10 +29,15 @@ export default function BudgetsScreen() {
     return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
   }
 
+
+  const { open } : { open : boolean} = state;
+  const onStateChange = ({ open } : { open : boolean}) => setState({ open });
+
   const budgets: Budget[] = dataBudget?.data || [];
   const numberOfBudgets: number = budgets.length;
 
   return (
+    <PaperProvider>
     <View style={globalStyles.screen}>
 
         <ScrollView style={globalStyles.viewContainer}>
@@ -77,11 +83,39 @@ export default function BudgetsScreen() {
           
         </ScrollView>
 
-        <FAB
+        {/* <FAB
         label="Add Budget"
         style={globalStyles.fab}
         onPress={() => router.push("/action/create/createBudget")}
-        />
+        /> */}
+        <Portal>
+          <FAB.Group
+            open={open}
+            visible
+            icon={open ? 'close' : 'plus'}
+            actions={[
+              {
+                icon: 'brain',
+                label: 'Predict Budget',
+                onPress:()=>router.push({ pathname: "/view/viewPredictedBudget" }),
+              },
+              {
+                icon: 'finance',
+                label: 'Add Budget',
+                onPress: () => router.push({ pathname: "/action/create/createBudget" }),
+              },
+            ]}
+            onStateChange={onStateChange}
+            onPress={() => {
+              if (open) {
+                // do something if the speed dial is open
+              }
+            }}
+          />
+        </Portal>
 
-    </View>);
+    </View>
+    
+    </PaperProvider>
+    );
 }

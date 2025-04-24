@@ -15,8 +15,10 @@ export const globalStyles = StyleSheet.create({
   viewContainer: {
     flex: 1,
     padding: 20,
+    // paddingBottom: 30,
     // backgroundColor: "#F9FAFB",
     backgroundColor: "#fff",
+    // marginBottom: 20
   },
   viewHeader: {
     flexDirection: "row",
@@ -124,6 +126,7 @@ export const globalStyles = StyleSheet.create({
   saveButton: {
     marginVertical: 15,
     alignSelf: "center",
+    marginBottom: 30
   },
   dateTimeContainer: {
     flexDirection: "row",
