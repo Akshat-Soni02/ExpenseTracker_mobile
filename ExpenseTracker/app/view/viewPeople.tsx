@@ -75,23 +75,23 @@ const ViewPeopleScreen = () => {
         </View>
 
         <View style={styles.buttonContainer}>
-
-          <TouchableOpacity 
-            style={styles.remindButton}
-            onPress={() => 
-              Alert.alert(
-                "Remind All", 
-                `This will send a remainder email to ${data.data.name}!`, 
-                [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Yes", onPress: () => handleRemind()}
-                ]
-              )
-            }
-          >
-            <Text style={styles.buttonText}>Remind</Text>
-          </TouchableOpacity>
-
+          {amountNumber > 0 && (
+            <TouchableOpacity 
+              style={styles.remindButton}
+              onPress={() => 
+                Alert.alert(
+                  "Remind All", 
+                  `This will send a remainder email to ${data.data.name}!`, 
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "Yes", onPress: () => handleRemind()}
+                  ]
+                )
+              }
+            >
+              <Text style={styles.buttonText}>Remind</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.settleButton} onPress = {() => router.push({ pathname: "/action/create/createSettlement", params: { fetched_amount:amountNumber,receiver_id : id,name: data.data.name } })}>
             <Text style={styles.buttonText}>Settle Up</Text>
           </TouchableOpacity>

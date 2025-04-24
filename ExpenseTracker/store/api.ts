@@ -6,8 +6,8 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
 
   // Create a base query instance
   const rawBaseQuery = fetchBaseQuery({
-    // baseUrl: 'https://expenseease-3rcx.onrender.com/api/v1',
-    baseUrl : "http://192.168.195.52:3001/api/v1",
+    baseUrl: 'https://expenseease-3rcx.onrender.com/api/v1',
+    // baseUrl : "http://192.168.194.20:3001/api/v1",
     credentials: 'include',
     prepareHeaders: (headers) => {
       if (token) {
@@ -19,10 +19,9 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
 
   let result = await rawBaseQuery(args, api, extraOptions);
 
-  // If token was missing, wait and retry once
   if (!token && result.error?.status === 401) {
     console.log("Token was missing, retrying...");
-    await new Promise((res) => setTimeout(res, 500)); // Small delay before retry
+    await new Promise((res) => setTimeout(res, 500));
     token = await AsyncStorage.getItem("AuthToken");
     result = await rawBaseQuery(args, api, extraOptions);
   }

@@ -86,13 +86,13 @@ export default function BudgetsScreen() {
             data={categories}
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={()=>loadModal(item)}>
+              <TouchableOpacity onPress={()=>loadModal(item)} activeOpacity={1}>
               <View style={styles.card}>
                 <Text style={styles.itemText}>{item}</Text>
               </View>
               </TouchableOpacity>
             )}
-            ItemSeparatorComponent={() => <View style={{  height: 20, backgroundColor: 'white'}} />}
+            ItemSeparatorComponent={() => <View style={{  height: 10, backgroundColor: 'white'}} />}
             contentContainerStyle={{ paddingBottom: 5 }}
             nestedScrollEnabled={true}
           />         
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
-    padding: 15,
+    padding: 20,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -143,7 +143,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 1,
+    marginBottom: 1
   },
   itemText: {
     fontSize: 20,

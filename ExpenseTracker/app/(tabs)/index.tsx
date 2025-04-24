@@ -1,10 +1,10 @@
 import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, StatusBar,Pressable,Alert} from 'react-native';
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { PaperProvider, Portal, Modal} from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthProvider';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -15,7 +15,7 @@ import messaging from '@react-native-firebase/messaging';
 
 import TransactionCard from '@/components/readComponents/TransactionCard';
 import { globalStyles } from '@/styles/globalStyles';
-import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery,useUpdateUserAccessTokenMutation,useGetTodaysSpendQuery } from '@/store/userApi';
+import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery,useUpdateUserAccessTokenMutation,useGetTodaySpendQuery } from '@/store/userApi';
 import { Detected } from '@/store/detectedTransactionApi';
 import { Group } from '@/store/groupApi';
 import SkeletonPlaceholder from '@/components/skeleton/SkeletonPlaceholder';
@@ -103,9 +103,15 @@ export default function HomeScreen() {
 
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error: errorExchange} = useGetUserCurrentExchangeStatusQuery();
-  // const {data:todaysSpend, isLoading: isLoadingSpend, error: errorSpend} = useGetTodaysSpendQuery();
+  const {data:todaySpend, isLoading: isLoadingSpend,refetch, error: errorSpend} = useGetTodaySpendQuery();
   const {data:dataDetected, isLoading:isLoadingDetected, error: errorDetected} = useGetUserDetectedTransactionsQuery();
   const {data:dataGroup, isLoading:isLoadingGroup, error:errorGroup} = useGetUserGroupsQuery();
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   // if (isLoadingDetected || isLoadingGroup || isLoadingUser || isLoading) {
   //   return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
@@ -152,7 +158,7 @@ export default function HomeScreen() {
         <View style={styles.container}>
 
           {/* skeleton */}
-          {isLoadingUser ? (
+          {isLoadingUser || isLoading || isLoadingSpend ? (
             <View style={styles.profileCard}>
               <View style={styles.profileColumn1}>
                 <View style={styles.profileInfo}>
@@ -196,7 +202,7 @@ export default function HomeScreen() {
                 <View style={styles.totalSpend}>
                   <View>
                     <Text style={styles.label}>Today's spend</Text>
-                    <Text style={styles.spend}>₹0</Text>
+                    <Text style={styles.spend}>₹{todaySpend?.data.todaySpend?.toString() || "0"}</Text>
                   </View>
                 </View>
               </View>
