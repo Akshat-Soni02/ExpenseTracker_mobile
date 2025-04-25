@@ -257,7 +257,7 @@ const GroupDetailsScreen = () => {
                     </Text>
 
                     <Text style={[styles.expenseAmount, { color: "black", fontWeight: "400" }]}>
-                      ₹{Math.abs(item?.total_amount || 0)}
+                      ₹{Math.abs(item?.total_amount?.toFixed(2) || 0)}
                     </Text>
 
                   </View>
@@ -283,7 +283,7 @@ const GroupDetailsScreen = () => {
                     </Text>
 
                     <Text style={styles.settlementAmount}>
-                      ₹{Math.abs(item?.amount || 0)}
+                      ₹{Math.abs(item?.amount?.toFixed(2) || 0)}
                     </Text>
                   </View>
 

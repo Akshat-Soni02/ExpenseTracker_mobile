@@ -234,8 +234,8 @@ export default function HomeScreen() {
             {[
               { icon: "call-split", label: "New Split", route: "/action/create/createExpense" },
               { icon: "plus", label: "New Spend", route: "/action/create/createTransaction" },
-              { icon: "file-check-outline", label: "Bills", route: "../activity/bills" },
-              { icon: "finance", label: "Budgets", route: "/activity/budgets" },
+              { icon: "file-check-outline", label: "Bills", route: "/quickAction/bills" },
+              { icon: "finance", label: "Budgets", route: "/quickAction/budgets" },
             ].map((item, index) => (
               <View key={index} style={styles.actionContainer}>
                 <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
@@ -265,7 +265,7 @@ export default function HomeScreen() {
             <>
               <View style={styles.titleContainer}>
                 <Text style={styles.sectionTitle}>Transactions</Text>
-                <Button style={styles.viewButton} onPress={() => router.push("/activity/detectedTransactions")}>
+                <Button style={styles.viewButton} onPress={() => router.push("/quickAction/detectedTransactions")}>
                   View all
                 </Button>
               </View>
@@ -298,7 +298,7 @@ export default function HomeScreen() {
           {/* Groups */}
           <View style={styles.titleContainer}>
             <Text style={[styles.sectionTitle,{paddingTop:20}]} >Groups</Text>
-            <Button style={styles.viewButton} onPress={()=>router.push("/activity/groups")}>
+            <Button style={styles.viewButton} onPress={()=>router.push("/quickAction/groups")}>
                 View all
             </Button>
           </View>

@@ -163,7 +163,7 @@ const SettlementDetailsScreen = () => {
       <View style={globalStyles.viewActivityDetailContainer}>
 
         <Text style={globalStyles.viewActivityTitle}>{settlement?.settlement_description}</Text>
-        <Text style={globalStyles.viewActivityAmount}>₹{settlement?.amount}</Text>
+        <Text style={globalStyles.viewActivityAmount}>₹{settlement?.amount?.toFixed(2)}</Text>
 
         {(settlement?.payer_wallet_id || settlement?.receiver_wallet_id) && (
             <Text style={globalStyles.viewActivityAccountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>

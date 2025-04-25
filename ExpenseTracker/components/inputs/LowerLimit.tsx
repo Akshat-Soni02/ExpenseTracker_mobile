@@ -21,10 +21,18 @@ const LowerLimit: React.FC<Props> = ({ control }) => {
             placeholderTextColor="#6B7280"
             value={value}
             onChangeText={(text) => {
-              const numericValue = text.replace(/[^0-9]/g, "");
-              onChange(numericValue);
+              // Remove any characters that are not digits or a dot
+              let cleanedText = text.replace(/[^0-9.]/g, "");
+            
+              // Ensure only one dot is allowed
+              const parts = cleanedText.split(".");
+              if (parts.length > 2) {
+                cleanedText = parts[0] + "." + parts[1];
+              }
+            
+              onChange(cleanedText);
             }}
-            keyboardType="numeric"
+            keyboardType="decimal-pad"
             returnKeyType="done"
             accessibilityLabel="Lower limit input"
             accessibilityHint="Enter the lower limit amount"
@@ -62,9 +70,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   input: {
-    fontSize: 18,
+    fontSize: 16,
     textAlign: "right",
-    width: "50%",
+    width: "30%",
     // flex: 1,
     fontFamily: "Poppins_400Regular",
     color: "#111827",

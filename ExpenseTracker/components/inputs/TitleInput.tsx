@@ -2,13 +2,15 @@ import React, { useEffect, useMemo } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Controller, Control } from "react-hook-form";
 import { FormErrors } from "./AmountDescriptionInput";
+import { globalStyles } from "@/styles/globalStyles";
 
 interface Props {
   control: Control<any>;
   onErrorsChange: any;
+  childErrors?: any;
 }
 
-const TitleInput: React.FC<Props> = ({ control, onErrorsChange }) => {
+const TitleInput: React.FC<Props> = ({ control, onErrorsChange, childErrors }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Title</Text>
@@ -20,14 +22,18 @@ const TitleInput: React.FC<Props> = ({ control, onErrorsChange }) => {
         render={({ field: { onChange, value }, fieldState: {error} }) => {
           const memoizedValue = useMemo(() => value, [value]);
           useEffect(() => {
-          if(error) {
-            onErrorsChange((prevErrors: FormErrors) => ({
-              ...prevErrors,
-              Title: error || undefined,
-            }));
-          }
-        }, [error]);
+            onErrorsChange((prevErrors: FormErrors) => {
+              const updatedErrors = { ...prevErrors };
+              if (error) {
+                updatedErrors.Title = error;
+              } else {
+                delete updatedErrors.Title;
+              }
+              return updatedErrors;
+            });
+          }, [error]);
           return (
+            <>
             <TextInput
               style={styles.titleInput}
               placeholder="Enter title"
@@ -37,6 +43,8 @@ const TitleInput: React.FC<Props> = ({ control, onErrorsChange }) => {
               accessibilityLabel="Title input"
               accessibilityHint="Enter a title"
             />
+            {childErrors?.Title && <Text style = {globalStyles.redTextError}>{childErrors.Title.message}</Text>}
+            </>
           );
         }}
       />
@@ -63,8 +71,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "bold",
     fontFamily: "Poppins_600SemiBold",
     color: "#000",
     marginBottom: 6,
