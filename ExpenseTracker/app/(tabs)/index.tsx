@@ -12,13 +12,13 @@ import moment from 'moment';
 import {PermissionsAndroid} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
-
 import TransactionCard from '@/components/readComponents/TransactionCard';
 import { globalStyles } from '@/styles/globalStyles';
 import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQuery,useGetUserGroupsQuery,useGetUserQuery,useUpdateUserAccessTokenMutation,useGetTodaySpendQuery } from '@/store/userApi';
 import { Detected } from '@/store/detectedTransactionApi';
 import { Group } from '@/store/groupApi';
 import SkeletonPlaceholder from '@/components/skeleton/SkeletonPlaceholder';
+import GoogleLoginButton from '../auth/trialGoogleLogin';
 // import useSMS from '@/app/misc/useSMS';
 
 export const requestPermissionAndroid = async () => {
@@ -32,8 +32,9 @@ export const requestPermissionAndroid = async () => {
 }
 
 export default function HomeScreen() {
-
   const router = useRouter();
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  console.log(apiUrl);
   // const { startReadCycle } = useSMS();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Detected | null>(null);
@@ -341,6 +342,9 @@ export default function HomeScreen() {
 
           </Modal>
         </Portal>
+
+        {/* below code is for testing purpose only */}
+        {/* <GoogleLoginButton/> */}
 
       </View>
     </PaperProvider>

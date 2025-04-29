@@ -32,7 +32,7 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
     <View style={styles.container}>
 
       {/* Amount Section */}
-      <Text style={styles.label}>Amount</Text>
+      <Text style={styles.label}>Amount<Text style={styles.asterisk}>*</Text></Text>
       <View style={[styles.amountWrapper, isAmountFrozen && styles.disabledInputWrapper]}>
         <Text style={styles.currency}>₹</Text>
         <Controller
@@ -105,7 +105,7 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
       <View style={styles.separator} />
 
       {/* Description Section */}
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label}>{label}<Text style={styles.asterisk}>*</Text></Text>
       <Controller
         control={control}
         name={label}
@@ -227,6 +227,11 @@ const styles = StyleSheet.create({
   disabledText: {
     color: "#A0AEC0", // Gray text when disabled
   },
+  asterisk: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#f85454',
+  }
 });
 
 

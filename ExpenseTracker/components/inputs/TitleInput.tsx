@@ -13,7 +13,7 @@ interface Props {
 const TitleInput: React.FC<Props> = ({ control, onErrorsChange, childErrors }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Title</Text>
+      <Text style={styles.label}>Title<Text style={styles.asterisk}>*</Text></Text>
       <Controller
         control={control}
         name="title"
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "700",
     fontFamily: "Poppins_600SemiBold",
     color: "#000",
     marginBottom: 6,
@@ -85,4 +85,9 @@ const styles = StyleSheet.create({
     width: "100%", // Ensures no unwanted wrapping
     paddingVertical: 6,
   },
+  asterisk: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#f85454',
+  }
 });
