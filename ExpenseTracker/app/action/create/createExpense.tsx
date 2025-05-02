@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert ,Image,} from "react-native";
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
+import { useProcessReceiptMutation } from '@/store/ocrApi';
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
@@ -50,6 +53,13 @@ type Data = {
   recurring?: boolean;// these fields are just dummy fields to remove typescript errors
 }
 
+type OcrResult = {
+  amount?: Number;
+  vendor?: string;
+  date?: string;
+  category?: string;
+};
+
 export default function AddExpenseScreen() {
 
   let {group_id, group_name,detectedId, detectedAmount ,detectedDescription, detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams() as LocalParams;
@@ -59,8 +69,16 @@ export default function AddExpenseScreen() {
 
   const [createExpense, {isLoading:isLoadingExpense}] = useCreateExpenseMutation();
   
-  //need to delete the detected transaction if we convert it to a spend but for now not deleting
   const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
+
+
+
+  const [createOCR, {isLoading}] = useProcessReceiptMutation();
+  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [ocrResults, setOcrResults] = useState<OcrResult | null>(null);
+  // const [errorMessage, setErrorMessage] = useState('');
+
 
   let detectedAmountNumber = Number(detectedAmount);
   let dateOnly: Date | undefined;
@@ -128,6 +146,69 @@ export default function AddExpenseScreen() {
   //     Alert.alert("Invalid data", messages);
   //   }
   // }, [childErrors]);
+
+
+  const pickImage = async (useCamera = false) => {
+    let permissionResult;
+    if (useCamera) {
+      permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    } else {
+      permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    }
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Denied', 'You need to allow permission to access camera or gallery.');
+      return;
+    }
+
+    const result = useCamera
+      ? await ImagePicker.launchCameraAsync({ quality: 1 })
+      : await ImagePicker.launchImageLibraryAsync({ quality: 1 });
+
+    if (!result.canceled && result.assets.length > 0) {
+      console.log("Image picked");
+      setImage(result.assets[0].uri);
+      setOcrResults(null);
+      setErrorMessage('');
+      processReceipt();
+    }
+  };
+
+  const processReceipt = async () => {
+    console.log("Processing receipt...",image);
+    if (!image) return;
+    
+    try {
+      setLoading(true);
+      const base64 = await FileSystem.readAsStringAsync(image, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const response = await createOCR({ image: base64 }).unwrap();
+
+      if (response.data && response.success) {
+        if(response.data.amount && response.data.amount!== 0) {
+          setValue("amount", response.data.amount);
+        }
+        if(response.data.vendor && response.data.vendor !== "") {
+          setValue("Description", response.data.vendor);
+        }
+        if(response.data.date && response.data.date !== "") {
+          setValue("date", new Date(response.data.date));
+          setValue("time", new Date(response.data.date));
+        }
+        if(response.data.category && response.data.category !== "") {
+          setValue("category", response.data.category);
+        }
+      }
+    } catch (error) {
+      console.log('Error processing receipt:', error);
+      // setErrorMessage('Error processing receipt. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
@@ -233,8 +314,23 @@ export default function AddExpenseScreen() {
       </View>
 
       {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
+
+      <View style={styles.card}>
+        <Text style={styles.title}>Scan Receipt</Text>
+        <View style={styles.buttonGroup}>
+          <TouchableOpacity style={styles.button} onPress={() => pickImage(true)}>
+            <Text style={styles.buttonText}>📷 Take Photo</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.button} onPress={() => pickImage(false)}>
+            <Text style={styles.buttonText}>🖼️ Select Image</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/>):(<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors}/>)}
 
+      
+      
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} group_id = {group_id} IncludePaidBy/>
       <NotesInput control={control} name="notes" />
 
@@ -254,3 +350,40 @@ export default function AddExpenseScreen() {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  title: { 
+    fontSize: 18, 
+    fontWeight: "bold",
+    textAlign: "center", 
+    marginBottom: 5 
+  },
+  button: { 
+    backgroundColor: "#355C7D", 
+    padding: 10, 
+    borderRadius: 8, 
+    alignItems: "center", 
+    marginTop: 2,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  card: {
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: "rgba(200, 230, 255, 0.4)",
+    borderRadius: 12,
+    padding: 16,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  }
+});
+
