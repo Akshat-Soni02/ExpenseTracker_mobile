@@ -70,7 +70,7 @@ const ProfileScreen = () => {
     try {
       await logoutUser().unwrap();
       await logout();
-      await handleGoogleSignOut();
+      // await handleGoogleSignOut();
       await AsyncStorage.clear();
       dispatch(api.util.resetApiState());
       router.replace("/auth/welcome");

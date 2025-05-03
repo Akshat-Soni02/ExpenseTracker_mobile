@@ -6,6 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import CustomButton from "../../components/button/CustomButton";
+import TempGoogleLoginButton from "@/components/button/TempGoogleButton";
 import GoogleButton from "@/components/button/GoogleButton";
 import { useRegisterUserMutation, useAutoaddFriendsMutation } from "@/store/userApi";
 import { useAuth } from "@/context/AuthProvider";
@@ -208,7 +209,8 @@ export default function SignUpScreen() {
 
       {/* Social Login Buttons */}
       <View style={styles.googleButton}>
-        <GoogleButton />
+        {/* <GoogleButton /> */}
+        <TempGoogleLoginButton/>
       </View>
 
       {/* Already have an account? Log in */}

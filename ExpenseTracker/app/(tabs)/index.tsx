@@ -7,7 +7,6 @@ import { Button } from 'react-native-paper';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthProvider';
 import { LinearGradient } from 'expo-linear-gradient';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import moment from 'moment';
 import {PermissionsAndroid} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
@@ -18,7 +17,6 @@ import { useGetUserCurrentExchangeStatusQuery, useGetUserDetectedTransactionsQue
 import { Detected } from '@/store/detectedTransactionApi';
 import { Group } from '@/store/groupApi';
 import SkeletonPlaceholder from '@/components/skeleton/SkeletonPlaceholder';
-import GoogleLoginButton from '../auth/trialGoogleLogin';
 // import useSMS from '@/app/misc/useSMS';
 
 export const requestPermissionAndroid = async () => {
@@ -33,8 +31,6 @@ export const requestPermissionAndroid = async () => {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-  console.log(apiUrl);
   // const { startReadCycle } = useSMS();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Detected | null>(null);
@@ -82,7 +78,7 @@ export default function HomeScreen() {
   const getToken = async () => {
     const token = await messaging().getToken();
     updateUserAccessToken({token:token});
-    console.log("Token:",token);
+    console.log("FCM Access Token:",token);
   }
   // useEffect(() => { ////Only if permission granted
   //   getToken();
@@ -233,7 +229,7 @@ export default function HomeScreen() {
           {/* Quick Actions */}
           <View style={styles.actions}>
             {[
-              { icon: "call-split", label: "New Split", route: "/action/create/createExpense" },
+              { icon: "call-split", label: "Split money", route: "/action/create/createExpense" },
               { icon: "plus", label: "New Spend", route: "/action/create/createTransaction" },
               { icon: "file-check-outline", label: "Bills", route: "/quickAction/bills" },
               { icon: "finance", label: "Budgets", route: "/quickAction/budgets" },
@@ -252,7 +248,7 @@ export default function HomeScreen() {
           {isLoadingDetected ? (
             <>
               <View style={styles.titleContainer}>
-                <Text style={styles.sectionTitle}>Transactions</Text>
+                <Text style={styles.sectionTitle}>Auto Transactions</Text>
                 <SkeletonPlaceholder style={{ width: 60, height: 20, borderRadius: 4 }} />
               </View>
 
@@ -265,7 +261,7 @@ export default function HomeScreen() {
           ) : (
             <>
               <View style={styles.titleContainer}>
-                <Text style={styles.sectionTitle}>Transactions</Text>
+                <Text style={styles.sectionTitle}>Auto Transactions</Text>
                 <Button style={styles.viewButton} onPress={() => router.push("/quickAction/detectedTransactions")}>
                   View all
                 </Button>
@@ -289,7 +285,7 @@ export default function HomeScreen() {
                   contentContainerStyle={{ paddingBottom: 0 }}
                 />
               ) : (
-                <Text style={styles.noTransactionsText}>No transactions for today</Text>
+                <Text style={styles.noTransactionsText}>No auto transactions for today</Text>
               )}
             </>
           )}
@@ -342,9 +338,6 @@ export default function HomeScreen() {
 
           </Modal>
         </Portal>
-
-        {/* below code is for testing purpose only */}
-        {/* <GoogleLoginButton/> */}
 
       </View>
     </PaperProvider>
@@ -401,10 +394,11 @@ const styles = StyleSheet.create({
     width: 50, 
     height: 50, 
     borderRadius: 25, 
-    marginRight: 10, 
+    marginRight: 10,
+    borderColor: "#FFFFFF40"
   },
   greeting: { 
-    color: "#fff", 
+    color: "#E0E0E0", 
     fontSize: 12,
   },
   name: { 
@@ -419,11 +413,11 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   label: { 
-    color: "#ccc",
+    color: "#D0D0D0",
     fontSize: 14
   },
   debit: { 
-    color: "red", 
+    color: "#FF6B6B", 
     fontSize: 16, 
     fontWeight: "bold" 
   },

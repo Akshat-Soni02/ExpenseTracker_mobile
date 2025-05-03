@@ -1,4 +1,4 @@
-import { StyleSheet, Image, StatusBar } from "react-native";
+import { StyleSheet, Image, StatusBar, Button, TouchableOpacity } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 import { useAuth } from "@/context/AuthProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -22,6 +23,11 @@ export default function WelcomeScreen() {
     StatusBar.setBarStyle('dark-content');
     StatusBar.setBackgroundColor('#ffffff');
   }, []);
+
+  const tempFun = async () => {
+    console.log(AsyncStorage.getItem("AuthToken"));
+    await AsyncStorage.clear();
+  }
 
   return (
     <View style={styles.container}>
@@ -43,6 +49,7 @@ export default function WelcomeScreen() {
       >
         Create Account
       </CustomButton>
+
     </View>
   );
 }
