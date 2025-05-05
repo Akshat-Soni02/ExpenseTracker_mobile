@@ -113,6 +113,7 @@ function RootLayoutNav() {
         <Stack.Screen name="view/viewWallet" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewBill" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="view/analyticsDashboard" options={{headerShown:false}}/>
         <Stack.Screen name="action/edit/editSettlement" options={{headerShown:false}}/>
         <Stack.Screen name="action/edit/editExpense" options={{headerShown:false}}/>
         <Stack.Screen name="action/edit/editBill" options={{headerShown:false}}/>

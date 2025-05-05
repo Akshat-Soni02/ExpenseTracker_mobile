@@ -90,6 +90,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="analyticsDashboard"
+        options={{
+          title: "Analytics",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="google-analytics" color={color} focused={focused} route="/(tabs)/analyticsDashboard" />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

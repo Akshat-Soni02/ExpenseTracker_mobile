@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert ,Image,} from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert ,} from "react-native";
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -175,6 +175,7 @@ export default function AddExpenseScreen() {
   };
 
   const processReceipt = async () => {
+    
     console.log("Processing receipt...",image);
     if (!image) return;
     
@@ -185,8 +186,8 @@ export default function AddExpenseScreen() {
       });
 
       const response = await createOCR({ image: base64 }).unwrap();
-
-      if (response.data && response.success) {
+      console.log("OCR response:", response.data);
+      if (response.data) {
         if(response.data.amount && response.data.amount!== 0) {
           setValue("amount", response.data.amount);
         }
@@ -203,7 +204,8 @@ export default function AddExpenseScreen() {
       }
     } catch (error) {
       console.log('Error processing receipt:', error);
-      // setErrorMessage('Error processing receipt. Please try again.');
+      const err = error as { data?: { message?: string } };
+      setErrorMessage(err?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -290,6 +292,9 @@ export default function AddExpenseScreen() {
       }
       formData.append("created_at_date_time", String(created_at_date_time));
       const response = await createExpense(formData).unwrap();
+      if(detectedId){
+        await deleteTransaction(detectedId).unwrap();
+      }
       reset();
       router.replace({ pathname: "/view/viewExpense", params: { id:response?.data?._id} });
     } catch (error) {
