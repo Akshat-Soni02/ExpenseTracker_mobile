@@ -58,7 +58,7 @@ export default function DetectedTransactionsScreen() {
           <TouchableOpacity onPress={() => router.replace("/(tabs)")} style={globalStyles.backButton}>
             <FontAwesome name="arrow-left" size={20} color="black" />
           </TouchableOpacity>      
-          <Text style={globalStyles.headerText}>Transactions</Text>
+          <Text style={globalStyles.headerText}>Auto Transactions</Text>
           </View>
           
           {numberOfDetectedTransactions>0 ? (
@@ -80,7 +80,7 @@ export default function DetectedTransactionsScreen() {
               <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
             contentContainerStyle={{ paddingBottom: 5 }}
-            />) : <Text style= {globalStyles.noText}>No transactions</Text>}
+            />) : <Text style= {globalStyles.noText}>No auto transactions</Text>}
           
         </ScrollView>
 
@@ -88,7 +88,7 @@ export default function DetectedTransactionsScreen() {
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
 
             <View style={styles.modalHeader}>
-              <Text style={styles.modalText}>Convert Transaction</Text>
+              <Text style={styles.modalText}>Convert Auto Transaction</Text>
               {/* <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/> */}
             </View>
 
@@ -98,7 +98,7 @@ export default function DetectedTransactionsScreen() {
             } 
 
             <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
-              <Text style={styles.buttonText}>Spend</Text>
+              <Text style={styles.buttonText}>Transaction</Text>
             </Pressable>
 
           </Modal>

@@ -31,6 +31,7 @@ type Data = {
 export default function AddBudgetScreen() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   const [createBudget, {isLoading, error: errorBudget}] = useCreateBudgetMutation();
   const { control, handleSubmit, watch, setValue, reset } = useForm({
@@ -44,16 +45,22 @@ export default function AddBudgetScreen() {
   
   const router = useRouter();
 
-  useEffect(() => {
-    if (Object.keys(childErrors).length !== 0) {
-      const messages = [
-        childErrors.amount?.message,
-        childErrors.Description?.message
-      ].filter(Boolean).join("\n");
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     const messages = [
+  //       childErrors.amount?.message,
+  //       childErrors.Description?.message
+  //     ].filter(Boolean).join("\n");
   
-      Alert.alert("Invalid data", messages);
-    }
-  }, [childErrors]);
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
+
+    useEffect(() => {
+      if (Object.keys(childErrors).length !== 0) {
+        setValidInput(false);
+      } else setValidInput(true);
+    }, [childErrors]);
   
   useEffect(() => {
     if (errorMessage) {
@@ -95,12 +102,12 @@ export default function AddBudgetScreen() {
         <Text style={globalStyles.headerText}>New Budget</Text>
       </View>
 
-      <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
+      <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors={childErrors}/>
 
       <CategorySelector control={control} />
       <PeriodSelector control={control}/>
       
-      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
     </ScrollView>
   );
 }

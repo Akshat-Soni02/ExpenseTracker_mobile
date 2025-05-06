@@ -55,6 +55,7 @@ export default function AddExpenseScreen() {
   let {group_id, group_name,detectedId, detectedAmount ,detectedDescription, detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams() as LocalParams;
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   const [createExpense, {isLoading:isLoadingExpense}] = useCreateExpenseMutation();
   
@@ -114,17 +115,24 @@ export default function AddExpenseScreen() {
   const amount = watch("amount");
   const splitWith: { user_id: string, amount: number }[] = watch("splitWith");
   const TOLERANCE = 0.1;
+  let invalidSubmit = !splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE || !validInput || splitWith.length === 1;
+
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     console.log("errors",errors)
+  //     const messages = [
+  //       childErrors.amount?.message,
+  //       childErrors.Description?.message
+  //     ].filter(Boolean).join("\n");
+  
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
 
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
-      console.log("errors",errors)
-      const messages = [
-        childErrors.amount?.message,
-        childErrors.Description?.message
-      ].filter(Boolean).join("\n");
-  
-      Alert.alert("Invalid data", messages);
-    }
+      setValidInput(false);
+    } else setValidInput(true);
   }, [childErrors]);
 
   useEffect(() => {
@@ -225,7 +233,7 @@ export default function AddExpenseScreen() {
       </View>
 
       {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
-      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>):(<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>)}
+      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/>):(<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors}/>)}
 
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} group_id = {group_id} IncludePaidBy/>
       <NotesInput control={control} name="notes" />
@@ -242,7 +250,7 @@ export default function AddExpenseScreen() {
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
       
-      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled = {!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE}>{(!splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE) ? ("Split amount must match total") : ("Save")}</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled = {invalidSubmit}>Save</CustomButton>
     </ScrollView>
   );
 }

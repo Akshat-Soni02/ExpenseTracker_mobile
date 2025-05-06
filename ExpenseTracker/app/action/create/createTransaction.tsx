@@ -58,6 +58,7 @@ export default function AddTransactionScreen() {
   const [transactionType, setTransactionType] = useState<"expense" | "income">("expense");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   let detectedAmountNumber = Number(detectedAmount);
   let dateOnly: Date | undefined;
@@ -101,16 +102,22 @@ export default function AddTransactionScreen() {
   });
 
 
-  useEffect(() => {
-    if (Object.keys(childErrors).length !== 0) {
-      const messages = [
-        childErrors.amount?.message,
-        childErrors.Description?.message
-      ].filter(Boolean).join("\n");
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     const messages = [
+  //       childErrors.amount?.message,
+  //       childErrors.Description?.message
+  //     ].filter(Boolean).join("\n");
   
-      Alert.alert("Invalid data", messages);
-    }
-  }, [childErrors]);
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
+
+    useEffect(() => {
+      if (Object.keys(childErrors).length !== 0) {
+        setValidInput(false);
+      } else setValidInput(true);
+    }, [childErrors]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -201,7 +208,7 @@ export default function AddTransactionScreen() {
         <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Add Spend</Text>
+        <Text style={globalStyles.headerText}>New Transaction</Text>
       </View>
 
       {/* Transaction Type Selector */}
@@ -232,7 +239,7 @@ export default function AddTransactionScreen() {
         ))}
       </View>
 
-      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>):<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>}
+      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/>):<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors}/>}
       <NotesInput control={control} name="notes" />
       
       <View style={globalStyles.walletPhotoContainer}>
@@ -247,7 +254,7 @@ export default function AddTransactionScreen() {
       </View>
 
        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
     </ScrollView>
   );
 }

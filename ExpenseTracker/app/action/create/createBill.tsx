@@ -43,6 +43,7 @@ type Data = {
 export default function CreateBillScreen() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   const [createBill, {isLoading, error: errorBill}] = useCreateBillMutation();
 
@@ -61,16 +62,22 @@ export default function CreateBillScreen() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (Object.keys(childErrors).length !== 0) {
-      const messages = [
-        childErrors?.amount?.message,
-        childErrors?.Title?.message
-      ].filter(Boolean).join("\n");
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     const messages = [
+  //       childErrors?.amount?.message,
+  //       childErrors?.Title?.message
+  //     ].filter(Boolean).join("\n");
   
-      Alert.alert("Invalid data", messages);
-    }
-  }, [childErrors]);
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
+
+    useEffect(() => {
+      if (Object.keys(childErrors).length !== 0) {
+        setValidInput(false);
+      } else setValidInput(true);
+    }, [childErrors]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -132,7 +139,7 @@ export default function CreateBillScreen() {
         <Text style={globalStyles.headerText}>New Bill</Text>
       </View>
 
-      <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors}/>
+      <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors} childErrors={childErrors}/>
 
       <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
 
@@ -144,7 +151,7 @@ export default function CreateBillScreen() {
       <CategorySelector control={control}/>
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
-      <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
     </ScrollView>
   );
 }
