@@ -1,4 +1,4 @@
-import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { StyleSheet,ScrollView ,FlatList } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,15 +18,11 @@ import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 
 export default function ActivityScreen() {
   const router = useRouter();
-  const [page, setPage] = React.useState<"splits" | "spends" | "setttlements">("splits");
+  const [page, setPage] = React.useState<"splits" | "transactions" | "setttlements">("splits");
 
   const {data: dataExpense, isLoading: isLoadingExpense, error: errorExpense} = useGetUserExpensesQuery();
   const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery();
   const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery();
-  
-  // if (isLoadingExpense || isLoadingPersonalTransaction || isLoadingSettlement) {
-  //     return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-  // }
   
 
 if (errorExpense) {
@@ -72,6 +68,7 @@ else if (errorSettlement) {
   const personalTransactions: Transaction[] = dataPersonalTransaction?.data || [];
   const numberOfPersonalTransactions: number = personalTransactions.length;
 
+  // grouping Transactions (splits, transactions) by date and storing in reverse order
   const groupTransactionsByDate = <T extends { created_at_date_time: Date }>(transactions: T[]) => {
     const grouped: Record<string, T[]> = {};
   
@@ -90,6 +87,7 @@ else if (errorSettlement) {
     return grouped;
   };
   
+  // categorizing all settlements under present date if createdAt is not found
   const tempGroupTransactionsByDate = (transactions: Settlement[]) => {
     const grouped: Record<string, Settlement[]> = {};
   
@@ -162,7 +160,6 @@ else if (errorSettlement) {
                             <View style={{ height: 5 , backgroundColor: 'white' }} />
                           )}
                           contentContainerStyle={{ paddingBottom: 5 }}
-                          // nestedScrollEnabled={true}
                         />
   
                       </View>
@@ -174,14 +171,14 @@ else if (errorSettlement) {
             </ScrollView>
 
             <FAB
-            label="Add split"
+            label="Split money"
             style={globalStyles.fab}
             onPress={() => router.push("/action/create/createExpense")}
             />
 
         </View>);
 
-    } else if (page === "spends") {
+    } else if (page === "transactions") {
       return (
         <View style={globalStyles.screen}>
           <ScrollView style={globalStyles.viewContainer}>
@@ -232,19 +229,18 @@ else if (errorSettlement) {
                           <View style={{ height: 5 , backgroundColor: 'white' }} />
                         )}
                         contentContainerStyle={{ paddingBottom: 0 }}
-                        // nestedScrollEnabled={true}
                       />
 
                     </View>
                   ))}
-                </View>) : <Text style= {globalStyles.noText}>No spends found</Text>}
+                </View>) : <Text style= {globalStyles.noText}>No transactions</Text>}
                 </>
               )}
     
             </ScrollView>
 
             <FAB
-            label="Add Spend"
+            label="Add Transaction"
             style={globalStyles.fab}
             onPress={() => router.push("/action/create/createTransaction")}
             />
@@ -303,7 +299,6 @@ else if (errorSettlement) {
                         <View style={{ height: 5 , backgroundColor: 'white' }} />
                       )}
                       contentContainerStyle={{ paddingBottom: 0 }}
-                      // nestedScrollEnabled={true}
                     />
 
                   </View>

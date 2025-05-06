@@ -38,12 +38,13 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: "rgba(200, 230, 255, 0.4)",
     borderColor: "rgba(255, 255, 255, 0.2)",
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
     width: "100%",
     // height: "100%"
   },
   switch: {
-    transform: [{ scaleX: 1.1 }, { scaleY: 1.1 }],
+    transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],
   },
   label: {
     fontSize: 16,

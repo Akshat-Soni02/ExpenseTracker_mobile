@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Modal, TextInput } from "react-native";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import moment from "moment";
@@ -7,8 +7,10 @@ import { FAB, Portal, PaperProvider, Menu, Divider } from 'react-native-paper';
 
 import { useGetGroupQuery, useGetGroupHistoryQuery, useAddPeopleInGroupMutation } from "@/store/groupApi";
 import { useRemindAllGroupBorrowersMutation ,useLazyLeaveGroupQuery,  useSimplifyDebtsMutation} from "@/store/groupApi";
-import { useLazyGetUserFriendsQuery } from "@/store/userApi";
+import { useGetUserFriendsQuery, useLazyGetUserFriendsQuery } from "@/store/userApi";
 import { globalStyles } from "@/styles/globalStyles";
+import { FlashList } from "@shopify/flash-list";
+import CustomButton from "@/components/button/CustomButton";
 
 const GroupDetailsScreen = () => {
 
@@ -17,6 +19,7 @@ const GroupDetailsScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [state, setState] = React.useState({ open: false });
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const { data, isLoading, error, refetch } = useGetGroupQuery(id);
   const { data: history, isLoading: loading, error: historyError } = useGetGroupHistoryQuery(id);
@@ -25,6 +28,11 @@ const GroupDetailsScreen = () => {
   const [remindAll, {isLoading: loadingBorrowReq}] = useRemindAllGroupBorrowersMutation();
   const [addPeople, {isLoading: loadingAddPeople}] = useAddPeopleInGroupMutation();
   const [simplifyDebts, {isLoading: loadingSimplify}] = useSimplifyDebtsMutation();
+  const { data: friends, isLoading: loadingFriends, error: errorFriend } = useGetUserFriendsQuery();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [fromMembers, setFromMembers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [updateUI, setUpdateUI] = useState<boolean>(false);
 
 
   const group = data?.data;
@@ -42,9 +50,37 @@ const GroupDetailsScreen = () => {
     }
   }, [errorMessage]);
 
+  useEffect(() => {
+    if (friends) {
+      if (friends.data.length > 0) {
+        let toAdd = [];
+        friends.data.forEach((friend) => {
+          if(group?.members.find((member) => member.member_id === friend._id)) return;
+          else toAdd.push(friend);
+        })
+        setFromMembers(toAdd);
+      }
+    }
+  }, [group, friends]);
+
+  const filteredUsers = React.useMemo(() => {
+    return fromMembers?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
+  }, [fromMembers, searchQuery]);
+
 
   const { open } : { open : boolean} = state;
   const onStateChange = ({ open } : { open : boolean}) => setState({ open });
+
+  const toggleUserSelection = (user) => {
+    let newSelectedUsers;
+    if (selectedUsers.some((u) => u._id === user._id)) {
+      newSelectedUsers = selectedUsers.filter((u) => u._id !== user._id);
+    } else {
+      newSelectedUsers = [...selectedUsers, { ...user }];
+    }
+    setSelectedUsers(newSelectedUsers);
+    setUpdateUI((prev) => !prev);
+  };
 
   const handleRemindAll = async () => {
     try {
@@ -88,22 +124,34 @@ const GroupDetailsScreen = () => {
    };
 
   const handleAddPeople = async () => {
-    Alert.alert(
-      "Add people", 
-      "Feature on hold!", 
-      [
-        { text: "Ok", style: "cancel" },
-        // { text: "Yes", onPress: () => handleRemindAll()}
-      ]
-    )
-    // try {
-    //   await addPeople({ id, body: newPeople }).unwrap();
-    //   console.log("Successfully added to the group");
-    //   router.back();
-    // } catch (err) {
-    //   console.error("Error adding to group:", err);
-    // }
+    // setModalVisible(true);
+    // Alert.alert(
+    //   "Add people", 
+    //   "Feature on hold!", 
+    //   [
+    //     { text: "Ok", style: "cancel" },
+    //     // { text: "Yes", onPress: () => handleRemindAll()}
+    //   ]
+    // )
+    if(selectedUsers.length === 0) {
+      setModalVisible(false);
+      return;
+    }
+    try {
+      const newMemberIds = selectedUsers.map((user) => user._id);
+      await addPeople({ id, body: {newMemberIds} }).unwrap();
+      console.log("Successfully added to the group");
+      setModalVisible(false);
+      setSelectedUsers([]);
+    } catch (err) {
+      console.error("Error adding to group:", err);
+    }
   };
+
+  const printSelected = () => {
+    console.log(selectedUsers);
+    setModalVisible(false);
+  }
 
 
   const onSimplifyDebts = async () => {
@@ -136,8 +184,6 @@ const GroupDetailsScreen = () => {
   }
   
   if (!data?.data) return <Text>No group found</Text>;
-  // if (historyError) return <Text>Error fetching history</Text>;
-
   return (
     <PaperProvider>
 
@@ -257,7 +303,7 @@ const GroupDetailsScreen = () => {
                     </Text>
 
                     <Text style={[styles.expenseAmount, { color: "black", fontWeight: "400" }]}>
-                      ₹{Math.abs(item?.total_amount || 0)}
+                      ₹{Math.abs(item?.total_amount?.toFixed(2) || 0)}
                     </Text>
 
                   </View>
@@ -283,7 +329,7 @@ const GroupDetailsScreen = () => {
                     </Text>
 
                     <Text style={styles.settlementAmount}>
-                      ₹{Math.abs(item?.amount || 0)}
+                      ₹{Math.abs(item?.amount?.toFixed(2) || 0)}
                     </Text>
                   </View>
 
@@ -317,7 +363,7 @@ const GroupDetailsScreen = () => {
             {
               icon: 'account-plus',
               label: 'Add People',
-              onPress:handleAddPeople,
+              onPress:() => setModalVisible(true),
             },
             {
               icon: 'graphql',
@@ -341,6 +387,36 @@ const GroupDetailsScreen = () => {
         />
       </Portal>
     </View>
+
+    <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <TextInput
+            placeholder="Search..."
+            style={styles.searchInput}
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+          />
+          <FlashList
+            // style = {styles.flashList}
+            data={filteredUsers}
+            keyExtractor={(item) => item._id}
+            estimatedItemSize={50}
+            extraData={updateUI}
+            renderItem={({ item }) => {
+              const isSelected = selectedUsers.some((u) => u._id === item._id);
+              return (
+                <TouchableOpacity onPress={() => toggleUserSelection(item)} style={[styles.modalItem, isSelected && styles.selectedItem]}>
+                  <Text style={styles.modalItemText}>{item.name}</Text>
+                </TouchableOpacity>
+              );
+            }}
+            ItemSeparatorComponent={() => (
+              <View style={{  height: 2, backgroundColor: 'white'}} />
+            )}
+          />
+          <CustomButton onPress={() => handleAddPeople()} style={{alignSelf: "center"}}>Done</CustomButton>
+        </View>
+      </Modal>
   </PaperProvider>
 
   );
@@ -355,7 +431,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
   },
-
+  modalContainer: { flex: 1, backgroundColor: "#fff", padding: 20,},
+  searchInput: { padding: 10, borderBottomWidth: 1, borderBottomColor: "#ccc", marginBottom: 10 },
+  modalItem: { paddingVertical: 15, flexDirection: "row", width: "100%", paddingHorizontal: 10 },
+  selectedItem: { backgroundColor: "rgba(111, 187, 250, 0.24)" },
+  modalItemText: { fontSize: 16 },
+    paidByContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 15,
+    alignSelf: "center",
+  },
   menuButton: {
     padding: 10,
   },

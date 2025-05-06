@@ -33,6 +33,7 @@ export default function CreateGroupScreen() {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   const { control, handleSubmit, setValue, reset, formState: {errors} } = useForm({
     defaultValues: {
@@ -45,16 +46,22 @@ export default function CreateGroupScreen() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (Object.keys(childErrors).length !== 0) {
-      console.log("errors",errors)
-      const messages = [
-        childErrors.Title?.message
-      ].filter(Boolean).join("\n");
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     console.log("errors",errors)
+  //     const messages = [
+  //       childErrors.Title?.message
+  //     ].filter(Boolean).join("\n");
   
-      Alert.alert("Invalid data", messages);
-    }
-  }, [childErrors]);
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
+
+  useEffect(() => {
+        if (Object.keys(childErrors).length !== 0) {
+          setValidInput(false);
+        } else setValidInput(true);
+      }, [childErrors]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -94,7 +101,7 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Group Title */}
-      <TitleInput control={control} onErrorsChange={setChildErrors}/>
+      <TitleInput control={control} onErrorsChange={setChildErrors} childErrors={childErrors}/>
 
       {/* Add Members */}
       <AddPeopleInput control={control} />
@@ -106,7 +113,7 @@ export default function CreateGroupScreen() {
       </View>
 
       {/* Save Button */}
-      <CustomButton onPress={handleSubmit(onGroupSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onGroupSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
     </ScrollView>
   );
 }

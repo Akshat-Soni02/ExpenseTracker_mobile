@@ -90,6 +90,30 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="detectedTransactions"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="bills"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="budgets"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="groups"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

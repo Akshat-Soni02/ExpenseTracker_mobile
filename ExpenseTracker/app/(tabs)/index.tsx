@@ -7,11 +7,9 @@ import { Button } from 'react-native-paper';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthProvider';
 import { LinearGradient } from 'expo-linear-gradient';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import moment from 'moment';
 import {PermissionsAndroid} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
-
 
 import TransactionCard from '@/components/readComponents/TransactionCard';
 import { globalStyles } from '@/styles/globalStyles';
@@ -32,7 +30,6 @@ export const requestPermissionAndroid = async () => {
 }
 
 export default function HomeScreen() {
-
   const router = useRouter();
   // const { startReadCycle } = useSMS();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -81,7 +78,7 @@ export default function HomeScreen() {
   const getToken = async () => {
     const token = await messaging().getToken();
     updateUserAccessToken({token:token});
-    console.log("Token:",token);
+    console.log("FCM Access Token:",token);
   }
   // useEffect(() => { ////Only if permission granted
   //   getToken();
@@ -232,10 +229,10 @@ export default function HomeScreen() {
           {/* Quick Actions */}
           <View style={styles.actions}>
             {[
-              { icon: "call-split", label: "New Split", route: "/action/create/createExpense" },
-              { icon: "plus", label: "New Spend", route: "/action/create/createTransaction" },
-              { icon: "file-check-outline", label: "Bills", route: "../activity/bills" },
-              { icon: "finance", label: "Budgets", route: "/activity/budgets" },
+              { icon: "call-split", label: "Split money", route: "/action/create/createExpense" },
+              { icon: "plus", label: "Add Transaction", route: "/action/create/createTransaction" },
+              { icon: "file-check-outline", label: "Bills", route: "/(tabs)/bills" },
+              { icon: "finance", label: "Budgets", route: "/(tabs)/budgets" },
             ].map((item, index) => (
               <View key={index} style={styles.actionContainer}>
                 <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
@@ -251,7 +248,7 @@ export default function HomeScreen() {
           {isLoadingDetected ? (
             <>
               <View style={styles.titleContainer}>
-                <Text style={styles.sectionTitle}>Transactions</Text>
+                <Text style={styles.sectionTitle}>Auto Transactions</Text>
                 <SkeletonPlaceholder style={{ width: 60, height: 20, borderRadius: 4 }} />
               </View>
 
@@ -264,8 +261,8 @@ export default function HomeScreen() {
           ) : (
             <>
               <View style={styles.titleContainer}>
-                <Text style={styles.sectionTitle}>Transactions</Text>
-                <Button style={styles.viewButton} onPress={() => router.push("/activity/detectedTransactions")}>
+                <Text style={styles.sectionTitle}>Auto Transactions</Text>
+                <Button style={styles.viewButton} onPress={() => router.push("/(tabs)/detectedTransactions")}>
                   View all
                 </Button>
               </View>
@@ -288,7 +285,7 @@ export default function HomeScreen() {
                   contentContainerStyle={{ paddingBottom: 0 }}
                 />
               ) : (
-                <Text style={styles.noTransactionsText}>No transactions for today</Text>
+                <Text style={styles.noTransactionsText}>No auto transactions for today</Text>
               )}
             </>
           )}
@@ -298,14 +295,14 @@ export default function HomeScreen() {
           {/* Groups */}
           <View style={styles.titleContainer}>
             <Text style={[styles.sectionTitle,{paddingTop:20}]} >Groups</Text>
-            <Button style={styles.viewButton} onPress={()=>router.push("/activity/groups")}>
+            <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)/groups")}>
                 View all
             </Button>
           </View>
 
           <View style={styles.groupContainer}>
             {groups.slice(0, 3).map((group:any, index:any = group._id) => (
-              <TouchableOpacity onPress={() => router.push({ pathname: "/view/viewGroup", params: { id:group._id} })}>
+              <TouchableOpacity onPress={() => router.push({ pathname: "/view/viewGroup", params: { id:group._id} })} key={index}>
               <View key={index} style={styles.groupItem}>
                 <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
                 <Text style={styles.groupName}>{group.group_title}</Text>
@@ -326,7 +323,7 @@ export default function HomeScreen() {
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
 
             <View style={styles.modalHeader}>
-              <Text style={styles.modalText}>Convert Transaction</Text>
+              <Text style={styles.modalText}>Convert Auto Transaction</Text>
               {/* <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/> */}
             </View>
 
@@ -336,7 +333,7 @@ export default function HomeScreen() {
             } 
 
             <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
-              <Text style={styles.buttonText}>Spend</Text>
+              <Text style={styles.buttonText}>Transaction</Text>
             </Pressable>
 
           </Modal>
@@ -397,10 +394,11 @@ const styles = StyleSheet.create({
     width: 50, 
     height: 50, 
     borderRadius: 25, 
-    marginRight: 10, 
+    marginRight: 10,
+    borderColor: "#FFFFFF40"
   },
   greeting: { 
-    color: "#fff", 
+    color: "#E0E0E0", 
     fontSize: 12,
   },
   name: { 
@@ -415,11 +413,11 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   label: { 
-    color: "#ccc",
+    color: "#D0D0D0",
     fontSize: 14
   },
   debit: { 
-    color: "red", 
+    color: "#FF6B6B", 
     fontSize: 16, 
     fontWeight: "bold" 
   },

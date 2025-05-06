@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity} from "react-native";
 import { Controller, Control } from "react-hook-form";
 import { FieldError } from "react-hook-form";
+import { globalStyles } from "@/styles/globalStyles";
 
 interface Props {
   control: Control<any>;
@@ -9,18 +10,29 @@ interface Props {
   update?: boolean;
   isAmountFrozen?: boolean;
   onErrorsChange: any;
+  childErrors?: any
+}
+
+export type error = {
+  message: string;
+}
+
+type localError = {
+  [key: string]: error;
 }
 
 export type FormErrors = {
   [key: string]: FieldError | undefined;
 };
 
-const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFrozen = false, onErrorsChange}) => {
+const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFrozen = false, onErrorsChange, childErrors}) => {
+  // const [localError, setLocalError] = useState<localError>({});
+
   return (
     <View style={styles.container}>
 
       {/* Amount Section */}
-      <Text style={styles.label}>Amount</Text>
+      <Text style={styles.label}>Amount<Text style={styles.asterisk}>*</Text></Text>
       <View style={[styles.amountWrapper, isAmountFrozen && styles.disabledInputWrapper]}>
         <Text style={styles.currency}>₹</Text>
         <Controller
@@ -33,13 +45,17 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
           }}
           render={({ field: { onChange, value }, fieldState: { error } }) => {
             useEffect(() => {
-              if(error) {
-                onErrorsChange((prevErrors: FormErrors) => ({
-                  ...prevErrors,
-                  amount: error || undefined,
-                }));
-              }
+              onErrorsChange((prevErrors: FormErrors) => {
+                const updatedErrors = { ...prevErrors };
+                if (error) {
+                  updatedErrors.amount = error;
+                } else {
+                  delete updatedErrors.amount;
+                }
+                return updatedErrors;
+              });
             }, [error]);
+            
 
             const displayValue = useMemo(() => (value ? String(value) : ""), [value]);
 
@@ -50,18 +66,29 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
                     styles.amountInput,
                     isAmountFrozen && styles.disabledText,
                   ]}
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                   value={displayValue}
                   placeholder="0"
                   onChangeText={(text) => {
                     if (isAmountFrozen) return;
-                    if (text === "") {
-                      onChange("");
-                      return;
-                    }
-                    const numericValue = parseFloat(text);
-                    if (!isNaN(numericValue)) {
-                      onChange(numericValue);
+                  
+                    // Always pass raw input first
+                    // onChange(text);
+                  
+                    // // If empty, just allow clearing
+                    // if (text === "") return;
+                  
+                    // // Allow intermediate states like "-", ".", "-."
+                    // if (text === "-" || text === "." || text === "-.") return;
+                  
+                    // // Try parsing to float and only update when valid
+                    // const numericValue = parseFloat(text);
+                    // if (!isNaN(numericValue)) {
+                    //   onChange(numericValue);
+                    // }
+                    const isValid = /^\d*\.?\d*$/.test(text);
+                    if (isValid) {
+                      onChange(text);
                     }
                   }}
                   editable={!isAmountFrozen}
@@ -74,10 +101,11 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
           }}
         />
       </View>
+      {childErrors?.amount && <Text style = {globalStyles.redTextError}>{childErrors.amount.message}</Text>}
       <View style={styles.separator} />
 
       {/* Description Section */}
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label}>{label}<Text style={styles.asterisk}>*</Text></Text>
       <Controller
         control={control}
         name={label}
@@ -85,13 +113,18 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
         rules={{ required: `${label} is required` }}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
           useEffect(() => {
-            if(error) {
-              onErrorsChange((prevErrors: FormErrors) => ({
-                ...prevErrors,
-                [label]: error || undefined,
-              }));
-            }
-          }, [error]);
+            onErrorsChange((prevErrors: FormErrors) => {
+              const updatedErrors = { ...prevErrors };
+          
+              if (error) {
+                updatedErrors[label] = error;
+              } else {
+                delete updatedErrors[label];
+              }
+          
+              return updatedErrors;
+            });
+          }, [error, label]);
 
           return (
             <TouchableOpacity activeOpacity={0.8}>
@@ -111,6 +144,9 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
           );
         }}
       />
+      {childErrors?.Description && <Text style = {[globalStyles.redTextError, {marginTop: 5}]}>{childErrors.Description.message}</Text>}
+      {childErrors?.Title && <Text style = {[globalStyles.redTextError, {marginTop: 5}]}>{childErrors.Title.message}</Text>}
+      {childErrors?.Name && <Text style = {[globalStyles.redTextError, {marginTop: 5}]}>{childErrors.Name.message}</Text>}
     </View>
   );
 };
@@ -191,6 +227,11 @@ const styles = StyleSheet.create({
   disabledText: {
     color: "#A0AEC0", // Gray text when disabled
   },
+  asterisk: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#f85454',
+  }
 });
 
 

@@ -39,6 +39,8 @@ export default function AddSettlementScreen() {
   const [createSettlement, {isLoading}] = useCreateSettlementMutation();
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
+
   const router = useRouter();
 
   let status = "receiver";
@@ -57,15 +59,21 @@ export default function AddSettlementScreen() {
     },
   });
   
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     const messages = [
+  //       childErrors.amount?.message,
+  //       childErrors.Description?.message
+  //     ].filter(Boolean).join("\n");
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
+
   useEffect(() => {
-    if (Object.keys(childErrors).length !== 0) {
-      const messages = [
-        childErrors.amount?.message,
-        childErrors.Description?.message
-      ].filter(Boolean).join("\n");
-      Alert.alert("Invalid data", messages);
-    }
-  }, [childErrors]);
+      if (Object.keys(childErrors).length !== 0) {
+        setValidInput(false);
+      } else setValidInput(true);
+    }, [childErrors]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -127,14 +135,14 @@ export default function AddSettlementScreen() {
 
         {group_name && <Text style={styles.groupName}> in {group_name}</Text>}
 
-        <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>
+        <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors={childErrors}/>
         
         <View style={globalStyles.walletPhotoContainer}>
           <WalletSelector control={control} name="wallet"/>
           <PhotoSelector control={control} />
         </View>
         
-        <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Settle</CustomButton>
+        <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Settle</CustomButton>
       </ScrollView>
     );
   }

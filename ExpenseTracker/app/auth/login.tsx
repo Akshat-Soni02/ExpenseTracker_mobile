@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import CustomButton from "../../components/button/CustomButton";
+import TempGoogleLoginButton from "@/components/button/TempGoogleButton";
 import GoogleButton from "@/components/button/GoogleButton";
 import { useLoginUserMutation } from "@/store/userApi";
 import { useAuth } from "@/context/AuthProvider";
@@ -128,7 +129,8 @@ export default function LoginScreen() {
       </View>
 
       {/* Social Login Button (Google) */}
-      <GoogleButton />
+      {/* <GoogleButton /> */}
+      <TempGoogleLoginButton/>
 
       {/* Sign Up Link */}
       <Text style={styles.signupText}>

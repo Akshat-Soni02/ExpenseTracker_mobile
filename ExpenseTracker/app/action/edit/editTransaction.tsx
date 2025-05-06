@@ -162,7 +162,7 @@ export default function EditTransactionScreen() {
         <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Edit Spend</Text>
+        <Text style={globalStyles.headerText}>Edit Transaction</Text>
       </View>
 
       <View style={styles.transactionTypeContainer}>

@@ -15,7 +15,7 @@ interface AppProps {
 }
 
 const SegmentedControl: React.FC<SegmentProps> = ({ value, onChange, isBill }) => {
-  const options = isBill ? ["Pending", "Completed", "Missed"] : ["Splits", "Spends", "Settlements"];
+  const options = isBill ? ["Pending", "Completed", "Missed"] : ["Splits", "Transactions", "Settlements"];
   
   return (
     <View style={styles.container}>

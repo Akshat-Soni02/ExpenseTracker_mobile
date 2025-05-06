@@ -48,7 +48,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         <View
           style={[
             styles.button,
-            variant === "outline" ? styles.outlineButton : styles.filledButton,
+            variant === "outline" ? !disabled ? styles.outlineButton : styles.disableButtonOutlined : !disabled ? styles.filledButton : styles.disableButtonFilled,
             pressed && styles.buttonPressed,
             innerStyle
           ]}
@@ -95,6 +95,16 @@ const styles = StyleSheet.create({
   outlineText: {
     color: "#355C7D",
   },
+  disableButtonFilled: {
+    backgroundColor: "#A5B5C5", // Softer blue-gray, still visually tied to #355C7D
+    borderColor: "#A5B5C5",
+    opacity: 1,
+  },
+  disableButtonOutlined: {
+    backgroundColor: "transparent",
+    borderColor: "#A5B5C5",
+    opacity: 0.6,
+  }
 });
 
 export default CustomButton;
