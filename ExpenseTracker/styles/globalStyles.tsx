@@ -178,6 +178,11 @@ export const globalStyles = StyleSheet.create({
     textAlign: "center",
     justifyContent: "center",
     alignItems: "center"
+  },
+  redTextError: {
+    color: "red",
+    textAlign: "center",
+    marginVertical: 1
   }
 });
 

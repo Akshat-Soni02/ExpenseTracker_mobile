@@ -86,7 +86,7 @@ export default function PeopleScreen() {
                 <TransactionCard
                 imageName={item?.other_member_profile_photo}
                 title = {item.other_member_name}
-                amount={`₹${item.amount}`}
+                amount={`₹${item.amount.toFixed(2)}`}
                 subtitle={undefined}
                 optionText={item.exchange_status === "lended" ? "You lend" : item.exchange_status === "borrowed" ? "You owe" : "Settled"}
                 transactionType={item.exchange_status === "lended" ? "income" : item.exchange_status === "borrowed" ? "expense" : "settled"}

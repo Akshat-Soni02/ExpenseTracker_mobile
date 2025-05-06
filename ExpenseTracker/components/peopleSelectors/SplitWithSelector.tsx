@@ -265,7 +265,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
                     );
                     onChange(numericValue);
                   }}                  
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                 />
               )}
               name={`splitAmount_${user.user_id}`}

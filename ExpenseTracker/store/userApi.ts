@@ -54,6 +54,13 @@ export type User = {
   password?: string;
 }
 
+type GoogleUser = {
+  email: string;
+  name: string;
+  picture: string;
+  id: string;
+}
+
 type GetUserResponse = {
   data: User;
 }
@@ -86,7 +93,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ["user"],
     }),
 
-    googleLogin: builder.mutation<LoginUserResponse, {idToken: string}>({
+    googleLogin: builder.mutation<LoginUserResponse, {user: GoogleUser}>({
       query: (body) => ({
         url: `/users/auth/google`,
         method: "POST",

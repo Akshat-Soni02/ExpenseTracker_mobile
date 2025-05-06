@@ -32,6 +32,7 @@ export default function CreateWalletScreen() {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -42,15 +43,21 @@ export default function CreateWalletScreen() {
   });
 
 
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     const messages = [
+  //       childErrors.amount?.message,
+  //       childErrors.Name?.message
+  //     ].filter(Boolean).join("\n");
+  
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
+
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
-      const messages = [
-        childErrors.amount?.message,
-        childErrors.Name?.message
-      ].filter(Boolean).join("\n");
-  
-      Alert.alert("Invalid data", messages);
-    }
+      setValidInput(false);
+    } else setValidInput(true);
   }, [childErrors]);
 
   useEffect(() => {
@@ -90,13 +97,13 @@ export default function CreateWalletScreen() {
       </View>
 
       {/* wallet Title and Amount */}
-      <AmountDescriptionInput control={control} label = "Name" onErrorsChange={setChildErrors}/>
+      <AmountDescriptionInput control={control} label = "Name" onErrorsChange={setChildErrors} childErrors={childErrors}/>
 
       {/* lower limit */}
       <LowerLimit control={control}/>
 
       {/* Save Button */}
-      <CustomButton onPress={handleSubmit(onWalletSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onWalletSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
     </ScrollView>
   );
 }
