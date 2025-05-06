@@ -99,10 +99,6 @@ function RootLayoutNav() {
         <Stack.Screen name="action/create/addPeopleEmail" options={{headerShown:false}}/>
         <Stack.Screen name="action/create/createSettlement" options={{headerShown:false}}/>
         <Stack.Screen name="action/create/createBudget" options={{headerShown:false}}/>
-        <Stack.Screen name="quickAction/detectedTransactions" options={{headerShown:false}}/>
-        <Stack.Screen name="quickAction/bills" options={{headerShown:false}}/>
-        <Stack.Screen name="quickAction/budgets" options={{headerShown:false}}/>
-        <Stack.Screen name="quickAction/groups" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewPeople" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewBudget" options={{headerShown:false}}/>
         <Stack.Screen name="view/viewPredictedBudget" options={{headerShown:false}}/>

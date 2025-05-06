@@ -230,9 +230,9 @@ export default function HomeScreen() {
           <View style={styles.actions}>
             {[
               { icon: "call-split", label: "Split money", route: "/action/create/createExpense" },
-              { icon: "plus", label: "New Spend", route: "/action/create/createTransaction" },
-              { icon: "file-check-outline", label: "Bills", route: "/quickAction/bills" },
-              { icon: "finance", label: "Budgets", route: "/quickAction/budgets" },
+              { icon: "plus", label: "Add Transaction", route: "/action/create/createTransaction" },
+              { icon: "file-check-outline", label: "Bills", route: "/(tabs)/bills" },
+              { icon: "finance", label: "Budgets", route: "/(tabs)/budgets" },
             ].map((item, index) => (
               <View key={index} style={styles.actionContainer}>
                 <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
@@ -262,7 +262,7 @@ export default function HomeScreen() {
             <>
               <View style={styles.titleContainer}>
                 <Text style={styles.sectionTitle}>Auto Transactions</Text>
-                <Button style={styles.viewButton} onPress={() => router.push("/quickAction/detectedTransactions")}>
+                <Button style={styles.viewButton} onPress={() => router.push("/(tabs)/detectedTransactions")}>
                   View all
                 </Button>
               </View>
@@ -295,14 +295,14 @@ export default function HomeScreen() {
           {/* Groups */}
           <View style={styles.titleContainer}>
             <Text style={[styles.sectionTitle,{paddingTop:20}]} >Groups</Text>
-            <Button style={styles.viewButton} onPress={()=>router.push("/quickAction/groups")}>
+            <Button style={styles.viewButton} onPress={()=>router.push("/(tabs)/groups")}>
                 View all
             </Button>
           </View>
 
           <View style={styles.groupContainer}>
             {groups.slice(0, 3).map((group:any, index:any = group._id) => (
-              <TouchableOpacity onPress={() => router.push({ pathname: "/view/viewGroup", params: { id:group._id} })}>
+              <TouchableOpacity onPress={() => router.push({ pathname: "/view/viewGroup", params: { id:group._id} })} key={index}>
               <View key={index} style={styles.groupItem}>
                 <Text style={styles.groupLetter}>{group.group_title.charAt(0)}</Text>
                 <Text style={styles.groupName}>{group.group_title}</Text>
@@ -323,7 +323,7 @@ export default function HomeScreen() {
           <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalView}>
 
             <View style={styles.modalHeader}>
-              <Text style={styles.modalText}>Convert Transaction</Text>
+              <Text style={styles.modalText}>Convert Auto Transaction</Text>
               {/* <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} style={{justifyContent: "flex-start"}}/> */}
             </View>
 
@@ -333,7 +333,7 @@ export default function HomeScreen() {
             } 
 
             <Pressable style={styles.button} onPress={() => handleSelection("to Personal")}>
-              <Text style={styles.buttonText}>Spend</Text>
+              <Text style={styles.buttonText}>Transaction</Text>
             </Pressable>
 
           </Modal>

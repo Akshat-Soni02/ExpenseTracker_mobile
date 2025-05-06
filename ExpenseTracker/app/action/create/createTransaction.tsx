@@ -208,7 +208,7 @@ export default function AddTransactionScreen() {
         <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
           <FontAwesome name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Add Spend</Text>
+        <Text style={globalStyles.headerText}>New Transaction</Text>
       </View>
 
       {/* Transaction Type Selector */}
