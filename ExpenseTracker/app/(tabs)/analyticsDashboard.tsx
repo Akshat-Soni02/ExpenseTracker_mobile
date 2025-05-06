@@ -10,7 +10,7 @@ const { width } = Dimensions.get('window');
 
 export default function ViewBudgetScreen() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const { data, isLoading, error, refetch } = useGetMonthlySpendQuery();
   const {data:categoricalData, isLoading:loadingCategoricalData, error:errorCategoricalData} = useGetCategoricalSpendQuery();
 
