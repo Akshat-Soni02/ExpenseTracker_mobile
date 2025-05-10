@@ -15,6 +15,7 @@ import CategorySelector from "@/components/selectors/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 export type error = {
   message: string;
@@ -225,12 +226,7 @@ export default function AddExpenseScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>New Split</Text>
-      </View>
+      <Header headerText="New Split"/>
 
       {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
       {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/>):(<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors}/>)}

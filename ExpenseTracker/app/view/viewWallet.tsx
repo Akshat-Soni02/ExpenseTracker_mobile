@@ -6,6 +6,7 @@ import { Menu, Divider } from "react-native-paper";
 
 import { useGetWalletQuery,useDeleteWalletMutation } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 const WalletDetailsScreen = () => {
   const { id } = useLocalSearchParams() as {id: string};
@@ -64,12 +65,7 @@ const WalletDetailsScreen = () => {
 
   return (
     <View style={globalStyles.viewContainer}>
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-
-        <Menu
+      <Header headerIcon={<Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -81,15 +77,14 @@ const WalletDetailsScreen = () => {
           <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/action/edit/editWallet",params:{fetchedId:id,fetchedAmount:wallet?.amount,fetchedName:wallet?.wallet_title,fetchedLowerLimit:wallet?.lower_limit}})}} title="Edit" />
           <Divider />
           <Menu.Item onPress={() => Alert.alert(
-                        "Delete wallet", 
-                        `Are you sure you want to delete ${wallet?.wallet_title}`, 
-                        [
-                          { text: "Cancel", style: "cancel" },
-                          { text: "Yes", onPress: () => onDelete()}
-                        ]
-                      )} title="Delete" />
-        </Menu>
-      </View>
+            "Delete wallet", 
+            `Are you sure you want to delete ${wallet?.wallet_title}`, 
+            [
+              { text: "Cancel", style: "cancel" },
+              { text: "Yes", onPress: () => onDelete()}
+            ]
+          )} title="Delete" />
+        </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>
         <Text style={globalStyles.viewActivityTitle}>{wallet?.wallet_title}</Text>

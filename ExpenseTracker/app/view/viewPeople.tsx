@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/userApi";
 import {globalStyles} from "@/styles/globalStyles";
@@ -59,7 +60,7 @@ const ViewPeopleScreen = () => {
       <View style={styles.header}>
 
         <TouchableOpacity onPress={() => router.back()} style={[globalStyles.backButton, { position: "absolute",top: 15,left: 15, }]}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
+          <AntDesign name="arrowleft" size={25} color="black"/>
         </TouchableOpacity>
 
         <View style={styles.profileSection}>

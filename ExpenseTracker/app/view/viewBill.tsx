@@ -11,6 +11,7 @@ import TransactionCard from "@/components/readComponents/TransactionCard";
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 type MyStateInBill = {
   user_id: string;
@@ -168,13 +169,7 @@ const BillDetailsScreen = () => {
   return (
     <View style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-
-        <TouchableOpacity onPress={() => router.back()} style= {globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={22} color="black" />
-        </TouchableOpacity>
-        
-        <Menu
+      <Header headerIcon={<Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -193,8 +188,7 @@ const BillDetailsScreen = () => {
                 { text: "Yes", onPress: () => handleBillDelete()}
               ]
             )} title="Delete" />
-        </Menu>
-      </View>
+        </Menu>}/>
 
       <View style={styles.detailContainer}>
         <Text style={styles.title}>{bill?.bill_title}</Text>

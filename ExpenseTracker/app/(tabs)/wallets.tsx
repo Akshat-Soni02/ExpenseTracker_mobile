@@ -10,6 +10,7 @@ import {useGetUserWalletsQuery} from '@/store/userApi';
 import { globalStyles } from "@/styles/globalStyles";
 import { Wallet } from "@/store/walletApi";
 import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
+import Header from "@/components/Header";
 
 
 export default function WalletsScreen() {
@@ -37,10 +38,7 @@ export default function WalletsScreen() {
     <View style={globalStyles.screen}>
         <ScrollView style={globalStyles.viewContainer}>
           
-          <View style = {globalStyles.viewHeader}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style={globalStyles.backButton}/>
-            <Text style={globalStyles.headerText}>Wallets</Text>
-          </View>
+          <Header headerText="Wallets"/>
 
           {isLoadingWallet ? (
             <>

@@ -8,6 +8,7 @@ import TransactionCard from "@/components/readComponents/TransactionCard";
 import { useRemindUserBorrowerMutation } from '@/store/userApi';
 import {useGetUserExchangeStateInGroupQuery, GroupExchangeDetail} from '@/store/groupApi';
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 type LocalParams = {
   group_id: string;
@@ -68,10 +69,7 @@ export default function PeopleScreen() {
 
         <ScrollView style={globalStyles.viewContainer}>
 
-          <View style = {globalStyles.viewHeader}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style={globalStyles.backButton}/>
-            <Text style={globalStyles.headerText}>{group_name}</Text>
-          </View>
+          <Header headerText={group_name}/>
 
           <View style={styles.transactionsContainer}>
 

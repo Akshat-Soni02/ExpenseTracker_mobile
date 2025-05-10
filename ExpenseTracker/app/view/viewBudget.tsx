@@ -7,6 +7,7 @@ import {Menu, Divider } from "react-native-paper";
 
 import { useGetBudgetQuery,useDeleteBudgetMutation } from "@/store/budgetApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 
 export default function ViewBudgetScreen() {
@@ -68,13 +69,7 @@ export default function ViewBudgetScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-
-        <Menu
+      <Header headerIcon={<Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -93,8 +88,7 @@ export default function ViewBudgetScreen() {
               { text: "Yes", onPress: () => handleBudgetDelete()}
             ]
           )} title="Delete" />
-        </Menu>
-      </View>
+        </Menu>}/>
 
         <View style={styles.card}>
 

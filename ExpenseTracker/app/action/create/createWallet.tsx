@@ -9,6 +9,7 @@ import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 import LowerLimit from "@/components/inputs/LowerLimit";
 import { useCreateWalletMutation } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 export type error = {
   message: string;
@@ -89,12 +90,7 @@ export default function CreateWalletScreen() {
   if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={globalStyles.viewContainer}>
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>New Wallet</Text>
-      </View>
+      <Header headerText="New Wallet"/>
 
       {/* wallet Title and Amount */}
       <AmountDescriptionInput control={control} label = "Name" onErrorsChange={setChildErrors} childErrors={childErrors}/>

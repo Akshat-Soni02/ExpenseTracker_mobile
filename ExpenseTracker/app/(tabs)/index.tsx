@@ -199,7 +199,7 @@ export default function HomeScreen() {
                 <View style={styles.totalSpend}>
                   <View>
                     <Text style={styles.label}>Today's spend</Text>
-                    <Text style={styles.spend}>₹{todaySpend?.data.todaySpend?.toString() || "0"}</Text>
+                    <View style = {styles.rupeeContainer}><Text style={[styles.rupee, {color: "#fff"}]}>₹</Text><Text style={styles.spend}>{todaySpend?.data.todaySpend?.toString() || "0"}</Text></View>
                   </View>
                 </View>
               </View>
@@ -210,13 +210,14 @@ export default function HomeScreen() {
 
                   <View style={styles.textContainer}>
                     <Text style={styles.label}>You owe</Text>
-                    {!isLoading && (<Text style={styles.debit}>₹{exchangeData?.data?.borrowedAmount?.toFixed(2)}</Text>)}
+                    {!isLoading && (<View style = {styles.rupeeContainer}><Text style={[styles.rupee, {color: "#ef6d6d"}]}>₹</Text><Text style={styles.debit}>{exchangeData?.data?.borrowedAmount?.toFixed(2)}</Text></View>)}
                   </View>
 
                   <View>
-                    <Text style={styles.label}>You lended</Text>
-                    {!isLoading && (<Text style={styles.credit}>₹{exchangeData?.data?.lendedAmount?.toFixed(2)}</Text>)}
+                    <Text style={styles.label}>You lend</Text>
+                    {!isLoading && (<View style = {styles.rupeeContainer}><Text style={[styles.rupee, {color: "#7DDE92"}]}>₹</Text><Text style={styles.credit}>{exchangeData?.data?.lendedAmount?.toFixed(2)}</Text></View>)}
                   </View>
+                  
 
                 </View>
               </View>
@@ -229,19 +230,24 @@ export default function HomeScreen() {
           {/* Quick Actions */}
           <View style={styles.actions}>
             {[
-              { icon: "call-split", label: "Split money", route: "/action/create/createExpense" },
-              { icon: "plus", label: "Add Transaction", route: "/action/create/createTransaction" },
-              { icon: "file-check-outline", label: "Bills", route: "/(tabs)/bills" },
-              { icon: "finance", label: "Budgets", route: "/(tabs)/budgets" },
+              { icon: "call-split", label: ["Split", "money"], route: "/action/create/createExpense" },
+              { icon: "plus", label: ["Add", "Transaction"], route: "/action/create/createTransaction" },
+              { icon: "file-check-outline", label: ["Bills"], route: "/(tabs)/bills" },
+              { icon: "finance", label: ["Budgets"], route: "/(tabs)/budgets" },
             ].map((item, index) => (
               <View key={index} style={styles.actionContainer}>
                 <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>
-                  <MaterialCommunityIcons name={item.icon} color="black" size={32} />
+                  <MaterialCommunityIcons name={item.icon} color="black" size={25} />
                 </TouchableOpacity>
-                <Text style={styles.actionText}>{item.label}</Text>
+                <View style={{ alignItems: 'center' }}>
+                  {item.label.map((item1, i) => (
+                    <Text key={i} style={styles.actionText}>{item1}</Text>
+                  ))}
+                </View>
               </View>
             ))}
           </View>
+
 
 
           {/* Transactions */}
@@ -366,16 +372,17 @@ const styles = StyleSheet.create({
   profileCard: { 
     flexDirection: "row", 
     justifyContent: "flex-start", 
-    height:160,
+    height:150,
     width:"100%",
     padding: 20, 
     borderRadius: 10, 
-    backgroundColor: "#4A627A", 
+    backgroundColor: "#394b5e", 
     marginBottom: 20 
   },
 
   profileInfo: { 
-    flexDirection: "row",  
+    flexDirection: "row",
+    alignItems: "center"
   },
   profileColumn1: { 
     width:"50%",
@@ -388,7 +395,7 @@ const styles = StyleSheet.create({
     // flexDirection: "column", 
   },
   textContainer:{
-    marginBottom:10,
+    // marginBottom:10,
   },
   avatar: { 
     width: 50, 
@@ -398,7 +405,7 @@ const styles = StyleSheet.create({
     borderColor: "#FFFFFF40"
   },
   greeting: { 
-    color: "#E0E0E0", 
+    color: "#e7e7e7", 
     fontSize: 12,
   },
   name: { 
@@ -408,37 +415,46 @@ const styles = StyleSheet.create({
   },
   financialSummary: { 
     alignSelf:"flex-end",
+    gap: 20
   },
   totalSpend: {
     alignItems: "flex-start",
   },
   label: { 
-    color: "#D0D0D0",
+    color: "#e7e7e7",
     fontSize: 14
   },
-  debit: { 
-    color: "#FF6B6B", 
+  rupee: {
     fontSize: 16, 
-    fontWeight: "bold" 
+    fontWeight: "bold",
+  },
+  debit: { 
+    color: "#ef6d6d", 
+    fontSize: 17, 
+    fontWeight: "bold",
+  },
+  rupeeContainer: {
+    flexDirection: "row",
+    gap: 2
   },
   credit: { 
     color: "#7DDE92", 
-    fontSize: 16, 
+    fontSize: 17, 
     fontWeight: "bold" 
   },
   spend:{
     color: "#fff",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
   },
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginBottom:20,
   },
   actionContainer: {
-    alignItems: "center", // Centers the icon and text
+    alignItems: "center",
+    gap: 7
   },
   actionButton: {
     padding: 10,
@@ -446,14 +462,16 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   actionText: {
-    marginTop: 5,
-    fontSize: 12,
+    // marginTop: 5,
+    fontSize: 13,
     color: "#000",
+    fontWeight: "500",
+    lineHeight: 14,
   },
   sectionTitle: { 
-    fontSize: 18, 
-    fontWeight: "bold", 
-    marginBottom: 10 
+    fontSize: 18,
+    // fontFamily: "Inter_700Bold",
+    fontWeight: "500"
   },
   transactionItem: { 
     flexDirection: "row", 
@@ -487,22 +505,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   groupLetter: { 
-    fontSize: 25, 
-    fontWeight: "bold", 
+    fontSize: 22, 
+    fontWeight: "400", 
     backgroundColor: "#D1E7FF",  
-    width:55,
-    height:55,
+    width:48,
+    height:48,
     borderRadius: 50 ,
     textAlign: "center",
     textAlignVertical: "center",
   },
   groupName: { 
     fontSize: 12, 
-    marginTop: 5 
+    marginTop: 5,
+    fontWeight: "500"
   },
   newGroup: { 
     backgroundColor: "#D1E7FF", 
-    padding: 15, 
+    padding: 12, 
     borderRadius: 50, 
     alignItems: "center" 
   },

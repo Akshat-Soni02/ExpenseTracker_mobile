@@ -9,6 +9,7 @@ import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
 import LowerLimit from "@/components/inputs/LowerLimit";
 import { useUpdateWalletMutation, Wallet } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 export type error = {
   message: string;
@@ -99,12 +100,7 @@ export default function EditWalletScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Edit Wallet</Text>
-      </View>
+      <Header headerText="Edit Wallet"/>
 
       <AmountDescriptionInput control={control} label = "Name" onErrorsChange={setChildErrors}/>
 

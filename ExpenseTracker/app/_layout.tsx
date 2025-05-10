@@ -116,7 +116,10 @@ function RootLayoutNav() {
         <Stack.Screen name="action/edit/editWallet" options={{headerShown:false}}/>
         <Stack.Screen name="action/edit/editBudget" options={{headerShown:false}}/>
         <Stack.Screen name="action/edit/editGroup" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editProfile" options={{headerShown:false}}/>
         <Stack.Screen name="misc/groupSettlements" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/privacyPolicy" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/contactUs" options={{headerShown:false}}/>
       </Stack>
     </ThemeProvider>
   );

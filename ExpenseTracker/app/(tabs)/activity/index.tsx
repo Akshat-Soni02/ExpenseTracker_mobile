@@ -14,6 +14,7 @@ import { Expense } from "@/store/expenseApi";
 import { Settlement } from "@/store/settlementApi";
 import { Transaction } from "@/store/personalTransactionApi";
 import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
+import Header from "@/components/Header";
 
 
 export default function ActivityScreen() {
@@ -115,11 +116,9 @@ else if (errorSettlement) {
       return (
         <View style={globalStyles.screen}>
             <ScrollView style={globalStyles.viewContainer}>
+
               
-            <View style = {globalStyles.viewHeader}>
-              <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-              <Text style={globalStyles.headerText}>Activity</Text>
-            </View>
+            <Header headerText="Activity"/>
 
             <View style={globalStyles.navbar}>
               <SegmentedControl value={page} setValue={setPage} isBill={false}/>
@@ -183,11 +182,7 @@ else if (errorSettlement) {
         <View style={globalStyles.screen}>
           <ScrollView style={globalStyles.viewContainer}>
               
-            <View style = {globalStyles.viewHeader}>
-
-              <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
-                <Text style={globalStyles.headerText}>Activity</Text>
-              </View>
+            <Header headerText="Activity"/>
 
               <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={false}/>
@@ -240,7 +235,7 @@ else if (errorSettlement) {
             </ScrollView>
 
             <FAB
-            label="Add Transaction"
+            label="Transaction"
             style={globalStyles.fab}
             onPress={() => router.push("/action/create/createTransaction")}
             />
@@ -253,10 +248,7 @@ else if (errorSettlement) {
 
           <ScrollView style={globalStyles.viewContainer}>
 
-          <View style = {globalStyles.viewHeader}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")}/>     
-              <Text style={globalStyles.headerText}>Activity</Text>
-            </View>
+            <Header headerText="Activity"/>
 
             <View style={globalStyles.navbar}>
               <SegmentedControl value={page} setValue={setPage} isBill={false}/>

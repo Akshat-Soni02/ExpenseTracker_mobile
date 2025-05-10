@@ -12,6 +12,7 @@ import { useLazyGetUserByIdQuery, User } from "@/store/userApi";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetSettlementQuery, useDeleteSettlementMutation } from "@/store/settlementApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 
 const SettlementDetailsScreen = () => {
@@ -131,12 +132,7 @@ const SettlementDetailsScreen = () => {
   return (
     <View style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-
-        <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.back()} style = {globalStyles.backButton}/>
-        
-        <View>
-          <Menu
+      <Header headerIcon={<Menu
             visible={menuVisible}
             onDismiss={() => setMenuVisible(false)}
             anchor={
@@ -148,17 +144,14 @@ const SettlementDetailsScreen = () => {
             <Menu.Item onPress={() => {setMenuVisible(false);router.push({ pathname: "/action/edit/editSettlement", params: {id} })}} title="Edit" />
             <Divider />
             <Menu.Item onPress={() => Alert.alert(
-                                "Delete settlement", 
-                                `Are you sure you want to delete ${settlement?.settlement_description}`, 
-                                [
-                                  { text: "Cancel", style: "cancel" },
-                                  { text: "Yes", onPress: () => handleSettlementDelete()}
-                                ]
-                              )} title="Delete" />
-          </Menu>
-        </View>
-
-      </View>
+              "Delete settlement", 
+              `Are you sure you want to delete ${settlement?.settlement_description}`, 
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Yes", onPress: () => handleSettlementDelete()}
+              ]
+            )} title="Delete" />
+          </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>
 

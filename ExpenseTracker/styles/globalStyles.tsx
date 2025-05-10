@@ -24,7 +24,7 @@ export const globalStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 15,
     // backgroundColor: "#F9FAFB",
     backgroundColor: "#fff",
   },

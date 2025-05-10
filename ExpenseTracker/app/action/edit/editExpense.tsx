@@ -19,6 +19,7 @@ import { useGetExpenseQuery } from "@/store/expenseApi";
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useGetWalletQuery } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 export type error = {
   message: string;
 }
@@ -197,12 +198,7 @@ export default function EditExpenseScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-        <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Edit Split</Text>
-      </View>
+        <Header headerText="Edit Split"/>
 
       <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} IncludePaidBy edit={true}/>

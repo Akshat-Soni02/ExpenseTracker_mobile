@@ -12,6 +12,7 @@ import SegmentedControl from "@/components/readComponents/SegmentedControl";
 import { globalStyles } from "@/styles/globalStyles";
 import { Bill } from "@/store/billApi";
 import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
+import Header from "@/components/Header";
 
 
 export default function BillsScreen() {
@@ -73,10 +74,7 @@ export default function BillsScreen() {
         <View style={globalStyles.screen}>
             <ScrollView style={globalStyles.viewContainer}>
               
-              <View style = {[globalStyles.viewHeader,{marginBottom: 0}]}>
-                <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {globalStyles.backButton}/>     
-                <Text style={globalStyles.headerText}>Bills</Text>
-              </View>
+              <Header headerText="Bills"/>
               <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
@@ -132,10 +130,7 @@ export default function BillsScreen() {
             <View style={globalStyles.screen}>
                 <ScrollView style={globalStyles.viewContainer}>
                   
-                <View style = {[globalStyles.viewHeader,{marginBottom: 0}]}>
-                  <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-                  <Text style={globalStyles.headerText}>Bills</Text>
-                </View>
+                <Header headerText="Bills"/>
               <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>
@@ -190,10 +185,7 @@ export default function BillsScreen() {
             <View style={globalStyles.screen}>
                 <ScrollView style={globalStyles.viewContainer}>
                   
-                <View style = {[globalStyles.viewHeader,{marginBottom: 0}]}>
-                  <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {{backgroundColor: "white"}}/>     
-                  <Text style={globalStyles.headerText}>Bills</Text>
-                </View>
+                <Header headerText="Bills"/>
               <View style={globalStyles.navbar}>
                 <SegmentedControl value={page} setValue={setPage} isBill={true}/>
               </View>

@@ -13,6 +13,7 @@ import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 
 import { Member, useCreateBillMutation } from "@/store/billApi";
+import Header from "@/components/Header";
 
 type error = {
   message: string;
@@ -132,12 +133,7 @@ export default function CreateBillScreen() {
 
   return (
     <ScrollView style={globalStyles.viewContainer}>
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>New Bill</Text>
-      </View>
+      <Header headerText="New Bill"/>
 
       <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors} childErrors={childErrors}/>
 

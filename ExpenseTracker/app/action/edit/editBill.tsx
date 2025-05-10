@@ -13,6 +13,7 @@ import ToggleSwitch from "@/components/inputs/ToggleSwitch";
 import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
 import { useUpdateBillMutation , useGetBillQuery, Bill, Member} from "@/store/billApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 type error = {
   message: string;
@@ -163,12 +164,7 @@ export default function EditBillScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Edit Bill</Text>
-      </View>
+      <Header headerText="Edit Bill"/>
 
       <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors}/>
 

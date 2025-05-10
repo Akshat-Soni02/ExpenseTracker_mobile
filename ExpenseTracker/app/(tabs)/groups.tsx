@@ -10,6 +10,7 @@ import TransactionCard from "@/components/readComponents/TransactionCard";
 import {useGetUserGroupsQuery} from '@/store/userApi';
 import { Group } from "@/store/groupApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 export default function GroupsScreen() {
   const router = useRouter();
@@ -37,10 +38,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
 
         <ScrollView style={globalStyles.viewContainer}>
 
-          <View style = {globalStyles.viewHeader}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {globalStyles.backButton}/>     
-            <Text style={globalStyles.headerText}>Groups</Text>
-          </View>
+          <Header headerText="Groups"/>
           
           {numberOfGroups>0 ? (
             <FlatList

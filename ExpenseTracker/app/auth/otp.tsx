@@ -5,6 +5,7 @@ import { FontAwesome } from "@expo/vector-icons";
 
 import CustomButton from "../../components/button/CustomButton";
 import { useVerifyOtpMutation, useSendOtpMutation } from "@/store/userApi";
+import Header from "@/components/Header";
 
 export default function OTPVerificationScreen() {
   const router = useRouter();
@@ -81,9 +82,7 @@ export default function OTPVerificationScreen() {
   return (
     <View style={styles.container}>
       {/* Back Button */}
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <FontAwesome name="arrow-left" size={20} color="black" />
-      </TouchableOpacity>
+      <Header />
 
       {/* Header */}
       <Text style={styles.header}>Please check your email</Text>

@@ -9,6 +9,7 @@ import moment from "moment";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 
 const TransactionDetailScreen = () => {
@@ -81,17 +82,12 @@ const TransactionDetailScreen = () => {
 
   if (!data?.data) return <Text>No transaction found</Text>;
 
-  const themeColor = transaction?.transaction_type === "income" ? "#10B981" : "#EF4444";
+  const themeColor = transaction?.transaction_type === "income" ? "#1e9738" : "#d86161";
 
   return (
     <View style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-
-        <Menu
+      <Header headerIcon={<Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -110,8 +106,7 @@ const TransactionDetailScreen = () => {
                         { text: "Yes", onPress: () => handleTransactionDelete()}
                       ]
                     )} title="Delete" />
-        </Menu>
-      </View>
+        </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>
 

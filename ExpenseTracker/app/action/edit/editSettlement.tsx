@@ -11,6 +11,7 @@ import PhotoSelector from "@/components/selectors/PhotoSelector";
 import { useGetWalletQuery } from "@/store/walletApi";
 import {useUpdateSettlementMutation,useGetSettlementQuery} from '@/store/settlementApi';
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 export type error = {
   message: string;
@@ -108,12 +109,7 @@ if (settlementError) {
 return (
     <ScrollView style={globalStyles.viewContainer}>
 
-        <View style={globalStyles.viewHeader}>
-          <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>
-              <Text style={globalStyles.headerText}>Edit Settlement</Text>
-        </View>
+       <Header headerText="Edit Settlement"/>
 
       <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors}/>
       

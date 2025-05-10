@@ -4,6 +4,7 @@ import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import moment from "moment";
 import { FAB, Portal, PaperProvider, Menu, Divider } from 'react-native-paper';
+import Octicons from '@expo/vector-icons/Octicons';
 
 import { useGetGroupQuery, useGetGroupHistoryQuery, useAddPeopleInGroupMutation } from "@/store/groupApi";
 import { useRemindAllGroupBorrowersMutation ,useLazyLeaveGroupQuery,  useSimplifyDebtsMutation} from "@/store/groupApi";
@@ -11,6 +12,8 @@ import { useGetUserFriendsQuery, useLazyGetUserFriendsQuery } from "@/store/user
 import { globalStyles } from "@/styles/globalStyles";
 import { FlashList } from "@shopify/flash-list";
 import CustomButton from "@/components/button/CustomButton";
+import Header from "@/components/Header";
+import ProgressBar from "@/components/ProgressBar";
 
 const GroupDetailsScreen = () => {
 
@@ -37,6 +40,12 @@ const GroupDetailsScreen = () => {
 
   const group = data?.data;
   const totalMembers = group?.members.length;
+  let settleUpDuration = group && group.settle_up_date ? daysUntilDate(group.settle_up_date) : null;
+  const currSpent = history
+  ? history.data.reduce((acc, trans) => {
+      return trans.type === "expense" ? acc + trans.total_amount : acc;
+    }, 0)
+  : 0;
 
   useEffect(() => {
     if (id) {
@@ -70,6 +79,7 @@ const GroupDetailsScreen = () => {
 
   const { open } : { open : boolean} = state;
   const onStateChange = ({ open } : { open : boolean}) => setState({ open });
+
 
   const toggleUserSelection = (user) => {
     let newSelectedUsers;
@@ -122,6 +132,26 @@ const GroupDetailsScreen = () => {
        )
      }
    };
+
+   function daysUntilDate(input: Date): string {
+    const today = new Date();
+    const inputDate = new Date(input);
+
+    const inputMidnight = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate());
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const diffTime = inputMidnight.getTime() - todayMidnight.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+    if (diffDays < 0) {
+      return "Settled up";
+    } else if (diffDays === 0) {
+      return "Settle up today";
+    } else {
+      return `Settle up in ${diffDays} days`;
+    }
+  }  
+  
 
   const handleAddPeople = async () => {
     // setModalVisible(true);
@@ -190,12 +220,7 @@ const GroupDetailsScreen = () => {
     <View style={{flex:1}}>
     <View style={globalStyles.viewContainer}>
       {/* Header */}
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={22} color="black" />
-        </TouchableOpacity>
-
-        <Menu
+     <Header headerIcon={ <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -214,29 +239,39 @@ const GroupDetailsScreen = () => {
               { text: "Yes", onPress: () => handleLeaveGroup()}
             ]
           )} title="Leave Group" />
-        </Menu>
-        
-      </View>
+        </Menu>}/>
 
       {/* Group Info */}
       <View style={styles.groupInfo}>
 
-        <View style={styles.mandatory}>
-          <Text style={styles.groupName}>{group?.group_title}</Text>
-          <Text style={styles.groupDetails}>{totalMembers} Members</Text>
+        <View style = {styles.groupUpperInfo}>
+          <View style={styles.mandatory}>
+            <Text style={styles.groupName}>{group?.group_title}</Text>
+            {/* <Text style={styles.groupDetails}>{totalMembers} Members</Text> */}
+          </View>
+
+          <View style={styles.optional}>
+
+            {/* {group?.settle_up_date && (
+              <Text style={styles.optionalField}>Settling-Up: {moment(group.settle_up_date).format("DD MMM, YYYY")}</Text>
+            )} */}
+
+            {group?.settle_up_date && (
+              <View style={styles.fieldContainer}><Octicons name="calendar" size={20} color="#707070" /><Text style={styles.optionalField}>{settleUpDuration}</Text></View>
+            )}
+
+            {/* <Text style={styles.groupDetails}>{totalMembers} Members</Text> */}
+
+          </View>
+
         </View>
 
-        <View style={styles.optional}>
-
-          {group?.initial_budget && (
-            <Text style={styles.optionalField}>Budget: ₹{group.initial_budget}</Text>
-          )}
-
-          {group?.settle_up_date && (
-            <Text style={styles.optionalField}>Settle-Up: {moment(group.settle_up_date).format("DD MMM, YYYY")}</Text>
-          )}
-
-        </View>
+        {group?.initial_budget && (
+          <View>
+            <Text>Spent: <Text style={{color: "#3758f9"}}>₹{currSpent}</Text> | Budget: <Text style={{color: "#3758f9"}}>₹{group.initial_budget}</Text></Text>
+            <ProgressBar current={currSpent} total={group.initial_budget} showLabel={false}/>
+          </View>
+        )}
 
       </View>
 
@@ -468,10 +503,14 @@ const styles = StyleSheet.create({
   },
   groupInfo: {
     padding: 18,
-    backgroundColor: "#E3E8EF", // Lightened Header
+    backgroundColor: "#EDF2FB",
     borderRadius: 8,
     marginBottom: 20,
     minHeight: 100,
+    justifyContent: "space-between",
+    gap: 20
+  },
+  groupUpperInfo: {
     justifyContent: "space-between",
     flexDirection: "row",
   },
@@ -486,17 +525,21 @@ const styles = StyleSheet.create({
   groupName: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1E293B",
+    color: "#1E1E1E",
   },
   groupDetails: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#64748B",
     marginTop: 2,
   },
   optionalField: {
-    fontSize: 14,
-    color: "#64748B",
-    marginTop: 4,
+    fontSize: 18,
+    color: "#707070",
+  },
+  fieldContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5
   },
   expenseRow: {
     flexDirection: "row",

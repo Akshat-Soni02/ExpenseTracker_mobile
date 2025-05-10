@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Feather from '@expo/vector-icons/Feather';
 
 interface TransactionCardProps {
   imageName?: string;
@@ -58,11 +59,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
 
         {imageType && (
-          <MaterialCommunityIcons
-            name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
-            size={20}
-            color={isDebit ? "red" : "green"}
-          />
+          <Feather name={isDebit ? "arrow-up-right" : "arrow-down-left"}
+          size={25}
+          color={isDebit ? "#d86161" : "#1e9738"} />
         )}
 
         <View style={styles.transactionDetails}>
@@ -81,7 +80,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
               styles.transactionAmount,
               amountStyle,
               {
-                color: isCredit ? "green" : isDebit ? "red" : "black"
+                color: isCredit ? "#1e9738" : isDebit ? "#d86161" : "black"
               }
             ]}
           >
@@ -112,7 +111,8 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   transactionTitle: {
-    fontSize: 16
+    fontSize: 17,
+    fontWeight: "400"
   },
   transactionSubtitle: {
     color: "#888",
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end"
   },
   transactionAmount: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold"
   },
   topAmountText: {

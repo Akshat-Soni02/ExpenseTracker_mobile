@@ -10,6 +10,7 @@ import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 
 const ExpenseDetailScreen = () => {
@@ -128,16 +129,11 @@ const ExpenseDetailScreen = () => {
 
   const isLender = expense?.lenders.some((lender) => lender.user_id === loggedInUserId);
   const isBorrower = expense?.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
-  const themeColor = isLender ? "#10B981" : isBorrower ? "#EF4444" : "#374151";
+  const themeColor = isLender ? "#1e9738" : isBorrower ? "#d86161" : "#374151";
 
   return (
     <View style={globalStyles.viewContainer}>
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-
-        <Menu
+      <Header headerIcon={<Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -156,8 +152,7 @@ const ExpenseDetailScreen = () => {
                         { text: "Yes", onPress: () => handleExpenseDelete()}
                       ]
                     )} title="Delete" />
-        </Menu>
-      </View>
+        </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>
         

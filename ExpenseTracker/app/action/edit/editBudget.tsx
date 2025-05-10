@@ -11,6 +11,7 @@ import CategorySelector from "@/components/selectors/CategorySelector";
 import PeriodSelector from "@/components/selectors/PeriodSelector";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 type error = {
   message: string;
@@ -114,12 +115,7 @@ export default function EditBudgetScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Edit Budget</Text>
-      </View>
+      <Header headerText="Edit Budget"/>
       
       <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors}/>
       <CategorySelector control={control}/>

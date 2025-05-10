@@ -17,6 +17,7 @@ import { useCreatePersonalTransactionMutation } from "@/store/personalTransactio
 import { useGetUserWalletsQuery } from "@/store/userApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 export type error = {
   message: string;
@@ -204,12 +205,7 @@ export default function AddTransactionScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
       
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>New Transaction</Text>
-      </View>
+      <Header headerText="New Transaction"/>
 
       {/* Transaction Type Selector */}
       <View style={styles.transactionTypeContainer}>

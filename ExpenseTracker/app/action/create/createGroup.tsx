@@ -11,6 +11,7 @@ import InitialBudget from "@/components/inputs/InitialBudget";
 import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import { useCreateGroupMutation } from "@/store/groupApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 
 type error = {
@@ -93,12 +94,7 @@ export default function CreateGroupScreen() {
     if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={globalStyles.viewContainer}>
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>New Group</Text>
-      </View>
+      <Header headerText="New Group"/>
 
       {/* Group Title */}
       <TitleInput control={control} onErrorsChange={setChildErrors} childErrors={childErrors}/>

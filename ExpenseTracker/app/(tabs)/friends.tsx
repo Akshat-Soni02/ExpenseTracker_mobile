@@ -8,6 +8,7 @@ import {friend, useGetUserFriendsQuery} from '@/store/userApi';
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import { globalStyles } from "@/styles/globalStyles";
 import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
+import Header from "@/components/Header";
 
 export default function PeopleScreen() {
 
@@ -35,10 +36,7 @@ export default function PeopleScreen() {
     <View style={[{flex:1}]}>
         <ScrollView style={globalStyles.viewContainer}>
 
-          <View style = {globalStyles.viewHeader}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style={globalStyles.backButton}/>
-            <Text style={globalStyles.headerText}>Friends</Text>
-          </View>
+          <Header headerText="Friends"/>
 
           <View style={styles.transactionsContainer}>
             {isLoadingPeople ? (

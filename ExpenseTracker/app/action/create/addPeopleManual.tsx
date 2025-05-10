@@ -136,6 +136,7 @@ import { useRouter } from "expo-router";
 
 import { useAddUserFriendsMutation, useGetUserFutureFriendsQuery } from "@/store/userApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 const AddEmailManuallyScreen = () => {
   const router = useRouter();
@@ -211,6 +212,8 @@ const AddEmailManuallyScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff", padding: 12 }}>
+
+      <Header headerText="Invite Friends"/>
       {/* Invited Friends Card */}
       <View
         style={{
