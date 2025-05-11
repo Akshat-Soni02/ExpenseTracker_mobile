@@ -100,6 +100,11 @@ else if (errorSettlement) {
       }
       grouped[date].push(transaction);
     });
+
+    Object.keys(grouped).forEach((date) => {
+      grouped[date].sort((a, b) => new Date(b.createdAt || new Date).getTime() - new Date(a.createdAt || new Date).getTime());
+    });
+
     return grouped;
   }
 

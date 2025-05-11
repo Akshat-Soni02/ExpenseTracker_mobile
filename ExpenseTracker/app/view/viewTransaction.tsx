@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
 import FastImage from 'react-native-fast-image';
 import moment from "moment";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import ImageViewing from 'react-native-image-viewing';
 
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
@@ -19,6 +21,7 @@ const TransactionDetailScreen = () => {
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [viewImage, setViewImage] = useState(false);
 
   const { data, isLoading, error, refetch } = useGetPersonalTransactionQuery(id);
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
@@ -112,29 +115,39 @@ const TransactionDetailScreen = () => {
 
         <Text style={globalStyles.viewActivityTitle}>{transaction?.description}</Text>
         <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{transaction?.amount}</Text>
+        {transaction?.transaction_category && <Text style={styles.categoryPill}>{transaction.transaction_category}</Text>}
 
-        {transaction?.wallet_id && (
-          <Text style={globalStyles.viewActivityAccountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
-        )}
+      </View>
 
-        <Text style={globalStyles.viewActivityDate}>{moment(transaction?.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
+      <View style = {styles.minDetails}>
+        <View style = {styles.minDetailsDownView}><MaterialCommunityIcons name="calendar-blank-outline" size={24} color="#0A6FE3" />   <Text style = {styles.minDetailsDownText}>{moment(transaction?.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text></View>
+          {transaction?.wallet_id && (
+            <View style = {styles.minDetailsDownView}><MaterialCommunityIcons name="wallet-outline" size={24} color="#0A6FE3" />   <Text style = {styles.minDetailsDownText}>{transaction.transaction_type === "expense" ? "Paid via " : "Received in "}{walletData?.data?.wallet_title || "Unknown"}</Text></View>
+          )}
       </View>
 
       {transaction?.notes && (
-        <View style={globalStyles.viewActivityNotesContainer}>
-          <Text style={globalStyles.viewActivityNotesTitle}>Notes</Text>
+        <View style={styles.splitContainer}>
+          <Text style={styles.splitHeader}>Notes</Text>
           <Text style={globalStyles.viewActivityNotesText}>{transaction.notes}</Text>
         </View>
       )}
 
       {imageUrl && (
-        <View style={styles.mediaContainer}>
-          <FastImage
-            style={styles.previewImage}
-            source={{ uri: imageUrl }}
-            resizeMode={FastImage.resizeMode.contain}
+        <>
+          <TouchableOpacity onPress={() => setViewImage(true)}>
+            <View style={styles.mediaContainer}>
+              <Image source={{ uri: imageUrl}} style={styles.previewImage} />
+            </View>
+          </TouchableOpacity>
+  
+          <ImageViewing
+          images={[{ uri: imageUrl}]}
+          imageIndex={0}
+          visible={viewImage}
+          onRequestClose={() => setViewImage(false)}
           />
-        </View>
+        </>
       )}
       
     </View>
@@ -156,4 +169,42 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     resizeMode: "contain",
   },
+  minDetails: {
+    width: 350,
+    padding: 10,
+    backgroundColor: "#F5FAFE",
+    borderRadius: 7,
+    alignSelf: "center",
+    marginBottom: 10
+  },
+  minDetailsDownView: {
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center"
+  },
+  minDetailsDownText: {
+    fontSize: 15,
+    color: "#102547",
+    textAlignVertical: "center"
+  },
+  splitContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    marginBottom: 5,
+  },
+  splitHeader: {
+    color: "#283E5B",
+    fontSize: 18,
+    fontWeight: "500"
+  },
+  categoryPill: {
+    backgroundColor: '#EAF6FF',
+    color: '#0077CC',
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 12,
+    fontSize: 12,
+    alignSelf: 'center',
+    marginTop: 4
+  }
 });
