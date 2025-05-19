@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   previewImage: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     marginTop: 10,
     borderRadius: 8,
     resizeMode: "contain",
@@ -205,6 +205,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     fontSize: 12,
     alignSelf: 'center',
-    marginTop: 4
+    marginVertical: 7
   }
 });

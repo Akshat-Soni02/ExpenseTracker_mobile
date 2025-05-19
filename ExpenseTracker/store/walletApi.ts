@@ -1,5 +1,6 @@
-import { Update } from "@reduxjs/toolkit";
 import api from "./api";
+import { Expense } from "./expenseApi";
+import { Transaction } from "./personalTransactionApi";
 
 export type Wallet = {
   _id: string;
@@ -8,6 +9,13 @@ export type Wallet = {
   lower_limit?: number;
   creator_id?: string;
   deleted?: boolean;
+}
+
+type GetWalletTransactionsRes = {
+  data: {
+    expenses: Expense[],
+    personals: Transaction[],
+  }
 }
 
 type GetWalletResponse = {
@@ -34,6 +42,11 @@ export const walletApi = api.injectEndpoints({
 
     getWallet: builder.query<GetWalletResponse, string>({
       query: (id) => `/wallets/${id}`,
+      providesTags: ["wallet"],
+    }),
+
+    getWalletTransactions: builder.query<GetWalletTransactionsRes, string>({
+      query: (id) => `/wallets/transactions/${id}`,
       providesTags: ["wallet"],
     }),
 
@@ -69,6 +82,7 @@ export const walletApi = api.injectEndpoints({
 export const {
   useCreateWalletMutation,
   useGetWalletQuery,
+  useGetWalletTransactionsQuery,
   useLazyGetWalletQuery,
   useTransferWalletAmountMutation,
   useUpdateWalletMutation,

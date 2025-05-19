@@ -240,11 +240,12 @@ const styles = StyleSheet.create({
   },
   minDetails: {
     width: 350,
-    padding: 10,
+    padding: 12,
     backgroundColor: "#F5FAFE",
     borderRadius: 7,
     alignSelf: "center",
-    marginBottom: 10
+    marginBottom: 10,
+    gap: 5
   },
   minDetailsDownView: {
     flexDirection: "row",

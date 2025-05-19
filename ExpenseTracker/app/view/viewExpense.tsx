@@ -327,6 +327,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     fontSize: 12,
     alignSelf: 'center',
-    marginTop: 4
+    marginVertical: 7
   }
 });
