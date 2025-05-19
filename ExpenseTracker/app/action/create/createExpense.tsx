@@ -170,11 +170,11 @@ export default function AddExpenseScreen() {
       setImage(result.assets[0].uri);
       setOcrResults(null);
       setErrorMessage('');
-      processReceipt();
+      processReceipt(result.assets[0].uri);
     }
   };
 
-  const processReceipt = async () => {
+  const processReceipt = async (image) => {
     
     console.log("Processing receipt...",image);
     if (!image) return;

@@ -151,11 +151,11 @@ export default function AddTransactionScreen() {
         setImage(result.assets[0].uri);
         setOcrResults(null);
         setErrorMessage('');
-        processReceipt();
+        processReceipt(result.assets[0].uri);
       }
     };
   
-    const processReceipt = async () => {
+    const processReceipt = async (image) => {
       console.log("Processing receipt...",image);
       if (!image) return;
       
@@ -166,8 +166,8 @@ export default function AddTransactionScreen() {
         });
   
         const response = await createOCR({ image: base64 }).unwrap();
-  
-        if (response.data && response.success) {
+        console.log("OCR response:", response);
+        if (response.data) {
           if(response.data.amount && response.data.amount!== 0) {
             setValue("amount", response.data.amount);
           }
@@ -184,7 +184,8 @@ export default function AddTransactionScreen() {
         } 
       } catch (error) {
         console.log('Error processing receipt:', error);
-        // setErrorMessage('Error processing receipt. Please try again.');
+        const err = error as { data?: { message?: string } };
+        setErrorMessage(err?.data?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
