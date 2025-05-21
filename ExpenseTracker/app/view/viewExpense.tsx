@@ -133,7 +133,7 @@ const ExpenseDetailScreen = () => {
 
   const isLender = expense?.lenders.some((lender) => lender.user_id === loggedInUserId);
   const isBorrower = expense?.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
-  const themeColor = isLender ? "#1e9738" : isBorrower ? "#d86161" : "#374151";
+  const themeColor = isLender ? "#218838" : isBorrower ? "#E74C3C" : "#374151";
 
   return (
     <ScrollView style={globalStyles.viewContainer}>
@@ -160,8 +160,8 @@ const ExpenseDetailScreen = () => {
 
       <View style={globalStyles.viewActivityDetailContainer}>
         
-        <Text style={styles.exchangeTitle}>{isLender ? "You are owed" : "You owe"}</Text>
-        <Text style={styles.exchangeTitle}>₹{userState?.toFixed(2) || 0}</Text>
+        <Text style={styles.exchangeTitle}>{isLender ? "You paid" : `${lenderName} paid`}</Text>
+        <Text style={styles.exchangeTitle}>₹{expense?.total_amount}</Text>
         {expense?.expense_category && <Text style={styles.categoryPill}>{expense.expense_category}</Text>}
         <Text style={styles.expenseTitle}>{expense?.description}</Text>
       </View>
@@ -170,10 +170,8 @@ const ExpenseDetailScreen = () => {
         <View style = {styles.minDetailsUp}>
           <MaterialIcons name="list-alt" size={40} color="#0A6FE3" />
           <View style = {styles.minDetailsBillPrimary}>
-            <Text style = {styles.minDetailsBillPrimaryText}>Paid by {lenderName}</Text>
-            {isLender && expense?.wallet_id && (
-              <Text style = {styles.minDetailsBillPrimaryText}>₹{expense?.total_amount}</Text>
-            )}
+            <Text style = {[styles.minDetailsBillPrimaryText, {color: themeColor}]}>{isLender ? "You lent" : `You borrowed`}</Text>
+            <Text style = {[styles.minDetailsBillPrimaryText, {color: themeColor}]}>₹{userState?.toFixed(2) || 0}</Text>
           </View>
         </View>
         <View style = {styles.minDetailsDown}>

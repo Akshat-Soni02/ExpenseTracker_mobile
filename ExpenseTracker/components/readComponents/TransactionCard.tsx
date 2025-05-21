@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Feather from '@expo/vector-icons/Feather';
+import { Pressable } from "react-native";
 
 interface TransactionCardProps {
   imageName?: string;
@@ -32,8 +33,11 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   const isCredit = transactionType === "credit" || transactionType === "income";
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  let touchStartY = 0;
 
-  const handlePressIn = () => {
+  const handlePressIn = (e) => {
+    touchStartY = e.nativeEvent.pageY;
+
     Animated.spring(scaleAnim, {
       toValue: 0.96,
       useNativeDriver: true,
@@ -42,26 +46,29 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
     }).start();
   };
 
-  const handlePressOut = () => {
+  const handlePressOut = (e) => {
+    const touchEndY = e.nativeEvent.pageY;
+    const movement = Math.abs(touchEndY - touchStartY);
+
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
       speed: 20,
       bounciness: 5,
     }).start(() => {
-      if (pressFunction) pressFunction();
+      if (movement < 5 && pressFunction) pressFunction();
     });
   };
 
   return (
-    <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
+    <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
       <Animated.View style={[styles.transactionItem, cardStyle, { transform: [{ scale: scaleAnim }] }]}>
         {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
 
         {imageType && (
-          <Feather name={isDebit ? "arrow-up-right" : "arrow-down-left"}
+          <Feather name={imageType === "expense" ? "arrow-up-right" : "arrow-down-left"}
           size={25}
-          color={isDebit ? "#d86161" : "#1e9738"} />
+          color={imageType === "expense" ? "#d86161" : "#1e9738"} />
         )}
 
         <View style={styles.transactionDetails}>
@@ -88,7 +95,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
           </Text>
         </View>
       </Animated.View>
-    </TouchableWithoutFeedback>
+    </Pressable>
   );
 };
 

@@ -32,6 +32,13 @@ export default function ViewBudgetScreen() {
     }
   }, [errorMessage]);
 
+  const getUsageColor = (usage: number) => {
+    if (usage < 0.8) return "green";
+    if (usage < 1) return "#FFA500"; // orange
+    return "red";
+  };
+  
+
   const handleBudgetDelete = async () => {
     try {
       const response = await deleteBudget(id);
@@ -68,98 +75,128 @@ export default function ViewBudgetScreen() {
 
   return (
     <ScrollView style={globalStyles.viewContainer}>
+      <Header
+        headerIcon={
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            anchor={
+              <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
+                <Entypo name="dots-three-vertical" size={20} color="black" />
+              </TouchableOpacity>
+            }
+          >
+            <Menu.Item
+              onPress={() => {
+                setMenuVisible(false);
+                router.push({ pathname: "/action/edit/editBudget", params: { id: id } });
+              }}
+              title="Edit"
+            />
+            <Divider />
+            <Menu.Item
+              onPress={() =>
+                Alert.alert("Delete Budget", `Are you sure you want to delete "${dataBudget?.data.budget_title}"?`, [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Yes", onPress: () => handleBudgetDelete() },
+                ])
+              }
+              title="Delete"
+            />
+          </Menu>
+        }
+      />
 
-      <Header headerIcon={<Menu
-          visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
-          anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
-              <Entypo name="dots-three-vertical" size={20} color="black" />
-            </TouchableOpacity>
-          }
-        >
-          <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/action/edit/editBudget",params : {id:id}})}} title="Edit" />
-          <Divider />
-          <Menu.Item onPress={() => Alert.alert(
-            "Delete bill", 
-            `Are you sure you want to delete ${dataBudget?.data.budget_title}`, 
-            [
-              { text: "Cancel", style: "cancel" },
-              { text: "Yes", onPress: () => handleBudgetDelete()}
-            ]
-          )} title="Delete" />
-        </Menu>}/>
+      <View style={styles.card}>
 
-        <View style={styles.card}>
+      <Text style={styles.cardTitle}>{dataBudget?.data.budget_title}</Text>
 
-          <View style={styles.amountContainer}>
-            <Text style={[styles.label,{fontSize:25}]}>Current Spend</Text>
-            <Text style={[styles.amount, {color: (dataBudget && dataBudget.data.current_spend >= dataBudget.data.amount) ? 'red' : 'green'}]}>₹{dataBudget?.data.current_spend}</Text>
-          </View>
+      <View style={styles.analyticsBox}>
+        <Text style={styles.label}>Spend</Text>
+        <Text style={[styles.value, { color: getUsageColor(dataBudget!.data.current_spend / dataBudget!.data.amount) }]}>
+          ₹{dataBudget?.data.current_spend}
+        </Text>
+      </View>
 
-          <View style={styles.amountContainer}>
-            <Text style={styles.label}>Limit</Text>
-            <Text style={[styles.amount,{color:"#555",fontSize:20}]}>₹{dataBudget?.data.amount}</Text>
-          </View>
+      <View style={styles.analyticsBox}>
+        <Text style={styles.label}>Limit</Text>
+        <Text style={styles.value}>₹{dataBudget?.data.amount}</Text>
+      </View>
 
-          <View style={styles.section}>
-            <Text style={styles.label}>Description</Text>
-            <Text style={styles.value}>{dataBudget?.data.budget_title}</Text>
-          </View>
+      <View style={styles.analyticsBox}>
+        <Text style={styles.label}>Remaining</Text>
+        <Text style={styles.value}>
+          ₹{(dataBudget!.data.amount - dataBudget!.data.current_spend).toFixed(2)}
+        </Text>
+      </View>
 
-          <View style={styles.section}>
-            <Text style={styles.label}>Category</Text>
-            <Text style={styles.value}>{dataBudget?.data.budget_category}</Text>
-          </View>
+      <View style={styles.progressBarContainer}>
+        <View
+          style={[
+            styles.progressBar,
+            {
+              width: `${(dataBudget!.data.current_spend / dataBudget!.data.amount) * 100}%`,
+              backgroundColor: getUsageColor(dataBudget!.data.current_spend / dataBudget!.data.amount),
+            },
+          ]}
+        />
+      </View>
 
-          <View style={styles.section}>
-            <Text style={styles.label}>Period</Text>
-            <Text style={styles.value}>{dataBudget?.data.period}</Text>
-          </View>
+      <View style={styles.section}>
+        <Text style={styles.label}>Category</Text>
+        <Text style={styles.value}>{dataBudget?.data.budget_category}</Text>
+      </View>
 
-        </View>
+      <View style={styles.section}>
+        <Text style={styles.label}>Period</Text>
+        <Text style={styles.value}>{dataBudget?.data.period}</Text>
+      </View>
+
+      </View>
+
     </ScrollView>
+
   );
 }
 
 
 const styles = StyleSheet.create({
-  
   menuButton: {
     padding: 10,
   },
-  
-  card: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  amountContainer: {
-    alignItems: "center",
+  budgetSection: {
+    marginTop: 10,
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
-  amount: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#007AFF",
+  budgetHeader: {
+    fontSize: 16,
+    color: "#424242",
+    marginBottom: 4,
   },
-  section: {
-    marginBottom: 15,
+  budgetAmount: {
+    fontSize: 28,
+    fontWeight: "500",
+    marginBottom: 4,
+  },
+  budgetLimit: {
+    fontSize: 14,
+    color: "#757575",
+  },
+  infoBlock: {
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+    paddingHorizontal: 20,
+    paddingVertical: 14,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 14,
+    color: "#757575",
+    marginBottom: 4,
   },
   value: {
-    fontSize: 18,
-    color: "#555",
-    marginTop: 5,
+    fontSize: 16,
+    color: "#212121",
   },
   loaderContainer: {
     flex: 1,
@@ -167,9 +204,53 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFF",
   },
-  errorMessage: {
-    textAlign: "center",
-    color: "red",
-    marginTop: 20,
+
+
+
+  card: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
+  
+  section: {
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+    paddingTop: 10,
+  },
+
+  cardTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#222",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  
+  analyticsBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 5,
+  },
+  
+  progressBarContainer: {
+    height: 10,
+    backgroundColor: "#E5E5E5",
+    borderRadius: 5,
+    overflow: "hidden",
+    marginVertical: 15,
+  },
+  
+  progressBar: {
+    height: "100%",
+    borderRadius: 5,
+  },  
+  
 });

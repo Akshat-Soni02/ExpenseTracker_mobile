@@ -24,6 +24,7 @@ const AddPeopleInput: React.FC<Props> = ({ control, des }) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [user, setUser] = useState< people | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showMore, setShowMore] = useState<boolean>(false);
 
   const { data, isLoading, error: errorFriend } = useGetUserFriendsQuery();
 
@@ -68,10 +69,18 @@ const AddPeopleInput: React.FC<Props> = ({ control, des }) => {
 
         return (
           <View style={styles.container}>
-            <Text style={styles.title}>Add People</Text>
+            <View style = {styles.splitHead}>
+              <View style={{ flex: 1 }} /> {/* Left spacer */}
+              <Text style={styles.title}>Add People</Text>
+              <View style={{ flex: 1, alignItems: 'flex-end'}}>
+                <TouchableOpacity onPress={() => setModalVisible(true)} disabled = {!!errorFriend}>
+                  <Text style={{color: "#616161"}}>+ Add people</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
             <View style={styles.selectedUsersContainer}>
-              {selectedUsers.map((userId: string) => {
+              {(showMore ? selectedUsers : selectedUsers.slice(0, 3)).map((userId: string) => {
                 const selectedUser = data?.data?.find((u) => u._id === userId) || 
                                      (user?.user_id === userId ? user : null);
                 
@@ -89,10 +98,18 @@ const AddPeopleInput: React.FC<Props> = ({ control, des }) => {
                 );
               })}
 
+              {selectedUsers.length > 3 && (
+                <TouchableOpacity onPress={() => setShowMore(prev => !prev)}>
+                  <Text style={{ color: "#616161" }}>
+                    {showMore ? "Show less" : "Show all"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
               {/* if there is error querying friends then it will disable add button */}
-              <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)} disabled = {!!errorFriend}>
+              {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)} disabled = {!!errorFriend}>
                 <Text style={styles.addButtonText}>{des || "Add People"}</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             <Modal animationType="slide" transparent={false} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
@@ -145,6 +162,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: "bold", textAlign: "center", marginBottom: 5 },
   userIcon: { width: 34, height: 34, borderRadius: 17, marginRight: 10 },
   userName: { flex: 1, fontSize: 16 },
+  splitHead: {flexDirection: "row", justifyContent: "center", alignItems: "center"},
   modalButton: {alignSelf: "center"},
   list: {width: "100%"},
   flashList: {},
