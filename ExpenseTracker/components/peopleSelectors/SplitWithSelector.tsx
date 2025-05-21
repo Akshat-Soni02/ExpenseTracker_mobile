@@ -54,6 +54,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [paidByModalVisible, setPaidByModalVisible] = useState<boolean>(false);
+  const [showMore, setShowMore] = useState<boolean>(false);
 
   const [paidBy, setPaidBy] = useState<people | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -235,10 +236,19 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title || "Split with"}</Text>
+      <View style = {styles.splitHead}>
+        <View style={{ flex: 1 }} /> {/* Left spacer */}
+        <Text style={styles.title}>{title || "Split with"}</Text>
+        <View style={{ flex: 1, alignItems: 'flex-end'}}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Text style={{color: "#616161"}}>+ Add people</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      
 
       <View style={styles.selectedUsersContainer}>
-        {selectedUsers.map((user) => (
+        {(showMore ? selectedUsers : selectedUsers.slice(0, 3)).map((user) => (
           <View key={user.user_id} style={styles.splitItem}>
             {user.profile_photo ? (
               <Image source={{ uri: user.profile_photo }} style={styles.userIcon} />
@@ -274,9 +284,17 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
           </View>
         ))}
 
-        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        {selectedUsers.length > 3 && (
+          <TouchableOpacity onPress={() => setShowMore(prev => !prev)}>
+            <Text style={{ color: "#616161" }}>
+              {showMore ? "Show less" : "Show all"}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.addButtonText}>Add People</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
 
@@ -353,11 +371,12 @@ const styles = StyleSheet.create({
   container: { padding: 10, borderRadius: 15, width: "100%", backgroundColor: "rgba(200, 230, 255, 0.4)" , borderWidth: 2, borderColor: "rgba(255, 255, 255, 0.2)",},
   title: { fontSize: 18, fontWeight: "bold", textAlign: "center", marginBottom: 5 },
   userIcon: { width: 34, height: 34, borderRadius: 17, marginRight: 10 },
+  splitHead: {flexDirection: "row", justifyContent: "center", alignItems: "center"},
   userName: { flex: 1, fontSize: 16 },
   modalButton: {alignSelf: "center"},
   list: {width: "100%"},
   selectedUsersContainer: { padding: 10, borderRadius: 10 },
-  splitItem: { flexDirection: "row", alignItems: "center", marginVertical: 5, padding: 10, borderRadius: 10, backgroundColor: "rgba(200, 230, 255, 0.7)" },
+  splitItem: { flexDirection: "row", alignItems: "center", marginVertical: 1, padding: 10, borderRadius: 10, backgroundColor: "rgba(200, 230, 255, 0.7)" },
   amountInput: { width: width * 0.25, padding: 5, textAlign: "center", backgroundColor: "#F3F4F6", borderRadius: 5, marginLeft: 10 },
   addButton: { backgroundColor: "#355C7D", padding: 10, borderRadius: 8, alignItems: "center", marginTop: 10 },
   addButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },

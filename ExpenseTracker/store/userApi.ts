@@ -266,6 +266,14 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
+    removeFriendInvite: builder.mutation<void, {email:string}>({
+      query: (body) => ({
+        url: `/users/remove-friend-invite`,
+        method: "POST",
+        body
+      }),
+    }),
+
     updateUserDetails: builder.mutation<GetUserResponse, FormData>({
       query: ( body ) => ({
         url: `/users/profile-details`,
@@ -324,5 +332,6 @@ export const {
   useAddUserFriendsMutation,
   useAutoaddFriendsMutation,
   useGetTodaySpendQuery,
-  useGetUserFutureFriendsQuery
+  useGetUserFutureFriendsQuery,
+  useRemoveFriendInviteMutation
 } = userApi;

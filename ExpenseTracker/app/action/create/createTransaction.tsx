@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert} from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, LayoutAnimation, Platform, UIManager} from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,6 +18,10 @@ import { useGetUserWalletsQuery } from "@/store/userApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export type error = {
   message: string;
@@ -60,6 +64,12 @@ export default function AddTransactionScreen() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
   const [validInput, setValidInput] = useState<boolean>(true);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  
+  const toggleMoreOptions = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowMoreOptions(prev => !prev);
+  };
 
   let detectedAmountNumber = Number(detectedAmount);
   let dateOnly: Date | undefined;
@@ -236,18 +246,27 @@ export default function AddTransactionScreen() {
       </View>
 
       {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/>):<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors}/>}
-      <NotesInput control={control} name="notes" />
+      <TouchableOpacity onPress={toggleMoreOptions} style={{ marginVertical: 10, alignSelf: 'center' }}>
+        <Text style={{ color: '#000', fontWeight: '500', fontSize: 16 }}>
+          {showMoreOptions ? 'Hide ▲' : 'Add More Details ▼'}
+        </Text>
+      </TouchableOpacity>
+      {showMoreOptions && (
+        <>
+            <NotesInput control={control} name="notes" />
       
-      <View style={globalStyles.walletPhotoContainer}>
-        <WalletSelector control={control} name="wallet"/>
-        <PhotoSelector control={control} />
-      </View>
+            <View style={globalStyles.walletPhotoContainer}>
+              <WalletSelector control={control} name="wallet"/>
+              <PhotoSelector control={control} />
+            </View>
 
-        {transactionType === "expense" && (<CategorySelector control={control} />)}
-      <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
-        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
-        <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
-      </View>
+              {transactionType === "expense" && (<CategorySelector control={control} />)}
+            <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
+              <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
+              <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
+            </View>
+        </>
+      )}
 
        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
