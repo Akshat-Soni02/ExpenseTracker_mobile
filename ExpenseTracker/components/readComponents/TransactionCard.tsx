@@ -59,9 +59,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
 
         {imageType && (
-          <Feather name={isDebit ? "arrow-up-right" : "arrow-down-left"}
+          <Feather name={imageType==="expense" ? "arrow-up-right" : "arrow-down-left"}
           size={25}
-          color={isDebit ? "#d86161" : "#1e9738"} />
+          color={imageType==="expense"  ? "#d86161" : "#1e9738"} />
         )}
 
         <View style={styles.transactionDetails}>

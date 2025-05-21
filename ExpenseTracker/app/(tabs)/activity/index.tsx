@@ -154,9 +154,10 @@ else if (errorSettlement) {
                             <TransactionCard 
                               pressFunction = {() => router.push({ pathname: "/view/viewExpense", params: { id:item._id} })}
                               title={item.description}
+                              subtitle={'Paid by '}
                               imageType={undefined}
                               amount={`₹${item.total_amount}`}
-                              subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
+                              optionText={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
                               transactionType={undefined}
                             />
                           )}
@@ -219,10 +220,11 @@ else if (errorSettlement) {
                           <TransactionCard 
                             pressFunction = {() => router.push({ pathname: "/view/viewTransaction", params: { id:item._id} })}
                             title={item.description}
+                            subtitle={item.transaction_category}
                             imageType={item.transaction_type}
                             amount={`₹${item.amount}`}
-                            subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
-                            transactionType={item.transaction_type}
+                            optionText={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
+                            // transactionType={item.transaction_type}
                           />
                         )}
                         ItemSeparatorComponent={() => (
@@ -286,9 +288,10 @@ else if (errorSettlement) {
                         <TransactionCard
                           pressFunction={() => router.push({ pathname: "/view/viewSettlement", params: { id:item._id} })}
                           title={item.settlement_description}
+                          subtitle={'paid'}
                           imageType={undefined}
                           amount={`₹${item.amount}`}
-                          subtitle={format(parseISO(new Date().toISOString()), 'hh:mm a')}
+                          optionText={format(parseISO(new Date().toISOString()), 'hh:mm a')}
                           transactionType={undefined}
                         />
                       )}

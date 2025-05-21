@@ -209,6 +209,7 @@ export default function AddExpenseScreen() {
         } as any);
       }
       formData.append("created_at_date_time", String(created_at_date_time));
+      console.log(formData);
       const response = await createExpense(formData).unwrap();
       reset();
       router.replace({ pathname: "/view/viewExpense", params: { id:response?.data?._id} });

@@ -163,7 +163,7 @@ const ExpenseDetailScreen = () => {
         <Text style={styles.exchangeTitle}>{isLender ? "You are owed" : "You owe"}</Text>
         <Text style={styles.exchangeTitle}>₹{userState?.toFixed(2) || 0}</Text>
         {expense?.expense_category && <Text style={styles.categoryPill}>{expense.expense_category}</Text>}
-        <Text style={styles.expenseTitle}>{expense?.description}</Text>
+        <Text style={styles.expenseTitle} numberOfLines={2} ellipsizeMode="tail">{expense?.description}</Text>
       </View>
 
       <View style = {styles.minDetails}>
