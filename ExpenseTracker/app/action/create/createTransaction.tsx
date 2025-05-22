@@ -153,6 +153,7 @@ export default function AddTransactionScreen() {
 
   const onTransactionSubmit = async (data: Data) => {
     try {
+      console.log(data);
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
 
@@ -189,6 +190,7 @@ export default function AddTransactionScreen() {
       }
       formData.append("amount", String(data.amount));
       formData.append("created_at_date_time", String(created_at_date_time));
+      console.log(formData);
     
       const response = await createPersonalTransaction(formData).unwrap();
       if(detectedId){

@@ -117,7 +117,10 @@ const ProfileScreen = () => {
           <MaterialIcons name="keyboard-arrow-right" size={24} color="black" />
         </TouchableOpacity>
 
-        <TouchableOpacity style = {styles.profileMenu} onPress={handleLogout}>
+        <TouchableOpacity style = {styles.profileMenu} onPress={() => Alert.alert("Logout", "Are you sure ?", [
+              { text: "Cancel", style: "cancel" },
+              { text: "Yes, Logout", onPress: () => handleLogout() },
+            ])}>
           <View style = {styles.profileMenuDetail}>
             {(!loading && !isLoggingOut) ? (
               <>

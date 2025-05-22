@@ -20,9 +20,21 @@ const paperLightTheme = {
     primary: "#6200ee",
     background: "#FFFFFF",
     surface: "#FFFFFF",
-    text: "#000000",
+    surfaceVariant: "#FFFFFF",
+    onSurface: "#000000",
+    surfaceTint: "transparent", // no overlay
+    elevation: {
+      level0: "#FFFFFF",
+      level1: "#FFFFFF",
+      level2: "#FFFFFF",
+      level3: "#FFFFFF",
+      level4: "#FFFFFF",
+      level5: "#FFFFFF",
+    },
   },
 };
+
+
 
 export {
   ErrorBoundary,
