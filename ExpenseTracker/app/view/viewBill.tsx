@@ -258,13 +258,14 @@ const BillDetailsScreen = () => {
       <Header headerIcon={<Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
+          contentStyle={{ backgroundColor: "#fff" }}
           anchor={
             <TouchableOpacity onPress={() => setMenuVisible(true)} style={globalStyles.menuButton}>
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
         >
-          <Menu.Item onPress={() => router.push({pathname:"/action/edit/editBill",params : {id:id}})} title="Edit" />
+          <Menu.Item onPress={() => router.push({pathname:"/action/edit/editBill",params : {id:id}})} title="Edit" style={{ backgroundColor: "#fff" }}/>
           <Divider />
           <Menu.Item onPress={() => Alert.alert(
               "Delete bill", 
@@ -273,7 +274,7 @@ const BillDetailsScreen = () => {
                 { text: "Cancel", style: "cancel" },
                 { text: "Yes", onPress: () => handleBillDelete()}
               ]
-            )} title="Delete" />
+            )} title="Delete" style={{ backgroundColor: "#fff" }}/>
         </Menu>}/>
 
       <View style={styles.detailContainer}>

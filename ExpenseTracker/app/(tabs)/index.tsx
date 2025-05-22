@@ -233,7 +233,8 @@ export default function HomeScreen() {
               { icon: "call-split", label: ["Split", "money"], route: "/action/create/createExpense" },
               { icon: "plus", label: ["Add", "Transaction"], route: "/action/create/createTransaction" },
               { icon: "file-check-outline", label: ["Bills"], route: "/(tabs)/bills" },
-              { icon: "finance", label: ["Budgets"], route: "/(tabs)/budgets" },
+              // { icon: "finance", label: ["Budgets"], route: "/(tabs)/budgets" },
+              { icon: "account-multiple", label: ["Groups"], route: "/(tabs)/groups" },
             ].map((item, index) => (
               <View key={index} style={styles.actionContainer}>
                 <TouchableOpacity style={styles.actionButton} onPress={() => router.push(item.route)}>

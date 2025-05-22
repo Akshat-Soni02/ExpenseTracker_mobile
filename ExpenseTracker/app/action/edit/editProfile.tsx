@@ -168,7 +168,8 @@ import {
   
           </View>
   
-          <View style={styles.card}>
+          {/* removed the daily limit for now, don't see much usability - include later if needed */}
+          {/* <View style={styles.card}>
             <View style = {styles.rupeeContainer}><Text style={[styles.rupee]}>₹</Text>
                 <TextInput
                     style={styles.input}
@@ -179,13 +180,13 @@ import {
                     onChangeText={(text) => setUserData({ ...userData, daily_limit: text })}
                 />
             </View>
-          </View>
+          </View> */}
 
           
   
           <TouchableOpacity style={styles.logoutButton} onPress={handleSubmit}>
             {isLoading ? (
-            <ActivityIndicator color="#000" />
+            <ActivityIndicator color="#fff" />
             ) : (
             <View style={{ flexDirection: "row", alignItems: "center" }}>  
                 <Text style={styles.logoutText}>Update</Text>
