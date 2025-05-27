@@ -1,8 +1,7 @@
-import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { FlatList, RefreshControl} from "react-native";
 import * as React from 'react';
 import { FAB ,PaperProvider , Portal} from 'react-native-paper';
 import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
 import { Text, View } from "@/components/Themed";
 
 import TransactionCard from "@/components/readComponents/TransactionCard";
@@ -14,7 +13,7 @@ import Header from "@/components/Header";
 
 export default function BudgetsScreen() {
   const router = useRouter();
-  const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget} = useGetUserBudgetsQuery();
+  const {data: dataBudget, isLoading: isLoadingBudget, error: errorBudget,isFetching,refetch} = useGetUserBudgetsQuery();
   const [state, setState] = React.useState({ open: false });
 
   // if (isLoadingBudget) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
@@ -41,7 +40,7 @@ export default function BudgetsScreen() {
     <PaperProvider>
     <View style={globalStyles.screen}>
 
-        <ScrollView style={globalStyles.viewContainer}>
+        <View style={globalStyles.viewContainer}>
           
           <Header headerText="Budgets"/>
 
@@ -73,13 +72,16 @@ export default function BudgetsScreen() {
             ItemSeparatorComponent={() => (
               <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 5 }}
+            contentContainerStyle={{ paddingBottom: 5 ,flexGrow: 1 }}
+            refreshControl={
+              <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+            }
             nestedScrollEnabled={true}
           />) : (<Text style={globalStyles.noText}>Create a budget to keep track categorical track of your expenses</Text>)}
             </>
           )}
           
-        </ScrollView>
+        </View>
 
         {/* <FAB
         label="Add Budget"

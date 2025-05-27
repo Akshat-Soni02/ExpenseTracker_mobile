@@ -1,7 +1,6 @@
-import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { FlatList, ActivityIndicator,RefreshControl} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import {  FontAwesome } from "@expo/vector-icons";
 import { FAB } from 'react-native-paper';
 import * as React from 'react';
 
@@ -14,8 +13,7 @@ import Header from "@/components/Header";
 
 export default function GroupsScreen() {
   const router = useRouter();
-
-const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUserGroupsQuery();
+  const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup,isFetching,refetch} = useGetUserGroupsQuery();
 
   if (isLoadingGroup) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     
@@ -36,7 +34,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
   return (
     <View style={globalStyles.screen}>
 
-        <ScrollView style={globalStyles.viewContainer}>
+        <View style={globalStyles.viewContainer}>
 
           <Header headerText="Groups"/>
           
@@ -58,10 +56,13 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
             ItemSeparatorComponent={() => (
               <View style={{  height: 5, backgroundColor: 'white'}} />
             )}
-            contentContainerStyle={{ paddingBottom: 5 }}
+            contentContainerStyle={{ paddingBottom: 5,flexGrow: 1 }}
+            refreshControl={
+              <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+            }
           />) : <Text style={globalStyles.noText}>No Groups</Text>}
           
-        </ScrollView>
+        </View>
 
         <FAB
         label="Add Group"

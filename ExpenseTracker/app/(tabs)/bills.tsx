@@ -1,8 +1,7 @@
-import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { FlatList, RefreshControl,ScrollView} from "react-native";
 import { FAB } from 'react-native-paper';
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
 import * as React from 'react';
 
 import TransactionCard from "@/components/readComponents/TransactionCard";
@@ -20,9 +19,9 @@ export default function BillsScreen() {
   const router = useRouter();
   const [page, setPage] = React.useState<"pending" | "missed" | "paid">("pending");
 
-  const {data: dataPendingBills, isLoading: isLoadingPendingBills, error: errorPendingBills} = useGetUserBillsQuery({ status: "pending" });
-  const {data: dataMissedBills, isLoading: isLoadingMissedBills, error: errorMissedBills} = useGetUserBillsQuery({ status: "missed" });
-  const {data: dataCompletedBills, isLoading: isLoadingCompletedBills, error: errorCompletedBills} = useGetUserBillsQuery({ status: "paid" });
+  const {data: dataPendingBills, isLoading: isLoadingPendingBills, error: errorPendingBills,isFetching:isFetchingPending,refetch:refetchPending} = useGetUserBillsQuery({ status: "pending" });
+  const {data: dataMissedBills, isLoading: isLoadingMissedBills, error: errorMissedBills,isFetching:isFetchingMissed,refetch:refetchMissed} = useGetUserBillsQuery({ status: "missed" });
+  const {data: dataCompletedBills, isLoading: isLoadingCompletedBills, error: errorCompletedBills,isFetching:isFetchingPaid,refetch:refetchPaid} = useGetUserBillsQuery({ status: "paid" });
 
   // if (isLoadingPendingBills || isLoadingMissedBills || isLoadingCompletedBills) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
     
@@ -106,7 +105,10 @@ export default function BillsScreen() {
                 ItemSeparatorComponent={() => (
                   <View style={{  height: 5, backgroundColor: 'white'}} />
                 )}
-                contentContainerStyle={{ paddingBottom: 5 }}
+                contentContainerStyle={{ paddingBottom: 5,flexGrow: 1 }}
+                refreshControl={
+                  <RefreshControl refreshing={isFetchingPending} onRefresh={refetchPending} />
+                }
                 nestedScrollEnabled={true}
                 scrollEnabled={false}
               />):
@@ -161,7 +163,10 @@ export default function BillsScreen() {
                     ItemSeparatorComponent={() => (
                       <View style={{  height: 5, backgroundColor: 'white'}} />
                     )}
-                    contentContainerStyle={{ paddingBottom: 5 }}
+                    contentContainerStyle={{ paddingBottom: 5 ,flexGrow: 1 }}
+                    refreshControl={
+                      <RefreshControl refreshing={isFetchingMissed} onRefresh={refetchMissed} />
+                    }
                     nestedScrollEnabled={true}
                     scrollEnabled={false}
                   />):
@@ -216,7 +221,10 @@ export default function BillsScreen() {
                     ItemSeparatorComponent={() => (
                       <View style={{  height: 5, backgroundColor: 'white'}} />
                     )}
-                    contentContainerStyle={{ paddingBottom: 5 }}
+                    contentContainerStyle={{ paddingBottom: 5,flexGrow: 1 }}
+                    refreshControl={
+                      <RefreshControl refreshing={isFetchingPaid} onRefresh={refetchPaid} />
+                    }
                     nestedScrollEnabled={true}
                     scrollEnabled={false}
                   />):

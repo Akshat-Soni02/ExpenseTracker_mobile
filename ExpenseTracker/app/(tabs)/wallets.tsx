@@ -1,4 +1,4 @@
-import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { FlatList,RefreshControl} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -16,7 +16,7 @@ import Header from "@/components/Header";
 export default function WalletsScreen() {
   const router = useRouter();
 
-  const {data: dataWallet, isLoading: isLoadingWallet, error: errorWallet} = useGetUserWalletsQuery();
+  const {data: dataWallet, isLoading: isLoadingWallet, error: errorWallet,isFetching,refetch} = useGetUserWalletsQuery();
 
   // if (isLoadingWallet) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
@@ -36,7 +36,7 @@ export default function WalletsScreen() {
 
   return (
     <View style={globalStyles.screen}>
-        <ScrollView style={globalStyles.viewContainer}>
+        <View style={globalStyles.viewContainer}>
           
           <Header headerText="Wallets"/>
 
@@ -67,8 +67,10 @@ export default function WalletsScreen() {
               ItemSeparatorComponent={() => (
                 <View style={{  height: 5, backgroundColor: 'white'}} />
               )}
-              contentContainerStyle={{ paddingBottom: 5 }}
-
+              contentContainerStyle={{ paddingBottom: 5,flexGrow: 1}}
+              refreshControl={
+                <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+              }
             />)
             :
             <Text style= {globalStyles.noText}>No wallets found</Text>
@@ -76,7 +78,7 @@ export default function WalletsScreen() {
             </>
           )}
           
-        </ScrollView>
+        </View>
 
         <FAB
             label="Add Wallet"

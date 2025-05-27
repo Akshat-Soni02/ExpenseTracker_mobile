@@ -1,7 +1,6 @@
-import { StyleSheet,ScrollView ,FlatList } from "react-native";
+import { StyleSheet,ScrollView ,FlatList,RefreshControl } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
 import { FAB } from 'react-native-paper';
 import * as React from 'react';
 
@@ -21,9 +20,9 @@ export default function ActivityScreen() {
   const router = useRouter();
   const [page, setPage] = React.useState<"splits" | "transactions" | "setttlements">("splits");
 
-  const {data: dataExpense, isLoading: isLoadingExpense, error: errorExpense} = useGetUserExpensesQuery();
-  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery();
-  const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery();
+  const {data: dataExpense, isLoading: isLoadingExpense, error: errorExpense,isFetching:isFetchingExpense,refetch:refetchExpense} = useGetUserExpensesQuery();
+  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement,isFetching:isFetchingSettlement,refetch:refetchSettlement} = useGetUserSettlementsQuery();
+  const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction,isFetching:isFetchingTransaction,refetch:refetchTransaction} = useGetUserPersonalTransactionsQuery();
   
 
 if (errorExpense) {
@@ -164,7 +163,10 @@ else if (errorSettlement) {
                           ItemSeparatorComponent={() => (
                             <View style={{ height: 5 , backgroundColor: 'white' }} />
                           )}
-                          contentContainerStyle={{ paddingBottom: 5 }}
+                          contentContainerStyle={{ paddingBottom: 5 ,flexGrow: 1 }}
+                          refreshControl={
+                            <RefreshControl refreshing={isFetchingExpense} onRefresh={refetchExpense} />
+                          }
                         />
   
                       </View>
@@ -230,7 +232,10 @@ else if (errorSettlement) {
                         ItemSeparatorComponent={() => (
                           <View style={{ height: 5 , backgroundColor: 'white' }} />
                         )}
-                        contentContainerStyle={{ paddingBottom: 0 }}
+                        contentContainerStyle={{ paddingBottom: 0,flexGrow: 1 }}
+                        refreshControl={
+                          <RefreshControl refreshing={isFetchingTransaction} onRefresh={refetchTransaction} />
+                        }
                       />
 
                     </View>
@@ -298,7 +303,10 @@ else if (errorSettlement) {
                       ItemSeparatorComponent={() => (
                         <View style={{ height: 5 , backgroundColor: 'white' }} />
                       )}
-                      contentContainerStyle={{ paddingBottom: 0 }}
+                      contentContainerStyle={{ paddingBottom: 0,flexGrow: 1 }}
+                      refreshControl={
+                        <RefreshControl refreshing={isFetchingSettlement} onRefresh={refetchSettlement} />
+                      }
                     />
 
                   </View>
