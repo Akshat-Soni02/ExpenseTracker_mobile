@@ -1,65 +1,37 @@
 import { StyleSheet,ScrollView ,FlatList } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
-import { FAB } from 'react-native-paper';
-import * as React from 'react';
+import { Divider, Menu, IconButton } from 'react-native-paper';
+import {Fragment, useState} from 'react';
+import MultiFAB from "@/components/MultiFAB";
 
 import { format, parseISO ,isToday} from 'date-fns';
-import {useGetUserExpensesQuery, useGetUserPersonalTransactionsQuery, useGetUserSettlementsQuery} from '@/store/userApi';
-import SegmentedControl from "@/components/readComponents/SegmentedControl";
+import {useGetUnifiedHistoryQuery, useLazyGetUserExpensesQuery, useLazyGetUserPersonalTransactionsQuery, useLazyGetUserSettlementsQuery} from '@/store/userApi';
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import { globalStyles } from "@/styles/globalStyles";
 import { Expense } from "@/store/expenseApi";
 import { Settlement } from "@/store/settlementApi";
 import { Transaction } from "@/store/personalTransactionApi";
 import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
-import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
+import SearchBar from "@/components/SearchBar";
+import { COLORS } from "@/app/utils/constants";
 
+
+type Filter = "unified" | "split" | "transaction" | "settlement";
 
 export default function ActivityScreen() {
   const router = useRouter();
-  const [page, setPage] = React.useState<"splits" | "transactions" | "setttlements">("splits");
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState<Filter>("unified");
+  const [menuVisible, setMenuVisible] = useState(false);
 
-  const {data: dataExpense, isLoading: isLoadingExpense, error: errorExpense} = useGetUserExpensesQuery();
-  const {data: dataSettlement, isLoading: isLoadingSettlement, error: errorSettlement} = useGetUserSettlementsQuery();
-  const {data: dataPersonalTransaction, isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction} = useGetUserPersonalTransactionsQuery();
+
+  const {data: dataUnified, isLoading: isLoadingUnified, error: errorUnified} = useGetUnifiedHistoryQuery({});
+  const [fetchExpense, {isLoading: isLoadingExpense, error: errorExpense, data: dataExpense}] = useLazyGetUserExpensesQuery();
+  const [fetchPersonalTransaction, {isLoading: isLoadingPersonalTransaction, error: errorPersonalTransaction, data: dataPersonalTransaction}] = useLazyGetUserPersonalTransactionsQuery();
+  const [fetchSettlement, {isLoading: isLoadingSettlement, error: errorSettlement, data: dataSettlement}] = useLazyGetUserSettlementsQuery();
   
-
-if (errorExpense) {
-  let errorMessage = "An unknown error occurred";
-
-  if ("status" in errorExpense) {
-    errorMessage = `Server Error: ${JSON.stringify(errorExpense.data)}`;
-  } else if ("message" in errorExpense) {
-    errorMessage = `Client Error: ${errorExpense.message}`;
-  }
-  return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
-}
-
-else if (errorPersonalTransaction) {
-  let errorMessage = "An unknown error occurred";
-
-  if ("status" in errorPersonalTransaction) {
-    errorMessage = `Server Error: ${JSON.stringify(errorPersonalTransaction.data)}`;
-  } else if ("message" in errorPersonalTransaction) {
-    errorMessage = `Client Error: ${errorPersonalTransaction.message}`;
-  }
-  return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
-}
-
-else if (errorSettlement) {
-  let errorMessage = "An unknown error occurred";
-
-  if ("status" in errorSettlement) {
-    errorMessage = `Server Error: ${JSON.stringify(errorSettlement.data)}`;
-  } else if ("message" in errorSettlement) {
-    errorMessage = `Client Error: ${errorSettlement.message}`;
-  }
-  return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
-}
-  
-
   const Expenses: Expense[] = dataExpense?.data || [];
   const numberOfExpenses: number = Expenses.length;
 
@@ -69,12 +41,15 @@ else if (errorSettlement) {
   const personalTransactions: Transaction[] = dataPersonalTransaction?.data || [];
   const numberOfPersonalTransactions: number = personalTransactions.length;
 
-  // grouping Transactions (splits, transactions) by date and storing in reverse order
-  const groupTransactionsByDate = <T extends { created_at_date_time: Date }>(transactions: T[]) => {
+  const unifiedHistory = dataUnified?.data || [];
+  const numberOfUnified = unifiedHistory.length;
+
+  // grouping Transactions (splits, transactions, settlements) by date and storing in reverse order [if no date is found it categorizes in current date]
+  const groupTransactionsByDate = <T extends { created_at_date_time?: Date, createdAt?: Date }>(transactions: T[]) => {
     const grouped: Record<string, T[]> = {};
   
     transactions.forEach((transaction) => {
-      const date = transaction.created_at_date_time.toString().split('T')[0];
+      const date = transaction?.created_at_date_time?.toString().split('T')[0] || transaction?.createdAt?.toString().split('T')[0] || new Date().toISOString().split('T')[0];
       if (!grouped[date]) {
         grouped[date] = [];
       }
@@ -82,33 +57,13 @@ else if (errorSettlement) {
     });
   
     Object.keys(grouped).forEach((date) => {
-      grouped[date].sort((a, b) => new Date(b.created_at_date_time).getTime() - new Date(a.created_at_date_time).getTime());
+      grouped[date].sort((a, b) => new Date(b.created_at_date_time || b.createdAt || new Date).getTime() - new Date(a.created_at_date_time || a.createdAt || new Date).getTime());
     });
     
     return grouped;
   };
-  
-  // categorizing all settlements under present date if createdAt is not found
-  const tempGroupTransactionsByDate = (transactions: Settlement[]) => {
-    const grouped: Record<string, Settlement[]> = {};
-  
-    transactions.forEach((transaction) => {
-      let date = new Date().toISOString().split('T')[0];
-      if(transaction.createdAt) date = transaction.createdAt.toString().split('T')[0];
-      if (!grouped[date]) {
-        grouped[date] = [];
-      }
-      grouped[date].push(transaction);
-    });
 
-    Object.keys(grouped).forEach((date) => {
-      grouped[date].sort((a, b) => new Date(b.createdAt || new Date).getTime() - new Date(a.createdAt || new Date).getTime());
-    });
-
-    return grouped;
-  }
-
-  const groupedSettlements: Record<string, Settlement[]> = tempGroupTransactionsByDate(settlements);
+  const groupedSettlements: Record<string, Settlement[]> = groupTransactionsByDate(settlements);
   const settlementDates = Object.keys(groupedSettlements).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
   const groupedPersonalTransactions: Record<string, Transaction[]> = groupTransactionsByDate(personalTransactions);
@@ -117,197 +72,277 @@ else if (errorSettlement) {
   const groupedExpenses: Record<string, Expense[]> = groupTransactionsByDate(Expenses);
   const expenseDates = Object.keys(groupedExpenses).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
-    if(page === "splits") {
-      return (
-        <View style={globalStyles.screen}>
-            <ScrollView style={globalStyles.viewContainer}>
+  const groupedUnified: Record<string, Transaction[]> = groupTransactionsByDate(unifiedHistory);
+  const unifiedDates = Object.keys(groupedUnified).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()); 
 
-              
-            <Header headerText="Activity"/>
+  const FILTER_OPTIONS = [
+    { key: 'unified', label: 'Show All' },
+    { key: 'split', label: 'Show Splits' },
+    { key: 'transaction', label: 'Show Transactions' },
+    { key: 'settlement', label: 'Show Settlements' },
+  ];
 
-            <View style={globalStyles.navbar}>
-              <SegmentedControl value={page} setValue={setPage} isBill={false}/>
-            </View>
+  const fetchDataByKey = async (key: string) => {
+    switch (key) {
+      case 'split':
+        try {
+          await fetchExpense();
+        } catch (error) {
+          console.error(error);
+        }
+        break;
 
-            {isLoadingExpense ? (
-              <>
-                  {[...Array(6)].map((_, index) => (
-                    <View key={index} style={{ marginBottom: 20 }}>
-                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
-                    </View>
-                  ))}
-              </>
-            ) : (
-              <>
-              {numberOfExpenses>0 ? (
-                <View style={{paddingBottom: 20}}>
-                    {expenseDates.map(date => (
-                      <View key={date} style={{backgroundColor:"white"}}>
-                        <Text style={styles.sectionTitle}>
-                            {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
-                        </Text>
-  
-                        <FlatList
-                          data={groupedExpenses[date]}
-                          keyExtractor={(item) => item._id}
-                          renderItem={({ item }) => (
-                            <TransactionCard 
-                              pressFunction = {() => router.push({ pathname: "/view/viewExpense", params: { id:item._id} })}
-                              title={item.description}
-                              imageType={undefined}
-                              amount={`₹${item.total_amount}`}
-                              subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
-                              transactionType={undefined}
-                            />
-                          )}
-                          ItemSeparatorComponent={() => (
-                            <View style={{ height: 5 , backgroundColor: 'white' }} />
-                          )}
-                          contentContainerStyle={{ paddingBottom: 5 }}
-                        />
-  
-                      </View>
-                    ))}
-                  </View>) : <Text style= {globalStyles.noText}>No splits</Text>}
-                  </>
-                )}
+      case 'transaction':
+        try {
+          await fetchPersonalTransaction();
+        } catch (error) {
+          console.error(error);
+        }
+        break;
 
-            </ScrollView>
-
-            <FAB
-            label="Split money"
-            style={globalStyles.fab}
-            onPress={() => router.push("/action/create/createExpense")}
-            />
-
-        </View>);
-
-    } else if (page === "transactions") {
-      return (
-        <View style={globalStyles.screen}>
-          <ScrollView style={globalStyles.viewContainer}>
-              
-            <Header headerText="Activity"/>
-
-              <View style={globalStyles.navbar}>
-                <SegmentedControl value={page} setValue={setPage} isBill={false}/>
-              </View>
-
-              {isLoadingPersonalTransaction ? (
-                <>
-                  {[...Array(6)].map((_, index) => (
-                    <View key={index} style={{ marginBottom: 20 }}>
-                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
-                    </View>
-                  ))}
-                </>
-              ) : (
-                <>
-                    {numberOfPersonalTransactions>0 ? (
-                <View style={{paddingBottom: 30}}>
-                  {personalTransactionDates.map(date => (
-                    <View key={date} style={{backgroundColor:"white"}}>
-
-                      <Text style={styles.sectionTitle}>
-                          {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
-                      </Text>
-
-                      <FlatList
-                        data={groupedPersonalTransactions[date]}
-                        keyExtractor={(item) => item._id}
-                        renderItem={({ item }) => (
-                          <TransactionCard 
-                            pressFunction = {() => router.push({ pathname: "/view/viewTransaction", params: { id:item._id} })}
-                            title={item.description}
-                            imageType={item.transaction_type}
-                            amount={`₹${item.amount}`}
-                            subtitle={format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')}
-                            transactionType={item.transaction_type}
-                          />
-                        )}
-                        ItemSeparatorComponent={() => (
-                          <View style={{ height: 5 , backgroundColor: 'white' }} />
-                        )}
-                        contentContainerStyle={{ paddingBottom: 0 }}
-                      />
-
-                    </View>
-                  ))}
-                </View>) : <Text style= {globalStyles.noText}>No transactions</Text>}
-                </>
-              )}
+      case 'settlement':
+        try {
+          await fetchSettlement();
+        } catch (error) {
+          console.error(error);
+        }
+        break;
     
-            </ScrollView>
+      default:
+        console.log(`No fetch called, key ${key}`);
+        break;
+    }
+  }
 
-            <FAB
-            label="Transaction"
-            style={globalStyles.fab}
-            onPress={() => router.push("/action/create/createTransaction")}
+  const FilterMenu = () => {
+    return (
+      <Menu
+        visible={menuVisible}
+        onDismiss={() => setMenuVisible(false)}
+        anchor={
+          <IconButton
+            icon="filter-variant"
+            size={24}
+            onPress={() => setMenuVisible(true)}
+          />
+        }
+        anchorPosition="bottom"
+        contentStyle={{ backgroundColor: "#fff", paddingVertical: 4 }}
+      >
+        {FILTER_OPTIONS.map((option, index) => (
+          <Fragment key={option.key}>
+            <Menu.Item
+              onPress={async () => {
+                setMenuVisible(false);
+                setFilterType(option.key);
+                await fetchDataByKey(option.key);
+              }}
+              titleStyle={{
+                color: filterType === option.key ? COLORS.text.bluish : "#000",
+                fontWeight: filterType === option.key ? "bold" : "normal",
+              }}
+              title={option.label}
+              style={{
+                backgroundColor: filterType === option.key ? "#ebf0f5" : "transparent",
+              }}
             />
+            {index < FILTER_OPTIONS.length - 1 && <Divider />}
+          </Fragment>
+        ))}
+      </Menu>
+    );
+  };
 
-        </View>);
+  const SearchHeader = () => {
+    return (
+      <View style={[testStyles.horizontalContainer, test.headContainer]}>
+        <View style={{ flex: 1 }}>
+          <SearchBar
+            placeholder="Search transactions, splits..."
+            onSearch={setSearch}
+            containerStyle={{height: 40}}
+          />
+        </View>
+        <FilterMenu />
+      </View>
+    );
+  }
 
-    } else {
-      return (
-        <View style={globalStyles.screen}>
+  const SplitRow = ({item}: any) => {
+    return (
+      <TransactionCard 
+        pressFunction = {() => router.push({ pathname: "/view/viewExpense", params: { id:item._id} })}
+        title={item.description}
+        imageType={undefined}
+        amount={`₹${item.total_amount}`}
+        subtitle={
+          item?.created_at_date_time
+            ? format(parseISO(item.created_at_date_time.toString()), 'hh:mm a')
+            : ''
+        }
+        transactionType={undefined}
+      />
+    );
+  }
 
-          <ScrollView style={globalStyles.viewContainer}>
+  const TransactionRow = ({item}: any) => {
+    return (
+      <TransactionCard 
+        pressFunction = {() => router.push({ pathname: "/view/viewTransaction", params: { id:item._id} })}
+        title={item.description}
+        imageType={item.transaction_type}
+        amount={`₹${item.amount}`}
+        subtitle={format(parseISO(item?.created_at_date_time?.toString()), 'hh:mm a')}
+        transactionType={item.transaction_type}
+      />
+    )
+  }
 
-            <Header headerText="Activity"/>
+  const SettlementRow = ({item}: any) => {
+    return (
+      <TransactionCard
+        pressFunction={() => router.push({ pathname: "/view/viewSettlement", params: { id:item._id} })}
+        title={item.settlement_description}
+        imageType={undefined}
+        amount={`₹${item.amount}`}
+        subtitle={format(parseISO(new Date().toISOString()), 'hh:mm a')}
+        transactionType={undefined}
+      />
+    )
+  }
 
-            <View style={globalStyles.navbar}>
-              <SegmentedControl value={page} setValue={setPage} isBill={false}/>
-            </View>
+  const selectRowByType = ({type, item}) => {
+    switch (type) {
+      case "expense":
+        return <SplitRow item={item}/>
+    
+      case "personalTransaction":
+        return <TransactionRow item={item}/>
+        
+      case "settlement":
+        return <SettlementRow item={item}/>
 
-            {isLoadingSettlement ? (
-              <>
-                {[...Array(6)].map((_, index) => (
-                  <View key={index} style={{ marginBottom: 20 }}>
-                    <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
-                  </View>
-                ))}
-              </>
-            ) : (
-              <>
-                  {numberOfSettlements>0? ( 
-              <View style={{paddingBottom: 30}}>
+      default:
+        console.log(`wrong row select by unified`);
+        return null;
+    }
+  }
 
-                {settlementDates.map(date => (
+  const ListFrame = ({listLoader, listLength, listDates, listGrouper, Row}) => {
+    return (
+      <>
+        {listLoader ? (
+          <>
+            {[...Array(6)].map((_, index) => (
+              <View key={index} style={{ marginBottom: 20 }}>
+                <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
+              </View>
+            ))}
+          </>
+          ) : (
+          <>
+            { listLength > 0 ? (
+              <View style={{paddingBottom: 20}}>
+                {listDates.map(date => (
                   <View key={date} style={{backgroundColor:"white"}}>
-
                     <Text style={styles.sectionTitle}>
                         {isToday(parseISO(date)) ? 'Today' : format(parseISO(date), 'dd MMM')}
                     </Text>
 
                     <FlatList
-                      data={groupedSettlements[date]}
+                      data={listGrouper[date]}
                       keyExtractor={(item) => item._id}
                       renderItem={({ item }) => (
-                        <TransactionCard
-                          pressFunction={() => router.push({ pathname: "/view/viewSettlement", params: { id:item._id} })}
-                          title={item.settlement_description}
-                          imageType={undefined}
-                          amount={`₹${item.amount}`}
-                          subtitle={format(parseISO(new Date().toISOString()), 'hh:mm a')}
-                          transactionType={undefined}
-                        />
+                        Row ? <Row item={item} /> : selectRowByType({type: item.type, item})
                       )}
                       ItemSeparatorComponent={() => (
                         <View style={{ height: 5 , backgroundColor: 'white' }} />
                       )}
-                      contentContainerStyle={{ paddingBottom: 0 }}
+                      contentContainerStyle={{ paddingBottom: 5 }}
                     />
-
                   </View>
                 ))}
-              </View>) : <Text style= {globalStyles.noText}>No settlements</Text>}
-              </>
-            )}
-            </ScrollView>
+              </View> ) : <Text style= {globalStyles.noText}>No splits</Text>
+            }
+          </>
+        )}
+      </>
+    );
+  }
 
-          </View>);
+  const UnifiedHistoryList = () => {
+      return (
+        <ListFrame listLoader={isLoadingUnified} listLength={numberOfUnified} listDates={unifiedDates} listGrouper={groupedUnified} Row={null}/>
+      );
+  }
+
+  const ExpenseList = () => {
+    return (
+      <ListFrame listLoader={isLoadingExpense} listLength={numberOfExpenses} listDates={expenseDates} listGrouper={groupedExpenses} Row={SplitRow}/>
+    );
+  }
+
+  const TransactionList = () => {
+    return (
+      <ListFrame listLoader={isLoadingPersonalTransaction} listLength={numberOfPersonalTransactions} listDates={personalTransactionDates} listGrouper={groupedPersonalTransactions} Row={TransactionRow}/>
+    );
+  }
+
+  const SettlementList = () => {
+    return (
+      <ListFrame listLoader={isLoadingSettlement} listLength={numberOfSettlements} listDates={settlementDates} listGrouper={groupedSettlements} Row={SettlementRow}/>
+    );
+  }
+
+  const renderList = (filter: Filter) => {
+    switch (filter) {
+      case "unified":
+        return <UnifiedHistoryList/>;
+      case "split":
+        return <ExpenseList/>;
+      case "transaction":
+        return <TransactionList/>;
+      case "settlement":
+        return <SettlementList/>;
+      default:
+        return <Text style={{ color: 'gray' }}>Oops</Text>;
     }
+  }
+
+  return (
+    <View style={testStyles.screen}>
+      <ScrollView style={testStyles.container}>
+        <SearchHeader/>
+        {renderList(filterType)}
+      </ScrollView>
+      <MultiFAB
+        actions={[
+          {
+            icon: 'arrow-collapse',
+            label: 'Transaction',
+            onPress: () => router.push("/action/create/createExpense"),
+          },
+          {
+            icon: 'call-split',
+            label: 'Split Money',
+            onPress: () => router.push("/action/create/createTransaction"),
+          },
+        ]}
+      />
+    </View>
+  )
 }
+
+const test = StyleSheet.create({
+
+  headContainer: {
+    alignItems: "center",
+    marginTop: 30,
+    gap: 12,
+    marginBottom: 12
+  },
+
+})
 
 const styles = StyleSheet.create({
   sectionTitle: { 

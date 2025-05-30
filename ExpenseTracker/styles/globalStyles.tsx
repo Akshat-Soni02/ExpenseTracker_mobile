@@ -27,7 +27,7 @@ export const globalStyles = StyleSheet.create({
     marginBottom: 15,
     // backgroundColor: "#F9FAFB",
     backgroundColor: "#fff",
-    marginTop: 45
+    marginTop: 30
   },
   backButton:{
     padding: 10,

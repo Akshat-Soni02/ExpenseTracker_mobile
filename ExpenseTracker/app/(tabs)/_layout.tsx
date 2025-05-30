@@ -1,156 +1,163 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Pressable,
   StyleSheet,
   View,
   Platform,
+  Dimensions,
 } from "react-native";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, useRouter, usePathname } from "expo-router";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { CustomTabButton } from "@/components/button/CustomTabButton";
 
-interface TabBar {
-  name: string;
-  color: string;
-  focused: boolean;
-  route: string;
+const TAB_ROUTES = [
+  "index",
+  "groups",
+  "activity",
+  "bills",
+  "more",
+];
+
+const TAB_ICONS = [
+  "home-outline",
+  "account-multiple",
+  "progress-clock",
+  "sticker-text-outline",
+  "dots-horizontal",
+];
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const TAB_COUNT = TAB_ROUTES.length;
+const TAB_WIDTH = SCREEN_WIDTH / TAB_COUNT;
+
+interface CustomTabButtonProps {
+  isFocused?: boolean;
+  onPress?: () => void;
+  children: React.ReactNode;
 }
 
-const TabBarIcon: React.FC<TabBar> = ({ name, color, focused, route }) => {
-  const router = useRouter();
-  const scaleAnim = useRef(new Animated.Value(focused ? 1.1 : 1)).current;
-
-  useEffect(() => {
-    Animated.spring(scaleAnim, {
-      toValue: focused ? 1.1 : 1,
-      friction: 5,
-      useNativeDriver: true,
-    }).start();
-  }, [focused]);
-
+const CustomTabButton: React.FC<CustomTabButtonProps> = ({
+  isFocused,
+  onPress,
+  children,
+}) => {
   return (
     <Pressable
-      onPress={() => router.push(route)}
-      android_ripple={{ color: "transparent" }} // Removes Android grey ripple
+      onPress={onPress}
+      android_ripple={null} // disables ripple
       style={({ pressed }) => [
         styles.tabContainer,
-        Platform.OS === "ios" && pressed ? { opacity: 1 } : {}, // Removes iOS highlight
+        Platform.OS === "ios" && pressed ? { opacity: 1 } : {}, // disables iOS press effect
       ]}
     >
-      {focused && <View style={styles.topIndicator} />}
-      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-        <MaterialCommunityIcons name={name} size={26} color={color} />
-      </Animated.View>
+      {children}
     </Pressable>
   );
 };
 
 export default function TabLayout() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentIndex = TAB_ROUTES.findIndex(route => pathname.includes(route));
+  const [selectedIndex, setSelectedIndex] = useState(currentIndex >= 0 ? currentIndex : 0);
+
+  const translateX = useRef(new Animated.Value(selectedIndex * TAB_WIDTH)).current;
+
+  useEffect(() => {
+    Animated.spring(translateX, {
+      toValue: selectedIndex * TAB_WIDTH,
+      useNativeDriver: true,
+      stiffness: 200,
+      damping: 20,
+      mass: 1,
+    }).start();
+  }, [selectedIndex]);
+
+  const onPressTab = (index: number, route: string) => {
+    setSelectedIndex(index);
+    router.push(route === "index" ? "/" : `/${route}`);
+  };
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          height: 60,
-          backgroundColor: "#fff",
-          borderTopColor: "#ddd",
-          borderTopWidth: 0.5,
-        },
-        tabBarActiveTintColor: "#1D3557",
-        tabBarInactiveTintColor: "#999",
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="home-outline" color={color} size={26} />
-          ),
-          tabBarButton: (props) => (
-            <CustomTabButton {...props} isFocused={props.accessibilityState?.selected} />
-          ),
+    <>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            height: 60,
+            backgroundColor: "#fff",
+            borderTopColor: "#ddd",
+            borderTopWidth: 0.5,
+          },
+          tabBarShowLabel: false,
         }}
-      />
+      >
+        {TAB_ROUTES.map((route) => (
+          <Tabs.Screen
+            key={route}
+            name={route === "index" ? "index" : route}
+            options={{
+              headerShown: false,
+              tabBarStyle: { display: 'none' },
+            }}
+          />
+        ))}
+      </Tabs>
 
-
-      <Tabs.Screen
-        name="groups"
-        options={{
-          title: "Groups",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-multiple" color={color} size={26} />
-          ),
-          tabBarButton: (props) => (
-            <CustomTabButton {...props} isFocused={props.accessibilityState?.selected} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="activity"
-        options={{
-          title: "Activity",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="progress-clock" color={color} size={26} />
-          ),
-          tabBarButton: (props) => (
-            <CustomTabButton {...props} isFocused={props.accessibilityState?.selected} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="bills"
-        options={{
-          title: "Bills",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="sticker-text-outline" color={color} size={26} />
-          ),
-          tabBarButton: (props) => (
-            <CustomTabButton {...props} isFocused={props.accessibilityState?.selected} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="more"
-        options={{
-          title: "More",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="dots-horizontal" color={color} size={26} />
-          ),
-          tabBarButton: (props) => (
-            <CustomTabButton {...props} isFocused={props.accessibilityState?.selected} />
-          ),
-        }}
-      />
-      <Tabs.Screen name="detectedTransactions" options={{ href: null }} />
-      <Tabs.Screen name="budgets" options={{ href: null }} />
-      <Tabs.Screen name="wallets" options={{ href: null }} />
-      <Tabs.Screen name="friends" options={{ href: null }} />
-    </Tabs>
+      {/* Custom Tab Bar */}
+      <View style={styles.tabBar}>
+        {/* Animated top indicator line */}
+        <Animated.View
+          style={[
+            styles.topIndicator,
+            {
+              width: TAB_WIDTH,
+              transform: [{ translateX }],
+              backgroundColor: "#264CA7", // Darker blue you liked
+            },
+          ]}
+        />
+        {/* Render each tab button */}
+        {TAB_ROUTES.map((route, index) => {
+          const focused = index === selectedIndex;
+          return (
+            <CustomTabButton
+              key={route}
+              isFocused={focused}
+              onPress={() => onPressTab(index, route)}
+            >
+              <MaterialCommunityIcons
+                name={TAB_ICONS[index]}
+                size={26}
+                color={focused ? "#264CA7" : "#999"}
+              />
+            </CustomTabButton>
+          );
+        })}
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   tabBar: {
+    flexDirection: "row",
     height: 60,
     backgroundColor: "#fff",
     borderTopWidth: 0.5,
     borderTopColor: "#ddd",
+    position: "relative",
   },
   tabContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
   },
   topIndicator: {
     position: "absolute",
     top: 0,
-    left: 0,
     height: 3,
-    width: "100%",
-    backgroundColor: "#C8E6FF", // bluish theme
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },

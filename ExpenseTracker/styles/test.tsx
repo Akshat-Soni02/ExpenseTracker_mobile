@@ -19,7 +19,22 @@ export const testStyles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        backgroundColor: "#fff"
+        backgroundColor: "#fff",
+        marginTop: 30,
+        marginBottom: 15
+    },
+    headerText: {
+        fontSize: FONTS.xlarge,
+        fontWeight: "semibold",
+        color: "black"
+    },
+    tabScreenHeader: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#fff",
+        marginTop: 30,
+        marginBottom: 15
     },
     horizontalContainer: {
         flexDirection: "row",
