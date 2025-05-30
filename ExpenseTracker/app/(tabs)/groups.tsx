@@ -11,6 +11,8 @@ import {useGetUserGroupsQuery} from '@/store/userApi';
 import { Group } from "@/store/groupApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { formatCurrency } from "../utils/helpers";
+import { COLORS } from "../utils/constants";
 
 export default function GroupsScreen() {
   const router = useRouter();
@@ -31,7 +33,22 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
   }
 
   const groups: Group[] = dataGroup?.data || [];
-  const numberOfGroups: number = groups.length; 
+  const numberOfGroups: number = groups.length;
+
+  const formatUserState = (val: number) => {
+      return val > 0 ? `You are owed ₹${formatCurrency(Math.abs(val))}` : val === 0 ? `All settled` : `You owe ₹${formatCurrency(Math.abs(val))}`
+  }
+
+  const GroupRow = ({ groupData }: { groupData: Omit<Group, "members"> & { userState: number }}) => {
+    return (
+      <TransactionCard 
+        pressFunction = {() => router.push({ pathname: "/view/viewGroup", params: { id: groupData._id} })}
+        title = {groupData.group_title}
+        subtitle={formatUserState(groupData.userState)}
+        subtitleStyle={{color: groupData.userState > 0 ? COLORS.amount.positive : groupData.userState === 0 ? COLORS.amount.neutral : COLORS.amount.negative }}
+      />
+    );
+  }
   
   return (
     <View style={globalStyles.screen}>
@@ -45,15 +62,7 @@ const {data: dataGroup, isLoading: isLoadingGroup, error: errorGroup} = useGetUs
             data={groups}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <TransactionCard 
-              pressFunction = {() => router.push({ pathname: "/view/viewGroup", params: { id:item._id} })}
-              title = {item.group_title}
-              imageType = {undefined}
-              amount={`₹${item.initial_budget}`}
-              subtitle={item?.settle_up_date && `Settle Up: ${moment(item?.settle_up_date).format("DD MMM, YYYY")}`}
-              transactionType={undefined}
-              optionText={"Inital budget"}
-              />
+              <GroupRow groupData = {item}/>
             )}
             ItemSeparatorComponent={() => (
               <View style={{  height: 5, backgroundColor: 'white'}} />

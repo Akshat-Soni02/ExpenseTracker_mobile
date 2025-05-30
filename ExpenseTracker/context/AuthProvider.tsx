@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (token: string) => {
     console.log("Storing Token in AsyncStorage:", token);
-    await AsyncStorage.setItem("AuthToken", token);
+    await AsyncStorage.setItem("AuthToken", JSON.stringify(token));
     setAuthToken(token);
     await checkAndRequestPermission();
   };

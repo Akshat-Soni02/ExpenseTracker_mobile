@@ -13,6 +13,7 @@ import { globalStyles } from "@/styles/globalStyles";
 import { Bill } from "@/store/billApi";
 import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 import Header from "@/components/Header";
+import { formatDate } from "../utils/dateUtils";
 
 
 export default function BillsScreen() {
@@ -69,6 +70,19 @@ export default function BillsScreen() {
   const completedBills: Bill[] = dataCompletedBills?.data || [];
   const numberOfCompletedBills: number = completedBills.length;
 
+  const BillRow = ({bill} : {bill: Bill}) => {
+    return (
+      <TransactionCard
+        pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:bill._id} })} 
+        title = {bill.bill_title}
+        imageType = {undefined}
+        amount={`₹${bill.amount}`}
+        subtitle={`Due date: ${formatDate(bill.due_date_time)}`}
+        transactionType={undefined}
+      />
+    )
+  }
+
   if(page === "pending") {
     return (
         <View style={globalStyles.screen}>
@@ -94,14 +108,7 @@ export default function BillsScreen() {
                 data={pendingBills}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
-                  <TransactionCard
-                  pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })} 
-                  title = {item.bill_title}
-                  imageType = {undefined}
-                  amount={`₹${item.amount}`}
-                  subtitle={`Due date: ${format(new Date(item.due_date_time), "MMMM dd, yyyy")}`}
-                  transactionType={undefined}
-                  />
+                  <BillRow bill={item}/>
                 )}
                 ItemSeparatorComponent={() => (
                   <View style={{  height: 5, backgroundColor: 'white'}} />
@@ -149,14 +156,7 @@ export default function BillsScreen() {
                     data={missedBills}
                     keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
-                      <TransactionCard
-                      pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })}
-                      title = {item.bill_title}
-                      imageType = {undefined}
-                      amount={`₹${item.amount}`}
-                      subtitle={`Due date: ${format(new Date(item.due_date_time), "MMMM dd, yyyy")}`}
-                      transactionType={undefined}
-                      />
+                      <BillRow bill={item}/>
                     )}
                     ItemSeparatorComponent={() => (
                       <View style={{  height: 5, backgroundColor: 'white'}} />
@@ -204,14 +204,7 @@ export default function BillsScreen() {
                     data={completedBills}
                     keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
-                      <TransactionCard
-                      pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })}
-                      title = {item.bill_title}
-                      imageType = {undefined}
-                      amount={`₹${item.amount}`}
-                      subtitle={`Due date: ${format(new Date(item.due_date_time), "MMMM dd, yyyy")}`}
-                      transactionType={undefined}
-                      />
+                      <BillRow bill={item}/>
                     )}
                     ItemSeparatorComponent={() => (
                       <View style={{  height: 5, backgroundColor: 'white'}} />

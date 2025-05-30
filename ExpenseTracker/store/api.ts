@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getItem } from '@/app/utils/storage';
 
 const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
-  let token = await AsyncStorage.getItem("AuthToken");
+  let token = await getItem("AuthToken");
 
   // Create a base query instance
   const rawBaseQuery = fetchBaseQuery({
@@ -22,7 +22,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
   if (!token && result.error?.status === 401) {
     console.log("Token was missing, retrying...");
     await new Promise((res) => setTimeout(res, 500));
-    token = await AsyncStorage.getItem("AuthToken");
+    token = await getItem("AuthToken");
     result = await rawBaseQuery(args, api, extraOptions);
   }
 

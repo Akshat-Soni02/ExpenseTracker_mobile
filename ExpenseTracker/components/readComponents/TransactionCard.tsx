@@ -15,6 +15,7 @@ interface TransactionCardProps {
   pressFunction?: any;
   cardStyle?: object;
   amountStyle?: object;
+  subtitleStyle?: object;
 }
 
 const TransactionCard: React.FC<TransactionCardProps> = ({
@@ -27,7 +28,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   transactionType,
   pressFunction,
   cardStyle,
-  amountStyle
+  amountStyle,
+  subtitleStyle
 }) => {
   const isDebit = transactionType === "debit" || transactionType === "expense";
   const isCredit = transactionType === "credit" || transactionType === "income";
@@ -74,7 +76,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         <View style={styles.transactionDetails}>
           <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
           {subtitle && (
-            <Text style={styles.transactionSubtitle} numberOfLines={1}>
+            <Text style={[styles.transactionSubtitle, subtitleStyle]} numberOfLines={1}>
               {subtitle.toString()}
             </Text>
           )}
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
   transactionItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
+    padding: 12,
     backgroundColor: "#f8f9fa",
     borderRadius: 10,
     marginBottom: 2
@@ -115,15 +117,16 @@ const styles = StyleSheet.create({
   },
   transactionDetails: {
     flex: 1,
-    marginLeft: 10
+    // marginLeft: 10,
+    gap: 5,
   },
   transactionTitle: {
     fontSize: 17,
-    fontWeight: "400"
+    fontWeight: "400",
   },
   transactionSubtitle: {
     color: "#888",
-    fontSize: 12
+    fontSize: 12,
   },
   amountDetails: {
     flex: 1,
