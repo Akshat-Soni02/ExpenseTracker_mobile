@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 import { testStyles } from "@/styles/test";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
-import AppFAB from "@/components/AppFab";
+import AppFAB from "@/components/TempFAB";
 import { formatCurrency } from "../utils/helpers";
 
 export default function PeopleScreen() {

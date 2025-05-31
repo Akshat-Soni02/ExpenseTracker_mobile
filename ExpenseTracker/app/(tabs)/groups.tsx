@@ -11,7 +11,7 @@ import { formatCurrency } from "../utils/helpers";
 import { COLORS, FONTS } from "../utils/constants";
 import { testStyles } from "@/styles/test";
 import EmptyState from "@/components/EmptyState";
-import AppFAB from "@/components/AppFab";
+import AppFAB from "@/components/TempFAB";
 import ErrorState from "@/components/ErrorState";
 
 export default function GroupsScreen() {
