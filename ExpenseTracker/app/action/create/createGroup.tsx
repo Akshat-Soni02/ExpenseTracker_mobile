@@ -40,7 +40,7 @@ export default function CreateGroupScreen() {
     defaultValues: {
       title: "",
       selectedUsers: [],
-      initialBudget: 0,
+      initialBudget: null,
       settleUpDate: null,
     },
   });

@@ -96,47 +96,53 @@ function RootLayoutNav() {
   };
 
   return (
-    <GluestackUIProvider mode="light"><ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/welcome" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/forget" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/otp" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/reset" options={{ headerShown: false }} />
-          <Stack.Screen name="action/create/createExpense" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/createTransaction" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/addFriends" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/addPeopleManual" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/createGroup" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/createBill" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/createWallet" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/addPeopleEmail" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/createSettlement" options={{headerShown:false}}/>
-          <Stack.Screen name="action/create/createBudget" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewPeople" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewBudget" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewPredictedBudget" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewProfile" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewExpense" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewTransaction" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewGroup" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewWallet" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewBill" options={{headerShown:false}}/>
-          <Stack.Screen name="view/viewSettlement" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editSettlement" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editExpense" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editBill" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editTransaction" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editWallet" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editBudget" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editGroup" options={{headerShown:false}}/>
-          <Stack.Screen name="action/edit/editProfile" options={{headerShown:false}}/>
-          <Stack.Screen name="misc/groupSettings" options={{headerShown:false}}/>
-          <Stack.Screen name="misc/privacyPolicy" options={{headerShown:false}}/>
-          <Stack.Screen name="misc/contactUs" options={{headerShown:false}}/>
-        </Stack>
-      </ThemeProvider></GluestackUIProvider>
+   <GluestackUIProvider mode="light"><ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/welcome" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/forget" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/otp" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/reset" options={{ headerShown: false }} />
+        <Stack.Screen name="action/create/createExpense" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/createTransaction" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/addFriends" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/addPeopleManual" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/createGroup" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/createBill" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/createWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/addPeopleEmail" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/createSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="action/create/createBudget" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewPeople" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewBudget" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewPredictedBudget" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewProfile" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewExpense" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewTransaction" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewGroup" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewBill" options={{headerShown:false}}/>
+        <Stack.Screen name="view/viewSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editSettlement" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editExpense" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editBill" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editTransaction" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editWallet" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editBudget" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editGroup" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editProfile" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/groupSettings" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/privacyPolicy" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/contactUs" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/friends" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/wallets" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/detectedTransactions" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/budgets" options={{headerShown:false}}/>
+      </Stack>
+    </ThemeProvider>
+   </GluestackUIProvider>
   );
 }

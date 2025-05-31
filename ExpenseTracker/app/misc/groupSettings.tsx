@@ -107,7 +107,7 @@ const GroupSettingsScreen = () => {
          console.log("Successfully left the group");
          setSnackMess("Group left successfully");
          setVisible(true);
-         router.push("/(tabs)");
+         router.replace("/(tabs)");
        } catch (error) {
          console.error("Error leaving group:", error);
          const err = error as { data?: { message?: string } };

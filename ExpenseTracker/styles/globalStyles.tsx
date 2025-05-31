@@ -2,8 +2,9 @@ import { StyleSheet } from "react-native";
 
 export const globalStyles = StyleSheet.create({
   screen:{
-    flex:1
-},
+      flex:1,
+      backgroundColor: "#ffffff"
+  },
   container: {
     flex: 1,
     alignItems: "center",
@@ -11,7 +12,6 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
-
   viewContainer: {
     flex: 1,
     padding: 20,
@@ -27,6 +27,7 @@ export const globalStyles = StyleSheet.create({
     marginBottom: 15,
     // backgroundColor: "#F9FAFB",
     backgroundColor: "#fff",
+    marginTop: 30
   },
   backButton:{
     padding: 10,
@@ -103,8 +104,6 @@ export const globalStyles = StyleSheet.create({
   },
   navbar: {
       marginBottom: 20,
-      marginTop: 25,
-      left : 2,
     },
   
     fab: {

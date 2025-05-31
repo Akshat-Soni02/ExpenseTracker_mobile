@@ -1,18 +1,19 @@
-import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
-import { FAB } from 'react-native-paper';
+import { ScrollView ,FlatList} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
 import * as React from 'react';
 
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import {useGetUserBillsQuery} from '@/store/userApi';
-import { format } from "date-fns";
 import SegmentedControl from "@/components/readComponents/SegmentedControl";
-import { globalStyles } from "@/styles/globalStyles";
 import { Bill } from "@/store/billApi";
-import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
 import Header from "@/components/Header";
+import { formatDate } from "../utils/dateUtils";
+import { testStyles } from "@/styles/test";
+import EmptyState from "@/components/EmptyState";
+import ErrorState from "@/components/ErrorState";
+import AppFAB from "@/components/AppFab";
+
 
 
 export default function BillsScreen() {
@@ -20,45 +21,20 @@ export default function BillsScreen() {
   const router = useRouter();
   const [page, setPage] = React.useState<"pending" | "missed" | "paid">("pending");
 
-  const {data: dataPendingBills, isLoading: isLoadingPendingBills, error: errorPendingBills} = useGetUserBillsQuery({ status: "pending" });
-  const {data: dataMissedBills, isLoading: isLoadingMissedBills, error: errorMissedBills} = useGetUserBillsQuery({ status: "missed" });
-  const {data: dataCompletedBills, isLoading: isLoadingCompletedBills, error: errorCompletedBills} = useGetUserBillsQuery({ status: "paid" });
+  const {data: dataPendingBills, isLoading: isLoadingPendingBills, error: errorPendingBills, isError: hasErrorPending} = useGetUserBillsQuery({ status: "pending" });
+  const {data: dataMissedBills, isLoading: isLoadingMissedBills, error: errorMissedBills, isError: hasErrorMissed} = useGetUserBillsQuery({ status: "missed" });
+  const {data: dataCompletedBills, isLoading: isLoadingCompletedBills, error: errorCompletedBills, isError: hasErrorCompleted} = useGetUserBillsQuery({ status: "paid" });
+  
+  const errors = [errorCompletedBills, errorMissedBills, errorPendingBills].filter(Boolean);
+  const hasErrors = errors.length > 0;
 
-  // if (isLoadingPendingBills || isLoadingMissedBills || isLoadingCompletedBills) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
-    
-  if (errorPendingBills) {
-    let errorMessage = "An unknown error occurred";
-  
-    if ("status" in errorPendingBills) {
-      errorMessage = `Server Error: ${JSON.stringify(errorPendingBills.data)}`;
-    } else if ("message" in errorPendingBills) {
-      errorMessage = `Client Error: ${errorPendingBills.message}`;
-    }
-    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
-  }
+  const handleRetry = () => {
+    if (hasErrorCompleted) console.log("retry triggered");
+    if (hasErrorMissed) console.log("retry triggered");
+    if (hasErrorPending) console.log("retry triggered");
+  };
 
-  else if (errorMissedBills) {
-    let errorMessage = "An unknown error occurred";
-  
-    if ("status" in errorMissedBills) {
-      errorMessage = `Server Error: ${JSON.stringify(errorMissedBills.data)}`;
-    } else if ("message" in errorMissedBills) {
-      errorMessage = `Client Error: ${errorMissedBills.message}`;
-    }
-    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
-  }
 
-  else if (errorCompletedBills) {
-    let errorMessage = "An unknown error occurred";
-  
-    if ("status" in errorCompletedBills) {
-      errorMessage = `Server Error: ${JSON.stringify(errorCompletedBills.data)}`;
-    } else if ("message" in errorCompletedBills) {
-      errorMessage = `Client Error: ${errorCompletedBills.message}`;
-    }
-    return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
-  }
-  
   const pendingBills: Bill[] = dataPendingBills?.data || [];
   const numberOfPendingBills: number = pendingBills.length;
 
@@ -69,170 +45,70 @@ export default function BillsScreen() {
   const completedBills: Bill[] = dataCompletedBills?.data || [];
   const numberOfCompletedBills: number = completedBills.length;
 
-  if(page === "pending") {
+  const BillRow = ({bill} : {bill: Bill}) => {
     return (
-        <View style={globalStyles.screen}>
-            <ScrollView style={globalStyles.viewContainer}>
-              
-              <Header headerText="Bills"/>
-              <View style={globalStyles.navbar}>
-                <SegmentedControl value={page} setValue={setPage} isBill={true}/>
-              </View>
-
-              {isLoadingPendingBills ? (
-                <>
-                  {[...Array(6)].map((_, index) => (
-                    <View key={index} style={{ marginBottom: 20 }}>
-                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
-                    </View>
-                  ))}
-                </>
-              ) : (
-                <>
-                  {numberOfPendingBills>0 ? (
-                <FlatList
-                data={pendingBills}
-                keyExtractor={(item) => item._id}
-                renderItem={({ item }) => (
-                  <TransactionCard
-                  pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })} 
-                  title = {item.bill_title}
-                  imageType = {undefined}
-                  amount={`₹${item.amount}`}
-                  subtitle={`Due date: ${format(new Date(item.due_date_time), "MMMM dd, yyyy")}`}
-                  transactionType={undefined}
-                  />
-                )}
-                ItemSeparatorComponent={() => (
-                  <View style={{  height: 5, backgroundColor: 'white'}} />
-                )}
-                contentContainerStyle={{ paddingBottom: 5 }}
-                nestedScrollEnabled={true}
-                scrollEnabled={false}
-              />):
-                <Text style={globalStyles.noText}>No pending bills</Text>
-              }
-                </>
-              )}
-              
-            </ScrollView>
-
-            <FAB
-                label="Add Bill"
-                style={globalStyles.fab}
-                onPress={() => router.push("/action/create/createBill")}
-            />
-
-        </View>);
-
-  } else if(page === "missed") {
-        return (
-            <View style={globalStyles.screen}>
-                <ScrollView style={globalStyles.viewContainer}>
-                  
-                <Header headerText="Bills"/>
-              <View style={globalStyles.navbar}>
-                <SegmentedControl value={page} setValue={setPage} isBill={true}/>
-              </View>
-
-              {isLoadingCompletedBills ? (
-                <>
-                  {[...Array(6)].map((_, index) => (
-                    <View key={index} style={{ marginBottom: 20 }}>
-                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
-                    </View>
-                  ))}
-                </>
-              ) : (
-                <>
-                  {numberOfMissedBills>0?(<FlatList
-                    data={missedBills}
-                    keyExtractor={(item) => item._id}
-                    renderItem={({ item }) => (
-                      <TransactionCard
-                      pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })}
-                      title = {item.bill_title}
-                      imageType = {undefined}
-                      amount={`₹${item.amount}`}
-                      subtitle={`Due date: ${format(new Date(item.due_date_time), "MMMM dd, yyyy")}`}
-                      transactionType={undefined}
-                      />
-                    )}
-                    ItemSeparatorComponent={() => (
-                      <View style={{  height: 5, backgroundColor: 'white'}} />
-                    )}
-                    contentContainerStyle={{ paddingBottom: 5 }}
-                    nestedScrollEnabled={true}
-                    scrollEnabled={false}
-                  />):
-                    <Text style={globalStyles.noText}>No missed bills</Text>
-                  }
-                </>
-              )}
-                  
-                </ScrollView>
-
-                <FAB
-                    label="Add Bill"
-                    style={globalStyles.fab}
-                    onPress={() => router.push("/action/create/createBill")}
-                />
-
-            </View>);
-
-  } else {
-        return (
-            <View style={globalStyles.screen}>
-                <ScrollView style={globalStyles.viewContainer}>
-                  
-                <Header headerText="Bills"/>
-              <View style={globalStyles.navbar}>
-                <SegmentedControl value={page} setValue={setPage} isBill={true}/>
-              </View>
-
-              {isLoadingMissedBills ? (
-                <>
-                  {[...Array(6)].map((_, index) => (
-                    <View key={index} style={{ marginBottom: 20 }}>
-                      <SkeletonPlaceholder style={{ height: 60, borderRadius: 10 }} />
-                    </View>
-                  ))}
-                </>
-              ) : (
-                <>
-                  {numberOfCompletedBills>0?(<FlatList
-                    data={completedBills}
-                    keyExtractor={(item) => item._id}
-                    renderItem={({ item }) => (
-                      <TransactionCard
-                      pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:item._id} })}
-                      title = {item.bill_title}
-                      imageType = {undefined}
-                      amount={`₹${item.amount}`}
-                      subtitle={`Due date: ${format(new Date(item.due_date_time), "MMMM dd, yyyy")}`}
-                      transactionType={undefined}
-                      />
-                    )}
-                    ItemSeparatorComponent={() => (
-                      <View style={{  height: 5, backgroundColor: 'white'}} />
-                    )}
-                    contentContainerStyle={{ paddingBottom: 5 }}
-                    nestedScrollEnabled={true}
-                    scrollEnabled={false}
-                  />):
-                    <Text style={globalStyles.noText}>No completed bills</Text>
-                  }
-                </>
-              )}
-                  
-                </ScrollView>
-
-                <FAB
-                    label="Add Bill"
-                    style={globalStyles.fab}
-                    onPress={() => router.push("/action/create/createBill")}
-                />
-
-            </View>);
+      <TransactionCard
+        pressFunction = {() => router.push({ pathname: "/view/viewBill", params: { id:bill._id} })} 
+        title = {bill.bill_title}
+        imageType = {undefined}
+        amount={`₹${bill.amount}`}
+        subtitle={`Due date: ${formatDate(bill.due_date_time)}`}
+        transactionType={undefined}
+      />
+    )
   }
+
+  const loadingState = isLoadingPendingBills || isLoadingCompletedBills || isLoadingMissedBills;
+  const numOfBills = page === "pending" ? numberOfPendingBills : page === "missed" ? numberOfMissedBills : numberOfCompletedBills;
+  const listData = page === "pending" ? pendingBills : page === "missed" ? missedBills : completedBills;
+
+  if (hasErrors) {
+    return <ErrorState errors={errors} onRetry={handleRetry} />;
+  }
+
+  return (
+    <View style={testStyles.screen}>
+        <ScrollView style={testStyles.container}>
+          
+          <Header headerText="Bills" hideBackButton/>
+
+          <View style={[{marginBottom: 20}]}>
+            <SegmentedControl value={page} setValue={setPage} isBill={true}/>
+          </View>
+
+          {loadingState ? (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>Loading...</Text>
+          ) : (
+            <>
+              { numOfBills > 0 ? (
+                <FlatList
+                    data={listData}
+                    keyExtractor={(item) => item._id}
+                    renderItem={({ item }) => (
+                      <BillRow bill={item}/>
+                    )}
+                    ItemSeparatorComponent={() => (
+                      <View style={{  height: 5, backgroundColor: 'white'}} />
+                    )}
+                    contentContainerStyle={{ paddingBottom: 5 }}
+                    nestedScrollEnabled={true}
+                    scrollEnabled={false}
+                />) : (
+                  <EmptyState
+                    title="No Bills"
+                    subtitle="Bills help you track recurring payments like rent, subscriptions, or utilities."
+                    iconName="sticker-check-outline"
+                  />
+                )
+              }
+            </>
+          )}
+        </ScrollView>
+
+        <AppFAB
+          icon="plus"
+          onPress={() => router.push("/action/create/createBill")}
+        />
+    </View>
+  );
 }

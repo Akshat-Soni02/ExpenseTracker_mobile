@@ -1,145 +1,164 @@
-
-import React from "react";
-import { TouchableOpacity, Animated, StyleSheet } from "react-native";
-import { Tabs, useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Pressable,
+  StyleSheet,
+  View,
+  Platform,
+  Dimensions,
+} from "react-native";
+import { Tabs, useRouter, usePathname } from "expo-router";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-interface TabBar {
-  name: string;
-  color: string;
-  focused: boolean;
-  route: "/(tabs)" | "/(tabs)/activity" | "/(tabs)/friends" | "/(tabs)/wallets";
+const TAB_ROUTES = [
+  "index",
+  "groups",
+  "activity",
+  "bills",
+  "more",
+];
+
+const TAB_ICONS = [
+  "home-outline",
+  "account-multiple",
+  "progress-clock",
+  "sticker-text-outline",
+  "dots-horizontal",
+];
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const TAB_COUNT = TAB_ROUTES.length;
+const TAB_WIDTH = SCREEN_WIDTH / TAB_COUNT;
+
+interface CustomTabButtonProps {
+  isFocused?: boolean;
+  onPress?: () => void;
+  children: React.ReactNode;
 }
 
-const TabBarIcon: React.FC<TabBar> =({ name, color, focused, route }) => {
-
-  const router = useRouter();
-  const animatedValue = new Animated.Value(focused ? 1 : 0);
-
-  //animation for selection
-  React.useEffect(() => {
-    Animated.timing(animatedValue, {
-      toValue: focused ? 1 : 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-  }, [focused]);
-
-  // Interpolate background color for the highlight effect
-  const backgroundColor = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["transparent", "rgba(58, 90, 255, 0.15)"],
-  });
-
+const CustomTabButton: React.FC<CustomTabButtonProps> = ({
+  isFocused,
+  onPress,
+  children,
+}) => {
   return (
-    <TouchableOpacity
-      style={[styles.tabContainer]}
-      onPress={() => router.push(route)}
-      activeOpacity={0.7}
+    <Pressable
+      onPress={onPress}
+      android_ripple={null} // disables ripple
+      style={({ pressed }) => [
+        styles.tabContainer,
+        Platform.OS === "ios" && pressed ? { opacity: 1 } : {}, // disables iOS press effect
+      ]}
     >
-      <Animated.View style={[styles.highlight, { backgroundColor }]} />
-      <MaterialCommunityIcons name={name} size={28} color={color} />
-    </TouchableOpacity>
+      {children}
+    </Pressable>
   );
 };
 
 export default function TabLayout() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentIndex = TAB_ROUTES.findIndex(route => pathname.includes(route));
+  const [selectedIndex, setSelectedIndex] = useState(currentIndex >= 0 ? currentIndex : 0);
+
+  const translateX = useRef(new Animated.Value(selectedIndex * TAB_WIDTH)).current;
+
+  useEffect(() => {
+    Animated.spring(translateX, {
+      toValue: selectedIndex * TAB_WIDTH,
+      useNativeDriver: true,
+      stiffness: 200,
+      damping: 20,
+      mass: 1,
+    }).start();
+  }, [selectedIndex]);
+
+  const onPressTab = (index: number, route: string) => {
+    setSelectedIndex(index);
+    router.push(route === "index" ? "/" : `/${route}`);
+  };
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: "#3A5AFF",
-        tabBarInactiveTintColor: "#666",
-        tabBarLabelStyle: styles.tabLabel,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="home-outline" color={color} focused={focused} route="/(tabs)" />
-          ),
+    <>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            height: 60,
+            backgroundColor: "#fff",
+            borderTopColor: "#ddd",
+            borderTopWidth: 0.5,
+          },
+          tabBarShowLabel: false,
         }}
-      />
-      <Tabs.Screen
-        name="activity"
-        options={{
-          title: "Activity",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="chart-line-variant" color={color} focused={focused} route="/(tabs)/activity" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="friends"
-        options={{
-          title: "Friends",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="account" color={color} focused={focused} route="/(tabs)/friends" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="wallets"
-        options={{
-          title: "Wallets",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="wallet" color={color} focused={focused} route="/(tabs)/wallets" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="detectedTransactions"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="bills"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="budgets"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="groups"
-        options={{
-          href: null,
-        }}
-      />
-    </Tabs>
+      >
+        {TAB_ROUTES.map((route) => (
+          <Tabs.Screen
+            key={route}
+            name={route === "index" ? "index" : route}
+            options={{
+              headerShown: false,
+              tabBarStyle: { display: 'none' },
+            }}
+          />
+        ))}
+      </Tabs>
+
+      {/* Custom Tab Bar */}
+      <View style={styles.tabBar}>
+        {/* Animated top indicator line */}
+        <Animated.View
+          style={[
+            styles.topIndicator,
+            {
+              width: TAB_WIDTH,
+              transform: [{ translateX }],
+              backgroundColor: "#264CA7", // Darker blue you liked
+            },
+          ]}
+        />
+        {/* Render each tab button */}
+        {TAB_ROUTES.map((route, index) => {
+          const focused = index === selectedIndex;
+          return (
+            <CustomTabButton
+              key={route}
+              isFocused={focused}
+              onPress={() => onPressTab(index, route)}
+            >
+              <MaterialCommunityIcons
+                name={TAB_ICONS[index]}
+                size={26}
+                color={focused ? "#264CA7" : "#999"}
+              />
+            </CustomTabButton>
+          );
+        })}
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   tabBar: {
+    flexDirection: "row",
     height: 60,
     backgroundColor: "#fff",
-    borderTopWidth: 0,
-    shadowOpacity: 0.1,
-    elevation: 5,
-  },
-  tabLabel: {
-    fontSize: 13,
-    fontWeight: "500",
+    borderTopWidth: 0.5,
+    borderTopColor: "#ddd",
+    position: "relative",
   },
   tabContainer: {
-    alignItems: "center",
-    justifyContent: "center",
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  highlight: {
+  topIndicator: {
     position: "absolute",
-    top: 1,
-    width: "170%",
-    height: "100%",
-    borderRadius: 10,
+    top: 0,
+    height: 3,
+    borderTopLeftRadius: 2,
+    borderTopRightRadius: 2,
   },
 });
