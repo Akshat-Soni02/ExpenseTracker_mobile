@@ -1,15 +1,19 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert, ScrollView } from "react-native";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
-import { FontAwesome, Entypo } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import ImageViewing from 'react-native-image-viewing';
 
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 
 const ExpenseDetailScreen = () => {
@@ -22,6 +26,7 @@ const ExpenseDetailScreen = () => {
   const [paidByName,setPaidByName] = useState<string | null>(null);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [viewImage, setViewImage] = useState(false);
 
   const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
   const [deleteExpense, {isLoading: deleteLoading, error: deleteError}] = useDeleteExpenseMutation();
@@ -128,16 +133,11 @@ const ExpenseDetailScreen = () => {
 
   const isLender = expense?.lenders.some((lender) => lender.user_id === loggedInUserId);
   const isBorrower = expense?.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
-  const themeColor = isLender ? "#10B981" : isBorrower ? "#EF4444" : "#374151";
+  const themeColor = isLender ? "#218838" : isBorrower ? "#E74C3C" : "#374151";
 
   return (
-    <View style={globalStyles.viewContainer}>
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-
-        <Menu
+    <ScrollView style={globalStyles.viewContainer}>
+      <Header headerIcon={<Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -156,45 +156,82 @@ const ExpenseDetailScreen = () => {
                         { text: "Yes", onPress: () => handleExpenseDelete()}
                       ]
                     )} title="Delete" />
-        </Menu>
-      </View>
+        </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>
         
-        <Text style={globalStyles.viewActivityTitle}>{expense?.description}</Text>
-        <Text style={[globalStyles.viewActivityAmount, { color: themeColor }]}>₹{userState?.toFixed(2) || 0}</Text>
-        {isLender && expense?.wallet_id && (
-          <Text style={globalStyles.viewActivityAccountName}>Wallet: {walletData?.data?.wallet_title || "Unknown"}</Text>
+        <Text style={styles.exchangeTitle}>{isLender ? "You paid" : `${lenderName} paid`}</Text>
+        <Text style={styles.exchangeTitle}>₹{expense?.total_amount}</Text>
+        {expense?.expense_category && <Text style={styles.categoryPill}>{expense.expense_category}</Text>}
+        <Text style={styles.expenseTitle}>{expense?.description}</Text>
+      </View>
+
+      <View style = {styles.minDetails}>
+        <View style = {styles.minDetailsUp}>
+          <MaterialIcons name="list-alt" size={40} color="#0A6FE3" />
+          <View style = {styles.minDetailsBillPrimary}>
+            <Text style = {[styles.minDetailsBillPrimaryText, {color: themeColor}]}>{isLender ? "You lent" : `You borrowed`}</Text>
+            <Text style = {[styles.minDetailsBillPrimaryText, {color: themeColor}]}>₹{userState?.toFixed(2) || 0}</Text>
+          </View>
+        </View>
+        <View style = {styles.minDetailsDown}>
+            <View style = {styles.minDetailsDownView}><MaterialCommunityIcons name="calendar-blank-outline" size={24} color="#0A6FE3" />   <Text style = {styles.minDetailsDownText}>{moment(expense?.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text></View>
+            {isLender && expense?.wallet_id && (
+              <View style = {styles.minDetailsDownView}><MaterialCommunityIcons name="wallet-outline" size={24} color="#0A6FE3" />   <Text style = {styles.minDetailsDownText}>Paid via {walletData?.data?.wallet_title || "Unknown"}</Text></View>
+            )}
+        </View>
+      </View>
+
+      <View style={[styles.splitContainer, {borderColor: "#eeeeee",borderBottomWidth: 1}]}>
+        <Text style={styles.splitHeader}>
+          People Who Owe {lenderName}
+        </Text>
+        {expense?.borrowers?.filter(
+          (b) => borrowerNames[b.user_id] !== 'You'
+        ).length === 0 ? (
+          <Text>
+            No one else owes {lenderName}
+          </Text>
+        ) : (
+          expense?.borrowers
+            .filter((b) => borrowerNames[b.user_id] !== 'You')
+            .map((borrower) => (
+              <View style = {styles.splitRow}>
+                  <Text key={borrower.user_id+"a"} style={styles.splitRowText}>
+                    {borrowerNames[borrower.user_id] || 'Unknown'}
+                  </Text>
+                  <Text key={borrower.user_id+"b"} style={styles.splitRowText}>
+                    ₹{borrower.amount}
+                  </Text>
+              </View>
+            ))
         )}
-        <Text style={globalStyles.viewActivityDate}>{moment(expense?.created_at_date_time).format("DD MMM YYYY, hh:mm A")}</Text>
       </View>
 
       {expense?.notes && (
-        <View style={globalStyles.viewActivityNotesContainer}>
-          <Text style={globalStyles.viewActivityNotesTitle}>Notes</Text>
+        <View style={styles.splitContainer}>
+          <Text style={styles.splitHeader}>Notes</Text>
           <Text style={globalStyles.viewActivityNotesText}>{expense.notes}</Text>
         </View>
       )}
 
-      <View style={globalStyles.viewActivitySplitContainer}>
-        <Text style={globalStyles.viewActivityPaidBy}>
-          {lenderName} paid <Text style={globalStyles.viewActivityBoldText}>₹{expense?.total_amount}</Text>
-        </Text>
-        {expense?.borrowers.map((borrower) => (
-          <Text key={borrower.user_id} style={globalStyles.viewActivityOweText}>
-            {borrowerNames[borrower.user_id] === "You"
-              ? `You owe ₹${borrower.amount}`
-              : `${borrowerNames[borrower.user_id] || "Unknown"} owes ₹${borrower.amount}`}
-          </Text>
-        ))}
-      </View>
-
       {expense?.media && (
-        <View style={styles.mediaContainer}>
-          <Image source={{ uri: expense?.media.url }} style={styles.previewImage} />
-      </View>
+        <>
+        <TouchableOpacity onPress={() => setViewImage(true)}>
+          <View style={styles.mediaContainer}>
+            <Image source={{ uri: expense?.media.url }} style={styles.previewImage} />
+          </View>
+        </TouchableOpacity>
+
+        <ImageViewing
+        images={[{ uri: expense?.media.url}]}
+        imageIndex={0}
+        visible={viewImage}
+        onRequestClose={() => setViewImage(false)}
+        />
+      </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -206,9 +243,88 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   previewImage: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     marginTop: 10,
     borderRadius: 8,
   },
+  expenseTitle: {
+    color: "#111827",
+    fontSize: 15
+  },
+  exchangeTitle: {
+    color: "#2a435f",
+    fontSize: 30,
+    fontWeight: "500"
+  },
+  exchangeState: {
+    color: "#456479",
+    fontSize: 18
+  },
+  minDetails: {
+    width: 350,
+    padding: 10,
+    backgroundColor: "#F5FAFE",
+    borderRadius: 7,
+    alignSelf: "center",
+    marginBottom: 10
+  },
+  minDetailsUp: {
+    flexDirection: "row",
+    borderColor: "#eeeeee",
+    borderBottomWidth: 1,
+    gap: 15,
+    padding: 10
+  },
+  minDetailsBillPrimary: {
+    gap: 5
+  },
+  minDetailsBillPrimaryText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#324865"
+  },
+  minDetailsDown: {
+    gap: 5,
+    padding: 10
+  },
+  minDetailsDownView: {
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center"
+  },
+  minDetailsDownText: {
+    fontSize: 15,
+    color: "#102547",
+    textAlignVertical: "center"
+  },
+  splitContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    marginBottom: 5,
+  },
+  splitHeader: {
+    color: "#283E5B",
+    fontSize: 18,
+    fontWeight: "500"
+  },
+  splitRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 3
+  },
+  splitRowText: {
+    color: "#112949",
+    fontSize: 17
+  },
+  categoryPill: {
+    backgroundColor: '#F0F4FF',
+    color: '#1e3a8a',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 12,
+    alignSelf: 'center',
+    marginVertical: 7
+  }
 });

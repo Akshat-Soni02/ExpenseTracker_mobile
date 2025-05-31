@@ -1,6 +1,8 @@
 import React, { useRef } from "react";
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated, Image } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, Animated, Image } from "react-native";
+import Feather from '@expo/vector-icons/Feather';
+import { Pressable } from "react-native";
+import { COLORS, FONTS } from "@/app/utils/constants";
 
 interface TransactionCardProps {
   imageName?: string;
@@ -13,6 +15,7 @@ interface TransactionCardProps {
   pressFunction?: any;
   cardStyle?: object;
   amountStyle?: object;
+  subtitleStyle?: object;
 }
 
 const TransactionCard: React.FC<TransactionCardProps> = ({
@@ -25,14 +28,18 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   transactionType,
   pressFunction,
   cardStyle,
-  amountStyle
+  amountStyle,
+  subtitleStyle
 }) => {
   const isDebit = transactionType === "debit" || transactionType === "expense";
   const isCredit = transactionType === "credit" || transactionType === "income";
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  let touchStartY = 0;
 
-  const handlePressIn = () => {
+  const handlePressIn = (e) => {
+    touchStartY = e.nativeEvent.pageY;
+
     Animated.spring(scaleAnim, {
       toValue: 0.96,
       useNativeDriver: true,
@@ -41,34 +48,35 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
     }).start();
   };
 
-  const handlePressOut = () => {
+  const handlePressOut = (e) => {
+    const touchEndY = e.nativeEvent.pageY;
+    const movement = Math.abs(touchEndY - touchStartY);
+
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
       speed: 20,
       bounciness: 5,
     }).start(() => {
-      if (pressFunction) pressFunction();
+      if (movement < 5 && pressFunction) pressFunction();
     });
   };
 
   return (
-    <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
+    <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
       <Animated.View style={[styles.transactionItem, cardStyle, { transform: [{ scale: scaleAnim }] }]}>
         {imageName && <Image source={{ uri: imageName }} style={styles.profileImage} />}
 
         {imageType && (
-          <MaterialCommunityIcons
-            name={isDebit ? "arrow-top-right" : "arrow-bottom-left"}
-            size={20}
-            color={isDebit ? "red" : "green"}
-          />
+          <Feather name={imageType === "expense" ? "arrow-up-right" : "arrow-down-left"}
+          size={25}
+          color={imageType === "expense" ? COLORS.amount.negative : COLORS.amount.positive} />
         )}
 
-        <View style={styles.transactionDetails}>
+        <View style={[styles.transactionDetails, (imageName || imageType) && {marginLeft: 10}]}>
           <Text style={styles.transactionTitle} numberOfLines={1}>{title}</Text>
           {subtitle && (
-            <Text style={styles.transactionSubtitle} numberOfLines={1}>
+            <Text style={[styles.transactionSubtitle, subtitleStyle]} numberOfLines={1}>
               {subtitle.toString()}
             </Text>
           )}
@@ -81,7 +89,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
               styles.transactionAmount,
               amountStyle,
               {
-                color: isCredit ? "green" : isDebit ? "red" : "black"
+                color: isCredit ? COLORS.amount.positive : isDebit ? COLORS.amount.negative : "black"
               }
             ]}
           >
@@ -89,7 +97,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
           </Text>
         </View>
       </Animated.View>
-    </TouchableWithoutFeedback>
+    </Pressable>
   );
 };
 
@@ -97,8 +105,8 @@ const styles = StyleSheet.create({
   transactionItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    backgroundColor: "#f8f9fa",
+    padding: 12,
+    backgroundColor: COLORS.secondary,
     borderRadius: 10,
     marginBottom: 2
   },
@@ -109,26 +117,27 @@ const styles = StyleSheet.create({
   },
   transactionDetails: {
     flex: 1,
-    marginLeft: 10
+    gap: 3,
   },
   transactionTitle: {
-    fontSize: 16
+    fontSize: FONTS.medium,
+    fontWeight: "400",
   },
   transactionSubtitle: {
-    color: "#888",
-    fontSize: 12
+    color: COLORS.text.secondary,
+    fontSize: FONTS.small,
   },
   amountDetails: {
     flex: 1,
     alignItems: "flex-end"
   },
   transactionAmount: {
-    fontSize: 16,
-    fontWeight: "bold"
+    fontSize: FONTS.medium,
+    fontWeight: "semibold"
   },
   topAmountText: {
-    color: "#888",
-    fontSize: 12
+    color: COLORS.text.secondary,
+    fontSize: FONTS.vsmall
   }
 });
 

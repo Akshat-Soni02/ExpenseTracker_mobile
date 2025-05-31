@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/userApi";
 import {globalStyles} from "@/styles/globalStyles";
@@ -59,7 +59,7 @@ const ViewPeopleScreen = () => {
       <View style={styles.header}>
 
         <TouchableOpacity onPress={() => router.back()} style={[globalStyles.backButton, { position: "absolute",top: 15,left: 15, }]}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
+          <AntDesign name="arrowleft" size={25} color="black"/>
         </TouchableOpacity>
 
         <View style={styles.profileSection}>
@@ -188,10 +188,10 @@ const styles = StyleSheet.create({
   },
   summaryContainer: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
   },
   summaryText: {
+    marginTop: 15,
     fontSize: 18,
     fontFamily: "Poppins_500Medium",
     color: "#111827",
@@ -199,11 +199,11 @@ const styles = StyleSheet.create({
   redAmount: {
     fontSize: 18,
     fontFamily: "Poppins_700Bold",
-    color: "#EF4444",
+    color: "#d86161",
   },
   greenAmount: {
     fontSize: 18,
     fontFamily: "Poppins_700Bold",
-    color: "green",
+    color: "#1e9738",
   },
 });

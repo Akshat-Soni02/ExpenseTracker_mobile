@@ -11,6 +11,7 @@ import TransactionCard from "@/components/readComponents/TransactionCard";
 import {useGetUserDetectedTransactionsQuery} from '@/store/userApi';
 import { globalStyles } from "@/styles/globalStyles";
 import { Detected } from "@/store/detectedTransactionApi";
+import Header from "@/components/Header";
 
 export default function DetectedTransactionsScreen() {
   const router = useRouter();
@@ -54,12 +55,7 @@ export default function DetectedTransactionsScreen() {
     <View style={globalStyles.screen}>
       
         <ScrollView style={globalStyles.viewContainer}>
-          <View style = {[globalStyles.viewHeader,{marginBottom: 15}]}>
-          <TouchableOpacity onPress={() => router.replace("/(tabs)")} style={globalStyles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>      
-          <Text style={globalStyles.headerText}>Auto Transactions</Text>
-          </View>
+          <Header headerText="Auto Transactions"/>
           
           {numberOfDetectedTransactions>0 ? (
             <FlatList

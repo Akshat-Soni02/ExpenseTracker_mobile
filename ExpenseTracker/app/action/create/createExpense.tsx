@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, LayoutAnimation, Platform, UIManager } from "react-native";
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -15,6 +15,11 @@ import CategorySelector from "@/components/selectors/CategorySelector";
 import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export type error = {
   message: string;
@@ -56,6 +61,12 @@ export default function AddExpenseScreen() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
   const [validInput, setValidInput] = useState<boolean>(true);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+
+  const toggleMoreOptions = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowMoreOptions(prev => !prev);
+  };
 
   const [createExpense, {isLoading:isLoadingExpense}] = useCreateExpenseMutation();
   
@@ -225,30 +236,36 @@ export default function AddExpenseScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>New Split</Text>
-      </View>
+      <Header headerText="New Split"/>
 
       {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
       {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/>):(<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors}/>)}
 
       <SplitWithSelector control={control} amount={watch("amount")} setValue={setValue} group_id = {group_id} IncludePaidBy/>
-      <NotesInput control={control} name="notes" />
 
-      <View style={globalStyles.walletPhotoContainer}>
-        <WalletSelector control={control} name="wallet"/>
-        <PhotoSelector control={control} />
-      </View>
+      <TouchableOpacity onPress={toggleMoreOptions} style={{ marginVertical: 10, alignSelf: 'center' }}>
+        <Text style={{ color: '#000', fontWeight: '500', fontSize: 16 }}>
+          {showMoreOptions ? 'Hide ▲' : 'Add More Details ▼'}
+        </Text>
+      </TouchableOpacity>
 
-      <CategorySelector control={control} />
+      {showMoreOptions && (
+        <>
+          <NotesInput control={control} name="notes" />
 
-      <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
-        <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
-        <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
-      </View>
+          <View style={globalStyles.walletPhotoContainer}>
+            <WalletSelector control={control} name="wallet" />
+            <PhotoSelector control={control} />
+          </View>
+
+          <CategorySelector control={control} />
+
+          <View style={[globalStyles.dateTimeContainer, { height: 100 }]}>
+            <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates />
+            <CustomDateTimePicker control={control} name="time" label="Time" heading="Time" />
+          </View>
+        </>
+      )}
       
       <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled = {invalidSubmit}>Save</CustomButton>
     </ScrollView>

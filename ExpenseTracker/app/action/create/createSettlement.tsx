@@ -10,6 +10,7 @@ import WalletSelector from "@/components/selectors/WalletSelector";
 import PhotoSelector from "@/components/selectors/PhotoSelector";
 import { useCreateSettlementMutation } from '@/store/settlementApi';
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 export type error = {
   message: string;
 }
@@ -126,12 +127,7 @@ export default function AddSettlementScreen() {
     // <View style={[{flex:1}]}>
       <ScrollView style={globalStyles.viewContainer}>
 
-        <View style={globalStyles.viewHeader}>
-          <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color="black" />
-          </TouchableOpacity>
-          {status==="sent"?<Text style={globalStyles.headerText}>Paid to {name}</Text>:<Text style={globalStyles.headerText}>Received from {name}</Text>}
-        </View>
+        <Header headerText={status === "sent" ? `You paid ${name}` : `${name} paid you`}/>
 
         {group_name && <Text style={styles.groupName}> in {group_name}</Text>}
 

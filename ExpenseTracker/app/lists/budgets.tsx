@@ -10,6 +10,7 @@ import {useGetUserBudgetsQuery} from '@/store/userApi';
 import { globalStyles } from "@/styles/globalStyles";
 import { Budget } from "@/store/budgetApi";
 import SkeletonPlaceholder from "@/components/skeleton/SkeletonPlaceholder";
+import Header from "@/components/Header";
 
 export default function BudgetsScreen() {
   const router = useRouter();
@@ -42,10 +43,7 @@ export default function BudgetsScreen() {
 
         <ScrollView style={globalStyles.viewContainer}>
           
-          <View style = {globalStyles.viewHeader}>
-            <FontAwesome name="arrow-left" size={20} color="black" onPress={() => router.replace("/(tabs)")} style = {globalStyles.backButton}/>     
-            <Text style={globalStyles.headerText}>Budgets</Text>
-          </View>
+          <Header headerText="Budgets"/>
 
           {isLoadingBudget ? (
             <>

@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     color: "#355C7D",
   },
   disableButtonFilled: {
-    backgroundColor: "#A5B5C5", // Softer blue-gray, still visually tied to #355C7D
+    backgroundColor: "#A5B5C5",
     borderColor: "#A5B5C5",
     opacity: 1,
   },

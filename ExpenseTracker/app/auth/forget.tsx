@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import CustomButton from "../../components/button/CustomButton";
 import { useSendOtpMutation } from "@/store/userApi";
+import Header from "@/components/Header";
 
 type Data = {
   email: string;
@@ -48,9 +49,7 @@ export default function ForgotPasswordScreen() {
   return (
     <View style={styles.container}>
 
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <FontAwesome name="arrow-left" size={20} color="black" />
-      </TouchableOpacity>
+      <Header/>
 
       <Text style={styles.header}>Forgot password?</Text>
       <Text style={styles.subtext}>

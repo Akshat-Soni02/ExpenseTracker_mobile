@@ -20,9 +20,21 @@ const paperLightTheme = {
     primary: "#6200ee",
     background: "#FFFFFF",
     surface: "#FFFFFF",
-    text: "#000000",
+    surfaceVariant: "#FFFFFF",
+    onSurface: "#000000",
+    surfaceTint: "transparent", // no overlay
+    elevation: {
+      level0: "#FFFFFF",
+      level1: "#FFFFFF",
+      level2: "#FFFFFF",
+      level3: "#FFFFFF",
+      level4: "#FFFFFF",
+      level5: "#FFFFFF",
+    },
   },
 };
+
+
 
 export {
   ErrorBoundary,
@@ -116,7 +128,14 @@ function RootLayoutNav() {
         <Stack.Screen name="action/edit/editWallet" options={{headerShown:false}}/>
         <Stack.Screen name="action/edit/editBudget" options={{headerShown:false}}/>
         <Stack.Screen name="action/edit/editGroup" options={{headerShown:false}}/>
-        <Stack.Screen name="misc/groupSettlements" options={{headerShown:false}}/>
+        <Stack.Screen name="action/edit/editProfile" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/groupSettings" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/privacyPolicy" options={{headerShown:false}}/>
+        <Stack.Screen name="misc/contactUs" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/friends" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/wallets" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/detectedTransactions" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/budgets" options={{headerShown:false}}/>
       </Stack>
     </ThemeProvider>
   );

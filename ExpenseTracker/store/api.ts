@@ -1,13 +1,13 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getItem } from '@/app/utils/storage';
 
 const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
-  let token = await AsyncStorage.getItem("AuthToken");
+  let token = await getItem("AuthToken");
 
   // Create a base query instance
   const rawBaseQuery = fetchBaseQuery({
     // baseUrl: 'https://expenseease-3rcx.onrender.com/api/v1',
-    baseUrl : "http://192.168.194.20:3002/api/v1",
+    baseUrl : "http://192.168.0.105:3001/api/v1",
     credentials: 'include',
     prepareHeaders: (headers) => {
       if (token) {
@@ -22,7 +22,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
   if (!token && result.error?.status === 401) {
     console.log("Token was missing, retrying...");
     await new Promise((res) => setTimeout(res, 500));
-    token = await AsyncStorage.getItem("AuthToken");
+    token = await getItem("AuthToken");
     result = await rawBaseQuery(args, api, extraOptions);
   }
 

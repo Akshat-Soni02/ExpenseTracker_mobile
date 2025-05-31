@@ -6,6 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 
 import CustomButton from "../../components/button/CustomButton";
 import { useResetPasswordMutation } from "@/store/userApi";
+import Header from "@/components/Header";
 
 type Data = {
   password: string;
@@ -56,9 +57,7 @@ export default function ResetPasswordScreen() {
     <View style={styles.container}>
 
       {/* Back Button */}
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <FontAwesome name="arrow-left" size={20} color="black" />
-      </TouchableOpacity>
+      <Header />
 
       {/* Header */}
       <Text style={styles.header}>Reset password</Text>

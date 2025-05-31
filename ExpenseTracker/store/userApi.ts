@@ -147,6 +147,10 @@ export const userApi = api.injectEndpoints({
       query: () => `/users/me`,
       providesTags: ["user"],
     }),
+    getUnifiedHistory: builder.query({
+      query: () => `/users/unified-history`,
+      providesTags: ["user"],
+    }),
     getUserById: builder.query<GetUserResponse, string>({
       query: (id) => `/users/${id}`,
     }),
@@ -266,6 +270,14 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
+    removeFriendInvite: builder.mutation<void, {email:string}>({
+      query: (body) => ({
+        url: `/users/remove-friend-invite`,
+        method: "POST",
+        body
+      }),
+    }),
+
     updateUserDetails: builder.mutation<GetUserResponse, FormData>({
       query: ( body ) => ({
         url: `/users/profile-details`,
@@ -311,9 +323,13 @@ export const {
   useGetUserBillsQuery,
   useGetUserWalletsQuery,
   useGetUserSettlementsQuery,
+  useLazyGetUserExpensesQuery,
+  useLazyGetUserPersonalTransactionsQuery,
+  useLazyGetUserSettlementsQuery,
   useGetUserPersonalTransactionsQuery,
   useGetUserDetectedTransactionsQuery,
   useGetUserFriendsQuery,
+  useGetUnifiedHistoryQuery,
   useLazyGetUserFriendsQuery,
   useGetUserCurrentExchangeStatusQuery,
   useRemindUserBorrowerMutation,
@@ -324,5 +340,6 @@ export const {
   useAddUserFriendsMutation,
   useAutoaddFriendsMutation,
   useGetTodaySpendQuery,
-  useGetUserFutureFriendsQuery
+  useGetUserFutureFriendsQuery,
+  useRemoveFriendInviteMutation
 } = userApi;

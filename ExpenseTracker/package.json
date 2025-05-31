@@ -13,6 +13,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.3.0",
     "@expo/vector-icons": "^14.0.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -52,12 +53,14 @@
     "react-dom": "18.3.1",
     "react-hook-form": "^7.54.2",
     "react-native": "0.76.7",
+    "react-native-animatable": "^1.4.0",
     "react-native-contacts": "^8.0.4",
     "react-native-dotenv": "^3.4.11",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-elements": "^3.4.3",
     "react-native-fast-image": "^8.6.3",
-    "react-native-gesture-handler": "^2.24.0",
+    "react-native-gesture-handler": "~2.20.2",
+    "react-native-image-viewing": "^0.2.2",
     "react-native-paper": "^5.13.1",
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "^4.12.0",

@@ -10,6 +10,7 @@ import CategorySelector from "@/components/selectors/CategorySelector";
 import PeriodSelector from "@/components/selectors/PeriodSelector";
 import { useCreateBudgetMutation } from "@/store/budgetApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 
 type error = {
@@ -95,12 +96,7 @@ export default function AddBudgetScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>New Budget</Text>
-      </View>
+      <Header headerText="New Budget"/>
 
       <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors={childErrors}/>
 

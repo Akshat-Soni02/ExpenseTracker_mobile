@@ -59,6 +59,11 @@ export const billApi = api.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: "bill", id }],
     }),
 
+    getMonthlyPendingBills: builder.query<GetBillsResponse, void>({
+      query: () => `/bills//current-month/pending`,
+      providesTags: ["bill"]
+    }),
+
     updateBill: builder.mutation<GetBillResponse, {id: string, body:updateBillRequest}>({
       query: ({ id, body }) => ({
         url: `/bills/${id}`,
@@ -82,6 +87,7 @@ export const {
   useCreateBillMutation,
   useDeleteBillMutation,
   useGetBillQuery,
+  useGetMonthlyPendingBillsQuery,
   useUpdateBillMutation,
   useUpdateUserStatusOfBillMutation,
 } = billApi;

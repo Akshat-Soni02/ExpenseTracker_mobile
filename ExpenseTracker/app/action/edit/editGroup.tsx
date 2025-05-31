@@ -10,6 +10,7 @@ import InitialBudget from "@/components/inputs/InitialBudget";
 import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import { useUpdateGroupMutation,useGetGroupQuery, Group } from "@/store/groupApi";
 import { globalStyles } from "@/styles/globalStyles";
+import Header from "@/components/Header";
 
 type error = {
   message: string;
@@ -108,12 +109,7 @@ export default function EditGroupScreen() {
   return (
     <ScrollView style={globalStyles.viewContainer}>
 
-      <View style={globalStyles.viewHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={globalStyles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
-        <Text style={globalStyles.headerText}>Edit Group</Text>
-      </View>
+      <Header headerText="Edit Group"/>
 
       <TitleInput control={control} onErrorsChange={setChildErrors}/>
 
