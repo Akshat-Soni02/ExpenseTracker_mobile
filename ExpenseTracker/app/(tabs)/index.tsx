@@ -264,15 +264,21 @@ export default function HomeScreen() {
         <View>
           <View style={[testStyles.horizontalContainer, {alignItems: "center"}]}>
             <Text style={Styles.sectionTitle}>Recent Group</Text>
-            <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/groups")} rippleColor={COLORS.button.primary.background}>
+            {/* <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/groups")} rippleColor={COLORS.button.primary.background}>
                 <Text style={{color: COLORS.button.wide.background}}>View all</Text>
-            </Button>
+            </Button> */}
           </View>
 
           {isLoadingGroup ? (
             <SkeletonPlaceholder style={{ height: 70, borderRadius: 10 }} />
           ) : (
-            <GroupRow groupData={recentGroup}/>
+            <>
+              { recentGroup ? (
+                <GroupRow groupData={recentGroup}/>
+              ) : (
+                <Text style={{ textAlign: "center", marginTop: 20, color: COLORS.text.secondary }}>No Groups</Text>
+              )}
+            </>
           )}
         </View>
 
@@ -280,9 +286,9 @@ export default function HomeScreen() {
         <View>
           <View style={[testStyles.horizontalContainer, {alignItems: "center"}]}>
             <Text style={Styles.sectionTitle}>Upcoming Bills This Month</Text>
-            <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/bills")} rippleColor={COLORS.button.primary.background}>
+            {/* <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/bills")} rippleColor={COLORS.button.primary.background}>
                 <Text style={{color: COLORS.button.wide.background}}>View all</Text>
-            </Button>
+            </Button> */}
           </View>
 
           {isLoadingBills ? (
@@ -295,9 +301,13 @@ export default function HomeScreen() {
             </>
           ) : (
             <>
-              {pendingBills.map((bill: Bill) => (
+            { pendingBills.length > 0 ? (
+              pendingBills.map((bill: Bill) => (
                 <BillRow key={bill._id} bill={bill} />
-              ))}
+              ))
+            ) : (
+              <Text style={{ textAlign: "center", marginTop: 20, color: COLORS.text.secondary }}>No pending bills</Text>
+            )}
             </>
           )}
 

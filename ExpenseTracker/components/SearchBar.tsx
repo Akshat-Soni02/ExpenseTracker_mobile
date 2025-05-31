@@ -8,43 +8,51 @@ type SearchBarProps = {
   debounceTime?: number;
   inputProps?: TextInputProps;
   containerStyle?: object;
+  value: string;
 };
 
 const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = "Search...",
-  onSearch,
-  debounceTime = 300,
-  inputProps,
-  containerStyle
-}) => {
-  const [query, setQuery] = useState('');
+    placeholder = "Search...",
+    onSearch,
+    value,
+    debounceTime = 1500,
+    inputProps,
+    containerStyle
+  }) => {
+    const [query, setQuery] = useState(value);
   
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      onSearch(query.trim());
-    }, debounceTime);
-
-    return () => clearTimeout(handler);
-  }, [query]);
-
-  return (
-    <View style={[styles.container, containerStyle]}>
-      <Ionicons name="search" size={20} color="#999" style={styles.icon} />
-      <TextInput
-        value={query}
-        onChangeText={setQuery}
-        placeholder={placeholder}
-        style={styles.input}
-        {...inputProps}
-      />
-      {query.length > 0 && (
-        <TouchableOpacity onPress={() => setQuery('')}>
-          <Ionicons name="close-circle" size={20} color="#999" style={styles.icon} />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-};
+    // Sync internal state when parent value changes (optional but good)
+    useEffect(() => {
+      setQuery(value);
+    }, [value]);
+  
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        onSearch(query.trim());
+      }, debounceTime);
+  
+      return () => clearTimeout(handler);
+    }, [query]);
+  
+    return (
+      <View style={[styles.container, containerStyle]}>
+        <Ionicons name="search" size={20} color="#999" style={styles.icon} />
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={placeholder}
+          style={styles.input}
+          {...inputProps}
+        />
+        {query.length > 0 && (
+          <TouchableOpacity onPress={() => setQuery('')}>
+            <Ionicons name="close-circle" size={20} color="#999" style={styles.icon} />
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+  
 
 export default SearchBar;
 

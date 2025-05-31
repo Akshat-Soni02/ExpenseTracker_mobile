@@ -132,6 +132,10 @@ function RootLayoutNav() {
         <Stack.Screen name="misc/groupSettings" options={{headerShown:false}}/>
         <Stack.Screen name="misc/privacyPolicy" options={{headerShown:false}}/>
         <Stack.Screen name="misc/contactUs" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/friends" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/wallets" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/detectedTransactions" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/budgets" options={{headerShown:false}}/>
       </Stack>
     </ThemeProvider>
   );

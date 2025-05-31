@@ -104,8 +104,6 @@ export const globalStyles = StyleSheet.create({
   },
   navbar: {
       marginBottom: 20,
-      marginTop: 25,
-      left : 2,
     },
   
     fab: {

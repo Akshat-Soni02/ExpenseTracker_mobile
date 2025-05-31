@@ -9,11 +9,12 @@ interface HeaderProps {
     headerText?: string;
     headerIcon?: any;
     hideBackButton?: boolean;
+    containerStyle?: any;
 }
 
-const Header: React.FC<HeaderProps> = ({headerIcon, headerText, hideBackButton}) => {
+const Header: React.FC<HeaderProps> = ({headerIcon, headerText, hideBackButton, containerStyle}) => {
     return (
-        <View style = {hideBackButton ? testStyles.tabScreenHeader : testStyles.header}>
+        <View style = {[hideBackButton ? testStyles.tabScreenHeader : testStyles.header, containerStyle]}>
             {!hideBackButton && <AntDesign name="arrowleft" size={25} color="black" onPress={() => router.back()} style = {{backgroundColor: "white"}}/>}
             {headerText && <Text style={testStyles.headerText}>{headerText}</Text>}
             {headerIcon && headerIcon}

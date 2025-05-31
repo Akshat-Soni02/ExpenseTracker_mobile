@@ -1,4 +1,4 @@
-import { StyleSheet,ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { StyleSheet,ScrollView ,FlatList, ActivityIndicator, TouchableOpacity} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -19,12 +19,12 @@ import { FONTS } from "../utils/constants";
 export default function MoreScreen() {
   const router = useRouter();
 
-  const FeatureHolder = ({icon, featureText}) => {
+  const FeatureHolder = ({icon, featureText, route}) => {
     return (
-        <View style={{alignItems: "center"}}>
+        <TouchableOpacity style={{alignItems: "center"}} onPress={() => router.push(route)}>
             <MaterialCommunityIcons name={icon} size={28} color="#000" />
             <Text>{featureText}</Text>
-        </View>
+        </TouchableOpacity>
     );
   }
 
@@ -32,10 +32,10 @@ export default function MoreScreen() {
     <View style={testStyles.screen}>
         <View style={[testStyles.container]}>
             <Text style={{fontSize: FONTS.large, marginTop: 50, alignSelf: "center"}}>More Options</Text>
-            <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 250}}>
-                <FeatureHolder icon={"account"} featureText={"Friends"}/>
-                <FeatureHolder icon={"wallet-outline"} featureText={"Wallets"}/>
-                <FeatureHolder icon={"download"} featureText={"Export Data"}/>
+            <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 150}}>
+                <FeatureHolder icon={"account"} featureText={"Friends"} route={"/lists/friends"}/>
+                <FeatureHolder icon={"wallet-outline"} featureText={"Wallets"} route={"/lists/wallets"}/>
+                <FeatureHolder icon={"download"} featureText={"Export Data"} route={"/lists/friends"}/>
             </View>
         </View>
     </View>
