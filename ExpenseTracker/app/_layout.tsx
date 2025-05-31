@@ -1,4 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -67,13 +69,15 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <Provider store={store}>
-        <PaperProvider theme={paperLightTheme}>
-          <RootLayoutNav />
-        </PaperProvider>
-      </Provider>
-    </AuthProvider>
+      <AuthProvider>
+        <Provider store={store}>
+          <GluestackUIProvider mode="light">
+            <PaperProvider theme={paperLightTheme}>
+              <RootLayoutNav />
+            </PaperProvider>
+          </GluestackUIProvider>
+        </Provider>
+      </AuthProvider>
   );
 }
 
@@ -92,6 +96,7 @@ function RootLayoutNav() {
   };
 
   return (
+   <GluestackUIProvider mode="light"><ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -138,5 +143,6 @@ function RootLayoutNav() {
         <Stack.Screen name="lists/budgets" options={{headerShown:false}}/>
       </Stack>
     </ThemeProvider>
+   </GluestackUIProvider>
   );
 }

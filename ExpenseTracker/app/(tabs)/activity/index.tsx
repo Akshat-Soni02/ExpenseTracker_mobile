@@ -241,6 +241,7 @@ export default function ActivityScreen() {
     return <ErrorState errors={errors} onRetry={handleRetry} />;
   }
 
+
   return (
     <View style={testStyles.screen}>
       <SearchHeader />
@@ -304,3 +305,4 @@ export default function ActivityScreen() {
             color: COLORS.text.bluish,
           },
           });
+
