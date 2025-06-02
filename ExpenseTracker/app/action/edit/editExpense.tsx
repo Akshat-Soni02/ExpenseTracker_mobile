@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import _ from "lodash";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
@@ -20,6 +21,7 @@ import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useGetWalletQuery } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 export type error = {
   message: string;
 }
@@ -52,6 +54,8 @@ export default function EditExpenseScreen() {
   let { id, paidByName } = useLocalSearchParams() as LocalParams;
   const [errorMessage, setErrorMessage] = useState("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  const { showToast } = useToast();
   
   const { data, isLoading, error: errorExpense, refetch } = useGetExpenseQuery(id);
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
@@ -168,11 +172,19 @@ export default function EditExpenseScreen() {
         router.back();
       }
       const response = await updateExpense({expense_id: id, body: formData}).unwrap();
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       router.back();
     } catch (error) {
-      console.error("new expense failed to create:", error);
-      const err = error as { data?: { message?: string } };
-      setErrorMessage(err?.data?.message || "Something went wrong. Please try again.");
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("new expense failed to create:", error);
+      // const err = error as { data?: { message?: string } };
+      // setErrorMessage(err?.data?.message || "Something went wrong. Please try again.");
     }
   };  
 
@@ -196,7 +208,8 @@ export default function EditExpenseScreen() {
   }
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
 
         <Header headerText="Edit Split"/>
 
@@ -217,6 +230,7 @@ export default function EditExpenseScreen() {
       </View>
       
       <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }

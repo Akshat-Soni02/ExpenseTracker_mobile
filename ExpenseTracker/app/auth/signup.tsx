@@ -4,12 +4,14 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "../../components/button/CustomButton";
 import TempGoogleLoginButton from "@/components/button/TempGoogleButton";
 import GoogleButton from "@/components/button/GoogleButton";
 import { useRegisterUserMutation, useAutoaddFriendsMutation } from "@/store/userApi";
 import { useAuth } from "@/context/AuthProvider";
+import { saveItem } from "../utils/storage";
 
 type Data = {
   email: string;
@@ -19,6 +21,7 @@ type Data = {
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState<boolean>(false);
@@ -58,26 +61,35 @@ export default function SignUpScreen() {
         return;
       }
 
+      showToast({
+        title: `${response.data.message}`,
+        type: "success",
+      })
+
       if (response?.data?.token) {
         try{
           await login(response.data.token);
-          await AsyncStorage.setItem("user", JSON.stringify(response.data.userData));
+          await saveItem("user", response.data.userData);
           await autoAdd({email: data.email}).unwrap();
         } catch (error) {
           console.error("Auto add friends failed:", error);
         } finally {
-          router.push("/(tabs)");
+          router.replace("/(tabs)");
         }
       }
 
     } catch (error) {
-      console.error("Signup failed:", error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("Signup failed:", error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   };
 

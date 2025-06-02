@@ -6,7 +6,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
 
   // Create a base query instance
   const rawBaseQuery = fetchBaseQuery({
-    // baseUrl: 'https://expenseease-3rcx.onrender.com/api/v1',
+    // baseUrl: 'https://expenz-node-backend-331858369283.asia-south1.run.app/api/v1',
     baseUrl : "http://192.168.0.105:3001/api/v1",
     credentials: 'include',
     prepareHeaders: (headers) => {

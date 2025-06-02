@@ -17,12 +17,14 @@ import { useAddUserFriendsMutation, useGetUserFutureFriendsQuery, useRemoveFrien
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import CustomSnackBar from "@/components/CustomSnackBar";
+import { useToast } from "@/context/ToastContext";
 
 const AddEmailManuallyScreen = () => {
   const router = useRouter();
   const [emails, setEmails] = useState<string[]>([""]);
   const [visible, setVisible] = useState<boolean>(false);
   const [snackMess, setSnackMess] = useState<string>("");
+  const { showToast } = useToast();
 
   const [addFriends, { isLoading, error: errorFriend }] = useAddUserFriendsMutation();
   const [removeFriend, { isLoading: isLoadingRemove, error: errorFriendRemove }] = useRemoveFriendInviteMutation();
@@ -70,23 +72,39 @@ const AddEmailManuallyScreen = () => {
 
     try {
       await addFriends({ invitees: finalData }).unwrap();
-      setSnackMess("Invited sent successfully");
-      setVisible(true);
-      setTimeout(() => router.back(), 500);
+      showToast({
+        title: "Invitation sent",
+        type: "success"
+      })
+      // setSnackMess("Invited sent successfully");
+      // setVisible(true);
+      // setTimeout(() => router.back(), 500);
     } catch (error) {
-      Alert.alert("Error adding friends", error?.data?.error || `Please try after some time`);
-      console.log("Error adding friends: ", error);
+      showToast({
+        title: `${error.data.message}`,
+        type: "error"
+      })
+      // Alert.alert("Error adding friends", error?.data?.error || `Please try after some time`);
+      // console.log("Error adding friends: ", error);
     }
   };
 
   const handleRemoveInvite = async (email: string) => {
     try {
       await removeFriend({ email }).unwrap();
-      setSnackMess("Removed successfully");
-      setVisible(true);
+      showToast({
+        title: "Invite Removed",
+        type: "success"
+      })
+      // setSnackMess("Removed successfully");
+      // setVisible(true);
     } catch (error) {
-      Alert.alert("Error removing friend invite", `Please try after some time`);
-      console.log("Error removing invite ", error);
+      showToast({
+        title: `${error.data.message}`,
+        type: "error"
+      })
+      // Alert.alert("Error removing friend invite", `Please try after some time`);
+      // console.log("Error removing invite ", error);
     }
   };
 
@@ -209,11 +227,11 @@ const AddEmailManuallyScreen = () => {
           </>
         }
       />
-       <CustomSnackBar
+       {/* <CustomSnackBar
           message={snackMess}
           visible={visible}
           onDismiss={() => setVisible(false)}
-        />
+        /> */}
     </View>
   );
 };

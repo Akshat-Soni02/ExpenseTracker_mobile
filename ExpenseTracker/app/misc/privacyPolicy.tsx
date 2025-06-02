@@ -1,5 +1,3 @@
-// PrivacyPolicyScreen.js
-
 import Header from '@/components/Header';
 import React from 'react';
 import { ScrollView, Text, StyleSheet, View } from 'react-native';
@@ -8,12 +6,12 @@ const PrivacyPolicyScreen = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Header/>
-      <Text style={styles.title}>Privacy Policy for ExpenseEase</Text>
+      <Text style={styles.title}>Privacy Policy for ExpenZ</Text>
       <Text style={styles.lastUpdated}>Last Updated: 10th May, 2025</Text>
 
       <Text style={styles.sectionTitle}>1. Introduction</Text>
       <Text style={styles.paragraph}>
-        This Privacy Policy describes how ExpenseEase ("we," "us," or "our") collects, uses, and shares personal information of users ("you") of the ExpenseEase mobile application (the "App"). The App is designed to help individuals register and manage their expenses, split amounts with friends, add personal transactions, create and manage splits within groups, utilize virtual wallets for transactions, and manage bills. We are committed to protecting your privacy and ensuring the security of your personal information. This policy aims to provide you with clear and comprehensive information about our data handling practices, reflecting our dedication to transparency and building trust. Our practices are designed to comply with applicable data privacy laws and regulations, ensuring that your information is handled responsibly and in accordance with your rights.
+        This Privacy Policy describes how ExpenZ ("we," "us," or "our") collects, uses, and shares personal information of users ("you") of the ExpenZ mobile application (the "App"). The App is designed to help individuals register and manage their expenses, split amounts with friends, add personal transactions, create and manage splits within groups, utilize virtual wallets for transactions, and manage bills. We are committed to protecting your privacy and ensuring the security of your personal information. This policy aims to provide you with clear and comprehensive information about our data handling practices, reflecting our dedication to transparency and building trust. Our practices are designed to comply with applicable data privacy laws and regulations, ensuring that your information is handled responsibly and in accordance with your rights.
       </Text>
 
       <Text style={styles.sectionTitle}>2. Information We Collect</Text>
@@ -68,10 +66,10 @@ const PrivacyPolicyScreen = () => {
         If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:
       </Text>
       <Text style={styles.paragraph}>
-        ExpenseEase
+        ExpenZ
       </Text>
       <Text style={styles.paragraph}>
-        Email: expenseease414@gmail.com
+        Email: expensetracker414@gmail.com
       </Text>
 
       <Text style={styles.sectionTitle}>11. Updates to This Privacy Policy</Text>
@@ -85,7 +83,7 @@ const PrivacyPolicyScreen = () => {
       </Text>
 
       <Text style={styles.paragraph}>
-        Copyright © 2025 ExpenseEase. All rights reserved.
+        Copyright © 2025 ExpenZ. All rights reserved.
       </Text>
     </ScrollView>
   );

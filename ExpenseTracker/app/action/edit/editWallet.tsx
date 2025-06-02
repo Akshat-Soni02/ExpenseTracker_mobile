@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIn
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
@@ -10,6 +11,7 @@ import LowerLimit from "@/components/inputs/LowerLimit";
 import { useUpdateWalletMutation, Wallet } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 export type error = {
   message: string;
@@ -38,6 +40,8 @@ export default function EditWalletScreen() {
   let { fetchedId, fetchedAmount, fetchedName, fetchedLowerLimit } = useLocalSearchParams() as LocalParams;
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  const { showToast } = useToast();
 
   let fetchedAmountNumber = Number(fetchedAmount);
   let fetchedLowerLimitNumber = Number(fetchedLowerLimit);
@@ -82,23 +86,33 @@ export default function EditWalletScreen() {
         dataObj.wallet_title = data.Name;
       }
       const response = await updateWallet({id: fetchedId, body: dataObj}).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       reset();
       router.back();
     } catch (error) {
-      console.error("wallet failed to update:", error);
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("wallet failed to update:", error);
+      //   const err = error as { data?: { message?: string } };
+      //   if (err?.data?.message) {
+      //     setErrorMessage(err.data.message);
+      //   } else {
+      //     setErrorMessage("Something went wrong. Please try again.");
+      //   }
     }
   };
 
   if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
 
       <Header headerText="Edit Wallet"/>
 
@@ -107,6 +121,7 @@ export default function EditWalletScreen() {
       <LowerLimit control={control}/>
 
       <CustomButton onPress={handleSubmit(onWalletSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }

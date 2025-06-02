@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { requestPermissionAndroid } from "@/app/(tabs)";
+// import { requestPermissionAndroid } from "@/app/(tabs)";
 import { PermissionsAndroid } from "react-native";
+import { getItem, removeItem, saveItem } from "@/app/utils/storage";
+import { hasAndroidPermission, requestAndroidPermission } from "@/app/utils/permissions";
 // import useSMS from "@/app/misc/useSMS";
 interface AuthContextType {
   authToken: string | null;
@@ -20,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadToken = async () => {
       try {
-        const token = await AsyncStorage.getItem("AuthToken");
+        const token = await getItem("AuthToken");
         console.log("Loaded Token from AsyncStorage:", token);
         setAuthToken(token);
       } catch (error) {
@@ -33,10 +34,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const checkAndRequestPermission = async () => {
-    const hasNotificationPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    const hasNotificationPermission = await hasAndroidPermission(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     console.log("Notification permission status:", hasNotificationPermission);
     if (!hasNotificationPermission) {
-      await requestPermissionAndroid();
+      await requestAndroidPermission(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     }
     // const hasSMSPermission = await checkPermissions();
     // console.log("Receive sms permission status:", hasSMSPermission);
@@ -47,14 +48,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (token: string) => {
     console.log("Storing Token in AsyncStorage:", token);
-    await AsyncStorage.setItem("AuthToken", JSON.stringify(token));
+    await saveItem("AuthToken", token);
     setAuthToken(token);
     await checkAndRequestPermission();
   };
 
   const logout = async () => {
     console.log("Removing Token from AsyncStorage");
-    await AsyncStorage.removeItem("AuthToken");
+    await removeItem("AuthToken");
     setAuthToken(null);
   };
 

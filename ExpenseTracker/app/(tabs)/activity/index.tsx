@@ -274,12 +274,12 @@ export default function ActivityScreen() {
               {
                 icon: 'arrow-collapse',
                 label: 'Transaction',
-                onPress: () => router.push("/action/create/createExpense"),
+                onPress: () => router.push("/action/create/createTransaction"),
               },
               {
                 icon: 'call-split',
                 label: 'Split Money',
-                onPress: () => router.push("/action/create/createTransaction"),
+                onPress: () => router.push("/action/create/createExpense"),
               },
             ]}
           />

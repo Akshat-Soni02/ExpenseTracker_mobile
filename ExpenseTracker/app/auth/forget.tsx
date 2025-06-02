@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "../../components/button/CustomButton";
 import { useSendOtpMutation } from "@/store/userApi";
@@ -16,6 +17,7 @@ type Data = {
 export default function ForgotPasswordScreen() {
   const router = useRouter();
 
+  const { showToast } = useToast();
   const [sendOtp, { isLoading }] = useSendOtpMutation();
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -34,15 +36,23 @@ export default function ForgotPasswordScreen() {
     setErrorMessage("");
     try {
       const response = await sendOtp({ email: data.email }).unwrap();
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       router.push({ pathname: "/auth/otp", params: { email: data.email } });
     } catch (error) {
-      console.error("OTP failed to send:", error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("OTP failed to send:", error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   };
 

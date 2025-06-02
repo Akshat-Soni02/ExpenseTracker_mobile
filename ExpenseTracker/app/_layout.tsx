@@ -12,6 +12,7 @@ import store from '@/store/store';
 import { useColorScheme } from '@/components/useColorScheme';
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
 import { AuthProvider } from '@/context/AuthProvider';
+import { ToastProvider } from '@/context/ToastContext';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from "expo-linking";
 
@@ -70,12 +71,14 @@ export default function RootLayout() {
 
   return (
       <AuthProvider>
-        <Provider store={store}>
-          <GluestackUIProvider mode="light">
+          <Provider store={store}>
+            {/* <GluestackUIProvider mode="light"> */}
             <PaperProvider theme={paperLightTheme}>
-              <RootLayoutNav />
+              <ToastProvider>
+                <RootLayoutNav />
+              </ToastProvider>
             </PaperProvider>
-          </GluestackUIProvider>
+            {/* </GluestackUIProvider> */}
         </Provider>
       </AuthProvider>
   );

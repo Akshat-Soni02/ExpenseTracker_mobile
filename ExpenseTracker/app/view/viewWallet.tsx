@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, SectionList, ScrollView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { FontAwesome, Entypo } from "@expo/vector-icons";
+import { FontAwesome, Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Menu, Divider } from "react-native-paper";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -10,6 +10,7 @@ import { useGetWalletQuery,useDeleteWalletMutation, useGetWalletTransactionsQuer
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import moment from "moment";
+import { COLORS } from "../utils/constants";
 
 const WalletDetailsScreen = () => {
   const { id } = useLocalSearchParams() as {id: string};
@@ -131,7 +132,7 @@ const WalletDetailsScreen = () => {
         >
           <View style={styles.expenseTextContainer}>
             <View style={{flexDirection: "row", gap: 2}}>
-              {item.lenders ? (<MaterialIcons name="call-split" size={20} color="#111827" />):(<AntDesign name="arrowsalt" size={18} color="#111827" />)}
+              {item.lenders ? (<MaterialIcons name="call-split" size={20} color="#111827" />):(<MaterialCommunityIcons name="arrow-collapse" size={18} color="#111827" />)}
               <Text style={styles.expenseDescription} numberOfLines={1}> {item?.description || "No description"} </Text>
             </View>
           </View>
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
   walletContainer: {
     width: "90%",
     alignSelf: "center",
-    paddingTop: 20,
+    paddingTop: 5,
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
@@ -293,12 +294,12 @@ const styles = StyleSheet.create({
   
   walletSpent: {
     fontSize: 15,
-    color: "#D32F2F",
+    color: COLORS.amount.negative,
   },
   
   walletIncome: {
     fontSize: 15,
-    color: "#388E3C",
+    color: COLORS.amount.positive,
   },
   
   expenseRow: {

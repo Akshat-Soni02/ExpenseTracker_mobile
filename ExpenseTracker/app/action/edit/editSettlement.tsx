@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIn
 import { useForm } from "react-hook-form";
 import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
@@ -12,6 +13,7 @@ import { useGetWalletQuery } from "@/store/walletApi";
 import {useUpdateSettlementMutation,useGetSettlementQuery} from '@/store/settlementApi';
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 export type error = {
   message: string;
@@ -31,6 +33,7 @@ type Data = {
 export default function EditSettlementScreen() {
   const router = useRouter();
   let { id } = useLocalSearchParams() as { id: string };
+  const { showToast } = useToast();
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
@@ -80,16 +83,25 @@ const onSubmit = async (data: Data) => {
         settlement_description: data.Description,
       },
       }).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
     }
     router.back();
   } catch (error) {
-    console.error("failed to update Settlement:", error);
-    const err = error as { data?: { message?: string } };
-    if (err?.data?.message) {
-      setErrorMessage(err.data.message);
-    } else {
-      setErrorMessage("Something went wrong. Please try again.");
-    }
+    showToast({
+      title: `${error.data.message}`,
+      type: "error",
+    })
+    // console.error("failed to update Settlement:", error);
+    // const err = error as { data?: { message?: string } };
+    // if (err?.data?.message) {
+    //   setErrorMessage(err.data.message);
+    // } else {
+    //   setErrorMessage("Something went wrong. Please try again.");
+    // }
   }
 };
 
@@ -107,7 +119,8 @@ if (settlementError) {
 }
   
 return (
-    <ScrollView style={globalStyles.viewContainer}>
+      <ScrollView style={testStyles.screen}>
+        <View style={[testStyles.container, {gap: 0}]}>
 
        <Header headerText="Edit Settlement"/>
 
@@ -119,6 +132,7 @@ return (
       </View>
       
       <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      </View>
     </ScrollView>          
   );
 }

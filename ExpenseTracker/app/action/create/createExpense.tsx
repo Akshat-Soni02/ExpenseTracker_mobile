@@ -16,6 +16,8 @@ import { useCreateExpenseMutation } from "@/store/expenseApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { useToast } from "@/context/ToastContext";
+import { testStyles } from "@/styles/test";
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -57,6 +59,7 @@ type Data = {
 
 export default function AddExpenseScreen() {
 
+  const {showToast} = useToast();
   let {group_id, group_name,detectedId, detectedAmount ,detectedDescription, detectedCreated_at_date_time,detectedNotes} = useLocalSearchParams() as LocalParams;
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
@@ -219,14 +222,21 @@ export default function AddExpenseScreen() {
         } as any);
       }
       formData.append("created_at_date_time", String(created_at_date_time));
-      console.log(formData);
       const response = await createExpense(formData).unwrap();
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       reset();
-      router.replace({ pathname: "/view/viewExpense", params: { id:response?.data?._id} });
+      router.back();
     } catch (error) {
-      console.error("new expense failed to create:", error);
-      const err = error as { data?: { message?: string } };
-      setErrorMessage(err?.data?.message || "Something went wrong. Please try again.");
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("new expense failed to create:", error);
+      // const err = error as { data?: { message?: string } };
+      // setErrorMessage(err?.data?.message || "Something went wrong. Please try again.");
     }
   };  
   
@@ -235,8 +245,8 @@ export default function AddExpenseScreen() {
   if(isLoadingExpense) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
-
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
       <Header headerText="New Split"/>
 
       {group_name && (<Text style = {{fontWeight: "500", alignSelf: "center", fontSize: 18, marginVertical: 5}}>Adding in {group_name}</Text>)}
@@ -267,8 +277,9 @@ export default function AddExpenseScreen() {
           </View>
         </>
       )}
-      
+
       <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled = {invalidSubmit}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }

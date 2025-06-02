@@ -7,6 +7,7 @@ import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 import { useAuth } from "@/context/AuthProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getItem } from "../utils/storage";
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function WelcomeScreen() {
   }, []);
 
   const tempFun = async () => {
-    console.log(AsyncStorage.getItem("AuthToken"));
+    console.log(getItem("AuthToken"));
     await AsyncStorage.clear();
   }
 

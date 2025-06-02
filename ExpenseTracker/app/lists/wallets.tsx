@@ -15,7 +15,7 @@ import { testStyles } from "@/styles/test";
 import { formatCurrency } from "../utils/helpers";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
-import AppFAB from "@/components/TempFAB";
+import AppFAB from "@/components/AppFAB";
 
 
 export default function WalletsScreen() {

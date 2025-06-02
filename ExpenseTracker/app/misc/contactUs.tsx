@@ -20,7 +20,7 @@ const ContactUsScreen = () => {
 
       <View style={styles.contactBlock}>
         <Text style={styles.label}>Email:</Text>
-        <Text style={styles.link} onPress={() => Linking.openURL('mailto:expenseease414@gmail.com')}>
+        <Text style={styles.link} onPress={() => Linking.openURL('mailto:expensetracker414@gmail.com')}>
           expenseease.app
         </Text>
       </View>

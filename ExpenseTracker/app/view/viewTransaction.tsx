@@ -12,6 +12,7 @@ import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { COLORS } from "../utils/constants";
 
 
 const TransactionDetailScreen = () => {
@@ -85,7 +86,7 @@ const TransactionDetailScreen = () => {
 
   if (!data?.data) return <Text>No transaction found</Text>;
 
-  const themeColor = transaction?.transaction_type === "income" ? "#1e9738" : "#d86161";
+  const themeColor = transaction?.transaction_type === "income" ? COLORS.amount.positive : COLORS.amount.negative;
 
   return (
     <View style={globalStyles.viewContainer}>

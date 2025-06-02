@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
@@ -10,6 +11,7 @@ import LowerLimit from "@/components/inputs/LowerLimit";
 import { useCreateWalletMutation } from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 export type error = {
   message: string;
@@ -28,6 +30,8 @@ type Data = {
 
 export default function CreateWalletScreen() {
   const router = useRouter();
+
+  const { showToast } = useToast();
 
   const [createWallet, {isLoading}] = useCreateWalletMutation();
 
@@ -74,22 +78,32 @@ export default function CreateWalletScreen() {
         lower_limit: data.lowerLimit,
         wallet_title: data.Name
       }).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       reset();
-      router.replace({ pathname: "/view/viewWallet", params: { id:response?.data?._id} });
+      router.back();
     } catch (error) {
-      console.error("new wallet failed to create:", error);
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("new wallet failed to create:", error);
+      //   const err = error as { data?: { message?: string } };
+      //   if (err?.data?.message) {
+      //     setErrorMessage(err.data.message);
+      //   } else {
+      //     setErrorMessage("Something went wrong. Please try again.");
+      //   }
     }
   };
 
   if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   return (
-    <ScrollView style={globalStyles.viewContainer}>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
       <Header headerText="New Wallet"/>
 
       {/* wallet Title and Amount */}
@@ -100,6 +114,7 @@ export default function CreateWalletScreen() {
 
       {/* Save Button */}
       <CustomButton onPress={handleSubmit(onWalletSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }

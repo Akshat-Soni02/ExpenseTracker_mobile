@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import AppFAB from './AppFab';
+import AppFAB from './AppFAB';
 
 export type FABAction = {
   icon: string;

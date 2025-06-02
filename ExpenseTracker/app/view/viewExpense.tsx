@@ -14,6 +14,8 @@ import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { getItem } from "../utils/storage";
+import { COLORS } from "../utils/constants";
 
 
 const ExpenseDetailScreen = () => {
@@ -43,9 +45,8 @@ const ExpenseDetailScreen = () => {
 
   useEffect(() => {
     const fetchUserId = async () => {
-      const userData = await AsyncStorage.getItem("user");
-      if (userData) {
-        const user = JSON.parse(userData);
+      const user = await getItem("user");
+      if (user) {
         setLoggedInUserId(user._id);
       }
     };
@@ -133,7 +134,7 @@ const ExpenseDetailScreen = () => {
 
   const isLender = expense?.lenders.some((lender) => lender.user_id === loggedInUserId);
   const isBorrower = expense?.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
-  const themeColor = isLender ? "#218838" : isBorrower ? "#E74C3C" : "#374151";
+  const themeColor = isLender ? COLORS.amount.positive : isBorrower ? COLORS.amount.negative : COLORS.amount.neutral;
 
   return (
     <ScrollView style={globalStyles.viewContainer}>

@@ -15,11 +15,13 @@ import {
   import { useLocalSearchParams } from "expo-router";
   import AsyncStorage from "@react-native-async-storage/async-storage";
   import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+  import { useToast } from "@/context/ToastContext";
   
   import { useUpdateUserDetailsMutation } from "@/store/userApi";
   import { globalStyles } from "@/styles/globalStyles";
   import Header from "@/components/Header";
   import CustomSnackBar from "@/components/CustomSnackBar";
+import { saveItem } from "@/app/utils/storage";
   
   type UserData = {
     name: string;
@@ -43,6 +45,8 @@ import {
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [visible, setVisible] = useState<boolean>(false);
     const [updateUser, {isLoading}] = useUpdateUserDetailsMutation();
+
+    const { showToast } = useToast();
 
     useEffect(() => {
         setUserData({
@@ -81,16 +85,24 @@ import {
             } as any);
             }
             const res = await updateUser(formData).unwrap();
-            await AsyncStorage.setItem("user", JSON.stringify(res.data));
+            showToast({
+              title: `${res.message}`,
+              type: "success",
+            })
+            await saveItem("user", res.data);
             setVisible(true);
         } catch (error) {
-            console.error("Update failed:", error);
-            const err = error as { data?: { message?: string } };
-            if (err?.data?.message) {
-            setErrorMessage(err.data.message);
-            } else {
-            setErrorMessage("Something went wrong. Please try again.");
-            }
+          showToast({
+            title: `${error.data.message}`,
+            type: "error",
+          })
+            // console.error("Update failed:", error);
+            // const err = error as { data?: { message?: string } };
+            // if (err?.data?.message) {
+            // setErrorMessage(err.data.message);
+            // } else {
+            // setErrorMessage("Something went wrong. Please try again.");
+            // }
         }
     };
   
@@ -194,11 +206,11 @@ import {
             )}
         </TouchableOpacity>
 
-        <CustomSnackBar
+        {/* <CustomSnackBar
           message="Successfully updated"
           visible={visible}
           onDismiss={() => setVisible(false)}
-        />
+        /> */}
 
         </View>
       </SafeAreaView>

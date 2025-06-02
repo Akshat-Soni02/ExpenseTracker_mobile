@@ -11,6 +11,7 @@ import { useLazyGetGroupQuery } from "@/store/groupApi";
 import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi";
 import { people } from "./AddPeopleInput";
 import { Member } from "@/store/billApi";
+import { getItem } from "@/app/utils/storage";
 const { width } = Dimensions.get("window");
 
 type FormValues = { 
@@ -155,9 +156,8 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const userData = await AsyncStorage.getItem("user");
-        if (userData) {
-          const user = JSON.parse(userData);
+        const user = await getItem("user");
+        if (user) {
           setLoggedInUserId(user._id);
           const defaultUser = { user_id: user._id, name: user.name, profile_photo: user.profile_photo?.url };
           if(edit){

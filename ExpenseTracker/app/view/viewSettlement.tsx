@@ -14,6 +14,7 @@ import { useLazyGetWalletQuery } from "@/store/walletApi";
 import { useGetSettlementQuery, useDeleteSettlementMutation } from "@/store/settlementApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { getItem } from "../utils/storage";
 
 
 const SettlementDetailsScreen = () => {
@@ -41,9 +42,8 @@ const SettlementDetailsScreen = () => {
 
   useEffect(() => {
     const fetchUserId = async () => {
-      const userData = await AsyncStorage.getItem("user");
-      if (userData) {
-        const user = JSON.parse(userData);
+      const user = await getItem("user");
+      if (user) {
         setLoggedInUserId(user._id);
       }
     };

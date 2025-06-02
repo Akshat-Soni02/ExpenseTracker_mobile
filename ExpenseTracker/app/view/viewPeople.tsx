@@ -5,6 +5,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 
 import { useGetUserByIdQuery, useRemindUserBorrowerMutation } from "@/store/userApi";
 import {globalStyles} from "@/styles/globalStyles";
+import { COLORS } from "../utils/constants";
 
 type LocalParams = {
   id: string;
@@ -199,11 +200,11 @@ const styles = StyleSheet.create({
   redAmount: {
     fontSize: 18,
     fontFamily: "Poppins_700Bold",
-    color: "#d86161",
+    color: COLORS.amount.negative,
   },
   greenAmount: {
     fontSize: 18,
     fontFamily: "Poppins_700Bold",
-    color: "#1e9738",
+    color: COLORS.amount.positive,
   },
 });

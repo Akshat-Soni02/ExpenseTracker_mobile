@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator 
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "../../components/button/CustomButton";
 import { useResetPasswordMutation } from "@/store/userApi";
@@ -16,6 +17,7 @@ type Data = {
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const {email} = useLocalSearchParams() as {email: string};
+  const { showToast } = useToast();
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
@@ -40,16 +42,25 @@ export default function ResetPasswordScreen() {
   const onSubmit = async (data: Data) => {
     setErrorMessage("");
     try {
-      await resetPassword({email, newPassword: data.confirmPassword}).unwrap();
+      const response = await resetPassword({email, newPassword: data.confirmPassword}).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       router.push("/auth/login");
     } catch (error) {
-      console.error("Reset password failed:", error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("Reset password failed:", error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   };
 

@@ -21,6 +21,7 @@ import { useSimplifyDebtsMutation, useAddPeopleInGroupMutation, useRemindAllGrou
 import { useGetUserFriendsQuery } from "@/store/userApi";
 import CustomButton from "@/components/button/CustomButton";
 import CustomSnackBar from "@/components/CustomSnackBar";
+import { useToast } from "@/context/ToastContext";
 
 const GroupSettingsScreen = () => {
   const [budgetNotifyPercent, setBudgetNotifyPercent] = useState(80);
@@ -33,6 +34,7 @@ const GroupSettingsScreen = () => {
   const [updateUI, setUpdateUI] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [snackMess, setSnackMess] = useState<string>("");
+  const { showToast } = useToast();
 
   const {id, budget, members} = useLocalSearchParams() as {id: string, budget?: string, members: string};
   const [simplifyDebts, {isLoading: loadingSimplify}] = useSimplifyDebtsMutation();
@@ -86,18 +88,26 @@ const GroupSettingsScreen = () => {
     const handleRemindAll = async () => {
       try {
         const response = await remindAll({group_id: id}).unwrap();
-        setSnackMess("Reminders sent");
-        setVisible(true);
+        showToast({
+          title: `${response.message}`,
+          type: "success"
+        })
+        // setSnackMess("Reminders sent");
+        // setVisible(true);
       } catch (error) {
-        console.error("Error sending borrowers mail:", error);
-        const err = error as { data?: { message?: string } };
-        Alert.alert(
-          "Remainder Error", 
-          `${err?.data?.message}`, 
-          [
-            { text: "ok", style: "cancel" },
-          ]
-        )
+        showToast({
+          title: `${error.data.message}`,
+          type: "error"
+        })
+        // console.error("Error sending borrowers mail:", error);
+        // const err = error as { data?: { message?: string } };
+        // Alert.alert(
+        //   "Remainder Error", 
+        //   `${err?.data?.message}`, 
+        //   [
+        //     { text: "ok", style: "cancel" },
+        //   ]
+        // )
       }
     };
   
@@ -105,36 +115,53 @@ const GroupSettingsScreen = () => {
        try {
          await leaveGroup({ groupId:id }).unwrap();
          console.log("Successfully left the group");
-         setSnackMess("Group left successfully");
-         setVisible(true);
+
+         showToast({
+          title: "Group left successfully",
+          type: "success"
+         })
+        //  setSnackMess("Group left successfully");
+        //  setVisible(true);
          router.replace("/(tabs)");
        } catch (error) {
-         console.error("Error leaving group:", error);
-         const err = error as { data?: { message?: string } };
-         Alert.alert(
-           "Cannot leave group", 
-           `${err?.data?.message}`, 
-           [
-             { text: "ok", style: "cancel" },
-           ]
-         )
+        showToast({
+          title: `${error.data.message}`,
+          type: "error"
+        })
+        //  console.error("Error leaving group:", error);
+        //  const err = error as { data?: { message?: string } };
+        //  Alert.alert(
+        //    "Cannot leave group", 
+        //    `${err?.data?.message}`, 
+        //    [
+        //      { text: "ok", style: "cancel" },
+        //    ]
+        //  )
        }
      };
 
     const onSimplifyDebts = async () => {
         try {
-            await simplifyDebts(id).unwrap();
-            console.log("Successfully simplified debts");
-            setSnackMess("Done! Group balances have been simplified.");
-            setVisible(true);
+            const response = await simplifyDebts(id).unwrap();
+            showToast({
+              title: `${response.message}`,
+              type: "success"
+            })
+            // console.log("Successfully simplified debts");
+            // setSnackMess("Done! Group balances have been simplified.");
+            // setVisible(true);
         } catch (error) {
-            console.error("Error simplifying debts:", error);
-            const err = error as { data?: { message?: string } };
-            if (err?.data?.message) {
-            setErrorMessage(err.data.message);
-            } else {
-            setErrorMessage("Something went wrong. Please try again.");
-            }
+          showToast({
+            title: `${error.data.message}`,
+            type: "error"
+          })
+            // console.error("Error simplifying debts:", error);
+            // const err = error as { data?: { message?: string } };
+            // if (err?.data?.message) {
+            // setErrorMessage(err.data.message);
+            // } else {
+            // setErrorMessage("Something went wrong. Please try again.");
+            // }
         }
     };
 
@@ -145,14 +172,22 @@ const GroupSettingsScreen = () => {
         }
         try {
             const newMemberIds = selectedUsers.map((user) => user._id);
-            await addPeople({ id, body: {newMemberIds} }).unwrap();
+            const response = await addPeople({ id, body: {newMemberIds} }).unwrap();
             console.log("Successfully added to the group");
             setModalVisible(false);
             setSelectedUsers([]);
-            setSnackMess("New members added to the group!");
-            setVisible(true);
+            showToast({
+              title: `${response.message}`,
+              type: "success"
+            })
+            // setSnackMess("New members added to the group!");
+            // setVisible(true);
         } catch (err) {
-            console.error("Error adding to group:", err);
+            showToast({
+              title: `${err.data.message}`,
+              type: "error"
+            })
+            // console.error("Error adding to group:", err);
         }
     };
 
@@ -287,11 +322,11 @@ const GroupSettingsScreen = () => {
             <CustomButton onPress={() => handleAddPeople()} style={{alignSelf: "center"}}>Done</CustomButton>
             </View>
         </Modal>
-        <CustomSnackBar
+        {/* <CustomSnackBar
             message={snackMess}
             visible={visible}
             onDismiss={() => setVisible(false)}
-        />
+        /> */}
     </ScrollView>
   );
 };

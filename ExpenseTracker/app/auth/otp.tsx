@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TextInputKeyPressEventData, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "../../components/button/CustomButton";
 import { useVerifyOtpMutation, useSendOtpMutation } from "@/store/userApi";
@@ -10,6 +11,7 @@ import Header from "@/components/Header";
 export default function OTPVerificationScreen() {
   const router = useRouter();
   const {email} = useLocalSearchParams() as {email: string};
+  const { showToast } = useToast();
 
   const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
   const [timer, setTimer] = useState<number>(20);
@@ -51,15 +53,24 @@ export default function OTPVerificationScreen() {
     try {
       const otpString = otp[0]+otp[1]+otp[2]+otp[3];
       const response = await verifyOtp({email, otp:otpString}).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       router.push({ pathname: "/auth/reset", params: { email } });
     } catch (error) {
-      console.error("OTP failed to verify:", error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("OTP failed to verify:", error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   }
 

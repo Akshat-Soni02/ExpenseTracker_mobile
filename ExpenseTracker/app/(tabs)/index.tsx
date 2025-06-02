@@ -84,11 +84,11 @@ export default function HomeScreen() {
   }, []);
 
 
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch])
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     refetch();
+  //   }, [refetch])
+  // );
 
   const groups: Group[] = dataGroup?.data || [];
 
@@ -262,7 +262,7 @@ export default function HomeScreen() {
 
         {/* Groups */}
         <View>
-          <View style={[testStyles.horizontalContainer, {alignItems: "center"}]}>
+          <View style={[testStyles.horizontalContainer, {alignItems: "center", marginBottom: 5}]}>
             <Text style={Styles.sectionTitle}>Recent Group</Text>
             {/* <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/groups")} rippleColor={COLORS.button.primary.background}>
                 <Text style={{color: COLORS.button.wide.background}}>View all</Text>
@@ -284,7 +284,7 @@ export default function HomeScreen() {
 
         {/* Bills */}
         <View>
-          <View style={[testStyles.horizontalContainer, {alignItems: "center"}]}>
+          <View style={[testStyles.horizontalContainer, {alignItems: "center", marginBottom: 5}]}>
             <Text style={Styles.sectionTitle}>Upcoming Bills This Month</Text>
             {/* <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/bills")} rippleColor={COLORS.button.primary.background}>
                 <Text style={{color: COLORS.button.wide.background}}>View all</Text>
