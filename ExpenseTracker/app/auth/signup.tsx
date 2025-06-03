@@ -220,10 +220,11 @@ export default function SignUpScreen() {
       </View>
 
       {/* Social Login Buttons */}
-      <View style={styles.googleButton}>
+      {/* <View style={styles.googleButton}> */}
         {/* <GoogleButton /> */}
-        <TempGoogleLoginButton/>
-      </View>
+        
+      {/* </View> */}
+      <TempGoogleLoginButton/>
 
       {/* Already have an account? Log in */}
       <Text style={styles.loginText}>
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   form: {
-    gap: 35
+    gap: 20
   },
   input: {
     width: "100%",
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: "100%", // Makes button full-width
-    height: 50,
+    height: 60,
     marginBottom: 20,
   },
   googleText: {
@@ -326,7 +327,7 @@ const styles = StyleSheet.create({
     // color: "#DB4437",
   },
   loginText: {
-    marginTop: 20,
+    marginTop: 15,
     fontSize: 14,
     fontFamily: "Poppins_400Regular",
     color: "#777",

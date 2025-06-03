@@ -146,6 +146,7 @@ const ExpenseDetailScreen = () => {
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
+          anchorPosition="bottom"
         >
           <Menu.Item onPress={() => router.push({ pathname: "/action/edit/editExpense", params: {id:id,paidByName:paidByName} })} title="Edit" />
           <Divider />

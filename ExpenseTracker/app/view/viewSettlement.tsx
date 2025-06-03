@@ -143,6 +143,7 @@ const SettlementDetailsScreen = () => {
                 <Entypo name="dots-three-vertical" size={20} color="black" />
               </TouchableOpacity>
             }
+            anchorPosition="bottom"
           >
             <Menu.Item onPress={() => {setMenuVisible(false);router.push({ pathname: "/action/edit/editSettlement", params: {id} })}} title="Edit" />
             <Divider />

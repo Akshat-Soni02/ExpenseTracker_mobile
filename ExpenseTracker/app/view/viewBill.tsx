@@ -290,6 +290,7 @@ const BillDetailsScreen = () => {
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
+          anchorPosition="bottom"
         >
           <Menu.Item onPress={() => router.push({pathname:"/action/edit/editBill",params : {id:id}})} title="Edit" style={{ backgroundColor: "#fff" }}/>
           <Divider />

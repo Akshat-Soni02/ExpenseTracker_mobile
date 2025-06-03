@@ -1,5 +1,5 @@
 export const COLORS = {
-    primary: '#C8E6FF',//blue used in forms
+    primary: '#C8E6FF',//blue used in forms but darker
     secondary: '#F8F9FA',//grey used in transaction card
     background: '#FFFFFF',//white
 
@@ -50,6 +50,9 @@ export const COLORS = {
 
         //bill details box
         bill: '#EDF2FB',
+
+        //form blue cards
+        primary: "rgba(200, 230, 255, 0.4)"
     },
 
     //for now there are no borders but letting it be for future

@@ -85,6 +85,7 @@ export default function ViewBudgetScreen() {
                 <Entypo name="dots-three-vertical" size={20} color="black" />
               </TouchableOpacity>
             }
+            anchorPosition="bottom"
           >
             <Menu.Item
               onPress={() => {

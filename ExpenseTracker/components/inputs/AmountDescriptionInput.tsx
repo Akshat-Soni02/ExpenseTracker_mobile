@@ -3,6 +3,8 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity} from "react-native
 import { Controller, Control } from "react-hook-form";
 import { FieldError } from "react-hook-form";
 import { globalStyles } from "@/styles/globalStyles";
+import { COLORS, FONTS } from "@/app/utils/constants";
+import { testStyles } from "@/styles/test";
 
 interface Props {
   control: Control<any>;
@@ -17,22 +19,24 @@ export type error = {
   message: string;
 }
 
-type localError = {
-  [key: string]: error;
-}
-
 export type FormErrors = {
   [key: string]: FieldError | undefined;
 };
 
 const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFrozen = false, onErrorsChange, childErrors}) => {
-  // const [localError, setLocalError] = useState<localError>({});
+
+  const Star = () => {
+    return (
+      <Text style={styles.asterisk}>*</Text>
+    )
+  };
 
   return (
     <View style={styles.container}>
 
       {/* Amount Section */}
-      <Text style={styles.label}>Amount<Text style={styles.asterisk}>*</Text></Text>
+      <Text style={styles.label}>Amount<Star/></Text>
+
       <View style={[styles.amountWrapper, isAmountFrozen && styles.disabledInputWrapper]}>
         <Text style={styles.currency}>₹</Text>
         <Controller
@@ -155,27 +159,19 @@ export default AmountDescriptionInput;
 
 
 const styles = StyleSheet.create({
+
   container: {
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    backgroundColor: "rgba(200, 230, 255, 0.4)",
-    borderRadius: 12,
-    padding: 16,
-    width: "100%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
+    ...testStyles.formContainer,
+    padding: 16
   },
-  // rgba(240, 240, 240, 0.6)
-  // rgba(200, 230, 255, 0.4)
+
   label: {
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "Poppins_600SemiBold",
+    fontSize: FONTS.medium,
     color: "#333",
+    fontWeight: "500",
     marginBottom: 5,
   },
+
   amountWrapper: {
     flexDirection: "row",
     alignItems: "center",
@@ -185,6 +181,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 8,
   },
+
   currency: {
     fontSize: 20,
     fontWeight: "600",
@@ -227,11 +224,13 @@ const styles = StyleSheet.create({
   disabledText: {
     color: "#A0AEC0", // Gray text when disabled
   },
+
   asterisk: {
     fontSize: 16,
     fontWeight: '600',
     color: '#f85454',
   }
+
 });
 
 
