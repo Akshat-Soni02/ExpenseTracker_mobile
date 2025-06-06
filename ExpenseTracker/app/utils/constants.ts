@@ -8,6 +8,7 @@ export const COLORS = {
         secondary: '#888',//dark grey
         bluish: '#2a435f',//dark blue
         alterBlack: '#111827',//little light black
+        disabled: '#A0AEC0' //disabled
     },
 
     amount: {
@@ -52,7 +53,10 @@ export const COLORS = {
         bill: '#EDF2FB',
 
         //form blue cards
-        primary: "rgba(200, 230, 255, 0.4)"
+        primary: "rgba(200, 230, 255, 0.4)",
+
+        //disabled input color
+        disabled: "#E0E0E0"
     },
 
     //for now there are no borders but letting it be for future

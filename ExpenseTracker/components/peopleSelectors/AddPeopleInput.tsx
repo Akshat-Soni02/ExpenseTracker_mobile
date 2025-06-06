@@ -6,6 +6,9 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import CustomButton from "../button/CustomButton";
 import { useGetUserFriendsQuery } from "@/store/userApi";
+import { FONTS } from "@/app/utils/constants";
+import { testStyles } from "@/styles/test";
+import SearchBar from "../SearchBar";
 
 interface Props {
   control: Control<any>;
@@ -73,8 +76,8 @@ const AddPeopleInput: React.FC<Props> = ({ control, des }) => {
               <View style={{ flex: 1 }} /> {/* Left spacer */}
               <Text style={styles.title}>Add People</Text>
               <View style={{ flex: 1, alignItems: 'flex-end'}}>
-                <TouchableOpacity onPress={() => setModalVisible(true)} disabled = {!!errorFriend}>
-                  <Text style={{color: "#616161"}}>+ Add people</Text>
+                <TouchableOpacity onPress={() => setModalVisible(true)} disabled = {!!errorFriend} style={styles.addPeopleButton}>
+                  <Text style={styles.addPeopleButtonText}>+Add people</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -118,34 +121,34 @@ const AddPeopleInput: React.FC<Props> = ({ control, des }) => {
               {isLoading ? (
                   <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>
                 ) : (
-                  <>
-                    <TextInput
-                      placeholder="Search..."
-                      style={styles.searchInput}
-                      onChangeText={setSearchQuery}
-                      value={searchQuery}
-                    />
+                  filteredUsers.length === 0 ? (
+                    <View style ={[testStyles.centeredBox, {height: "70%"} ]}>
+                      <Text style = {{fontSize: FONTS.large}}>You do not have any friends</Text>
+                    </View>
+                  ) : (
+                    <>
+                      <SearchBar onSearch={setSearchQuery} value={searchQuery}/>
 
-                    <FlatList
-                      style={styles.list}
-                      data={filteredUsers}
-                      keyExtractor={(item) => item._id}
-                      renderItem={({ item }) => {
-                        const isSelected = selectedUsers.includes(item._id);
-                        return (
-                          <TouchableOpacity onPress={() => toggleUserSelection(item._id)} style={[styles.modalItem, isSelected && styles.selectedItem]}>
-                            <Text style={styles.modalItemText}>{item.name}</Text>
-                          </TouchableOpacity>
-                        );
-                      }}
-                      ItemSeparatorComponent={() => (
-                        <View style={{ height: 2, backgroundColor: 'white' }} />
-                      )}
-                    />
-                    <CustomButton onPress={() => setModalVisible(false)}>Done</CustomButton>
-                  </>
+                      <FlatList
+                        style={styles.list}
+                        data={filteredUsers}
+                        keyExtractor={(item) => item._id}
+                        renderItem={({ item }) => {
+                          const isSelected = selectedUsers.includes(item._id);
+                          return (
+                            <TouchableOpacity onPress={() => toggleUserSelection(item._id)} style={[styles.modalItem, isSelected && styles.selectedItem]}>
+                              <Text style={styles.modalItemText}>{item.name}</Text>
+                            </TouchableOpacity>
+                          );
+                        }}
+                        ItemSeparatorComponent={() => (
+                          <View style={{ height: 2, backgroundColor: 'white' }} />
+                        )}
+                      />
+                    </>
+                  )
                 )}
-
+                <CustomButton onPress={() => setModalVisible(false)}>Done</CustomButton>
               </View>
             </Modal>
           </View>
@@ -206,5 +209,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
     marginBottom: 10,
+  },
+
+  addPeopleButton: {
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    alignSelf: "flex-end",
+  },
+  
+  addPeopleButtonText: {
+    color: "#073763",
+    fontSize: FONTS.small,
+    fontWeight: "500",
   },
 });

@@ -125,7 +125,7 @@ export default function HomeScreen() {
         <View style={Styles.headerContainer}>
         {/* Top Section Animates In */}
         <Animatable.View
-          animation={"fadeIn"}
+          animation={undefined}
           delay={150}
           duration={150}
           style={{
@@ -159,7 +159,7 @@ export default function HomeScreen() {
 
           {/* Financial Info */}
           <View
-            style={[Styles.financeStats, screenWidth < 800 && {gap: 20}]}
+            style={[Styles.financeStats, screenWidth < 370 && {gap: 20}]}
           >
             {/* You Owed */}
             <View style={{ gap: 2 }}>
@@ -167,8 +167,8 @@ export default function HomeScreen() {
 
               {!isLoading && (
                 <View style={Styles.financeStatAmountContainer}>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 800 && {fontSize: FONTS.large}]}>₹</Text>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 800 && {fontSize: FONTS.large}]}>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 370 && {fontSize: FONTS.large}]}>₹</Text>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 370 && {fontSize: FONTS.large}]}>
                     {formatCurrency(exchangeData?.data?.lendedAmount)}
                   </Text>
                 </View>
@@ -182,8 +182,8 @@ export default function HomeScreen() {
 
               {!isLoading && (
                 <View style={Styles.financeStatAmountContainer}>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 800 && {fontSize: FONTS.large}]}>₹</Text>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 800 && {fontSize: FONTS.large}]}>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 370 && {fontSize: FONTS.large}]}>₹</Text>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 370 && {fontSize: FONTS.large}]}>
                     {formatCurrency(exchangeData?.data?.borrowedAmount)}
                   </Text>
                 </View>
@@ -195,10 +195,10 @@ export default function HomeScreen() {
         </Animatable.View>
 
         {/* Decorative Illustration at right */}
-        <Image
+        {/* <Image
           source={require("../../assets/images/home-header1.png")}
           style={[Styles.illustrateImage, screenWidth < 800 && {width: 100, height: 100}]}
-        />
+        /> */}
         </View>
     );
   }
@@ -374,7 +374,7 @@ const Styles = StyleSheet.create({
   financeStats: {
     flexDirection: 'row',
     justifyContent: "flex-start",
-    gap: 28,
+    gap: 30,
   },
 
   financeStatLabel: { 
@@ -390,7 +390,7 @@ const Styles = StyleSheet.create({
   },
 
   financeStatAmount: {
-    fontSize: FONTS.xlarge,
+    fontSize: FONTS.xxlarge,
     fontWeight: '600',
     color: COLORS.amount.positive
   },

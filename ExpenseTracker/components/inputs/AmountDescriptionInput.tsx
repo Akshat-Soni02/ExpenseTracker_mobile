@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity} from "react-native";
 import { Controller, Control } from "react-hook-form";
 import { FieldError } from "react-hook-form";
-import { globalStyles } from "@/styles/globalStyles";
 import { COLORS, FONTS } from "@/app/utils/constants";
 import { testStyles } from "@/styles/test";
 
@@ -27,7 +26,7 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
 
   const Star = () => {
     return (
-      <Text style={styles.asterisk}>*</Text>
+      <Text style={testStyles.asterisk}>*</Text>
     )
   };
 
@@ -37,8 +36,9 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
       {/* Amount Section */}
       <Text style={styles.label}>Amount<Star/></Text>
 
-      <View style={[styles.amountWrapper, isAmountFrozen && styles.disabledInputWrapper]}>
+      <View style={[styles.amountWrapper, isAmountFrozen && { backgroundColor: COLORS.card.disabled }]}>
         <Text style={styles.currency}>₹</Text>
+
         <Controller
           control={control}
           name="amount"
@@ -48,6 +48,7 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
             validate: (value) => (value > 0 ? true : "Amount must be greater than zero"),
           }}
           render={({ field: { onChange, value }, fieldState: { error } }) => {
+
             useEffect(() => {
               onErrorsChange((prevErrors: FormErrors) => {
                 const updatedErrors = { ...prevErrors };
@@ -59,7 +60,6 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
                 return updatedErrors;
               });
             }, [error]);
-            
 
             const displayValue = useMemo(() => (value ? String(value) : ""), [value]);
 
@@ -105,11 +105,14 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
           }}
         />
       </View>
-      {childErrors?.amount && <Text style = {globalStyles.redTextError}>{childErrors.amount.message}</Text>}
+
+      {childErrors?.amount && <Text style = {testStyles.redTextError}>{childErrors.amount.message}</Text>}
+
       <View style={styles.separator} />
 
       {/* Description Section */}
-      <Text style={styles.label}>{label}<Text style={styles.asterisk}>*</Text></Text>
+      <Text style={styles.label}>{label}<Star/></Text>
+
       <Controller
         control={control}
         name={label}
@@ -148,9 +151,9 @@ const AmountDescriptionInput: React.FC<Props> = ({ control, label, isAmountFroze
           );
         }}
       />
-      {childErrors?.Description && <Text style = {[globalStyles.redTextError, {marginTop: 5}]}>{childErrors.Description.message}</Text>}
-      {childErrors?.Title && <Text style = {[globalStyles.redTextError, {marginTop: 5}]}>{childErrors.Title.message}</Text>}
-      {childErrors?.Name && <Text style = {[globalStyles.redTextError, {marginTop: 5}]}>{childErrors.Name.message}</Text>}
+      {childErrors?.Description && <Text style = {[testStyles.redTextError, {marginTop: 5}]}>{childErrors.Description.message}</Text>}
+      {childErrors?.Title && <Text style = {[testStyles.redTextError, {marginTop: 5}]}>{childErrors.Title.message}</Text>}
+      {childErrors?.Name && <Text style = {[testStyles.redTextError, {marginTop: 5}]}>{childErrors.Name.message}</Text>}
     </View>
   );
 };
@@ -183,19 +186,19 @@ const styles = StyleSheet.create({
   },
 
   currency: {
-    fontSize: 20,
-    fontWeight: "600",
-    fontFamily: "Poppins_600SemiBold",
+    fontSize: FONTS.large,
     color: "#333",
     marginRight: 5,
   },
+
+
   amountInput: {
-    fontSize: 20,
-    fontWeight: "600",
-    fontFamily: "Poppins_600SemiBold",
+    fontSize: FONTS.large,
     flex: 1,
     color: "#333",
   },
+
+
   separator: {
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 0, 0, 0.2)",
@@ -203,32 +206,30 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginVertical: 8,
   },
+
+
   descriptionInput: {
     fontSize: 16,
-    fontFamily: "Poppins_400Regular",
     color: "#333",
     backgroundColor: "#FFF",
     padding: 10,
     borderRadius: 8,
-    // textAlign: "center",
   },
+
+
   placeholderText: {
     color: "#A0AEC0",
     fontStyle: "italic",
-    // textAlign: "center"
-
   },
+
+
   disabledInputWrapper: {
-    backgroundColor: "#E0E0E0", // Light gray background when disabled
-  },
-  disabledText: {
-    color: "#A0AEC0", // Gray text when disabled
+    backgroundColor: COLORS.card.disabled,
   },
 
-  asterisk: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#f85454',
+
+  disabledText: {
+    color: COLORS.text.disabled,
   }
 
 });

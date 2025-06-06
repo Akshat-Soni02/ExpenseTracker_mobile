@@ -24,7 +24,7 @@ import CustomSnackBar from "@/components/CustomSnackBar";
 import { useToast } from "@/context/ToastContext";
 
 const GroupSettingsScreen = () => {
-  const [budgetNotifyPercent, setBudgetNotifyPercent] = useState(80);
+  const [budgetNotifyPercent, setBudgetNotifyPercent] = useState(90);
   const [state, setState] = React.useState({ open: false });
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -242,10 +242,10 @@ const GroupSettingsScreen = () => {
         icon={<Feather name="bell" size={18} color="#6B7280" />}
         label="Notify all when budget reaches"
         value={`${budgetNotifyPercent}%`}
-        onPress={() => {
-          const options = [50, 60, 70, 80, 90, 100];
-          const nextIndex = (options.indexOf(budgetNotifyPercent) + 1) % options.length;
-          setBudgetNotifyPercent(options[nextIndex]);
+        onPress={() => { showToast({title: "Please try again later", type: "warning"})
+          // const options = [50, 60, 70, 80, 90, 100];
+          // const nextIndex = (options.indexOf(budgetNotifyPercent) + 1) % options.length;
+          // setBudgetNotifyPercent(options[nextIndex]);
         }}
       />}
       <SettingsRow

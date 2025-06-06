@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Controller, Control } from "react-hook-form";
 import { FormErrors } from "./AmountDescriptionInput";
 import { globalStyles } from "@/styles/globalStyles";
+import { FONTS } from "@/app/utils/constants";
 
 interface Props {
   control: Control<any>;
@@ -13,7 +14,7 @@ interface Props {
 const TitleInput: React.FC<Props> = ({ control, onErrorsChange, childErrors }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Title<Text style={styles.asterisk}>*</Text></Text>
+      <Text style={styles.label}>Title</Text>
       <Controller
         control={control}
         name="title"
@@ -71,9 +72,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   label: {
-    fontSize: 18,
-    fontWeight: "700",
-    fontFamily: "Poppins_600SemiBold",
+    fontSize: FONTS.large,
+    fontWeight: "600",
     color: "#000",
     marginBottom: 6,
   },

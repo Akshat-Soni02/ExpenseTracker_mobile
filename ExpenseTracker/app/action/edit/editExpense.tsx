@@ -167,6 +167,17 @@ export default function EditExpenseScreen() {
         formData.append("notes", data.notes);
       }
 
+      if (selectedImage) {
+        const fileExtension = selectedImage.split(".").pop();
+        const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
+  
+        formData.append("media", {
+          uri: selectedImage,
+          type: mimeType,
+          name: `split-media.${fileExtension}`,
+        } as any);
+      }
+
       const isEmpty = ![...formData.entries()].length;
       if(isEmpty) {
         router.back();

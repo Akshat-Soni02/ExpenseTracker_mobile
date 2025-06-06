@@ -103,7 +103,7 @@ export default function CreateGroupScreen() {
       }
     };
 
-    if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+    if(isLoading) return <View style = {testStyles.centeredPage}><ActivityIndicator color="#000"/></View>;
   return (
     <ScrollView style={testStyles.screen}>
       <View style={[testStyles.container, {gap: 0}]}>
@@ -118,7 +118,7 @@ export default function CreateGroupScreen() {
         {/* Initial Budget & Date */}
         <View style={globalStyles.dateTimeContainer}>
           <InitialBudget control={control} />
-          <CustomDateTimePicker control={control} name="settleUpDate" label="Date" heading="Settle-up Date"/>
+          <CustomDateTimePicker control={control} name="settleUpDate" label="Date" heading="Settle-up Date" disablePastDates allowClear/>
         </View>
 
         {/* Save Button */}

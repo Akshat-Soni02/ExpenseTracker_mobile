@@ -11,6 +11,7 @@ import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import ProgressBar from "@/components/ProgressBar";
 import PeopleScreen from "../../components/groupSettlements";
+import AppFAB from "@/components/AppFAB";
 
 const GroupDetailsScreen = () => {
 
@@ -273,13 +274,7 @@ const GroupDetailsScreen = () => {
     )}
     
     </View>
-      <FAB
-        icon={({ size, color }) => (
-          <Ionicons name="add" size={size} color={color} />
-        )}
-        style={globalStyles.fab}
-        onPress={() => router.push({ pathname: "/action/create/createExpense", params: { group_id: group?._id, group_name: group?.group_title } })}
-        />
+      <AppFAB onPress={() => router.push({ pathname: "/action/create/createExpense", params: { group_id: group?._id, group_name: group?.group_title } })}/>
     </View>
   </PaperProvider>
 

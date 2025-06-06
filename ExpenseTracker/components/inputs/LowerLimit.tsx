@@ -21,16 +21,12 @@ const LowerLimit: React.FC<Props> = ({ control }) => {
             placeholderTextColor="#6B7280"
             value={value}
             onChangeText={(text) => {
-              // Remove any characters that are not digits or a dot
-              let cleanedText = text.replace(/[^0-9.]/g, "");
-            
-              // Ensure only one dot is allowed
-              const parts = cleanedText.split(".");
-              if (parts.length > 2) {
-                cleanedText = parts[0] + "." + parts[1];
+              const isValid = /^\d*\.?\d*$/.test(text);
+              let numericValue = "";
+              if (isValid) {
+                numericValue = text;
               }
-            
-              onChange(cleanedText);
+              onChange(numericValue);
             }}
             keyboardType="decimal-pad"
             returnKeyType="done"
@@ -64,8 +60,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: "semibold",
-    fontFamily: "Poppins_700Bold",
+    fontWeight: "600",
     color: "#1F2937",
     marginRight: 12,
   },

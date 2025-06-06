@@ -20,7 +20,7 @@ export const testStyles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         backgroundColor: "#fff",
-        marginTop: 30,
+        marginTop: 40,
         marginBottom: 15
     },
     headerText: {
@@ -30,10 +30,10 @@ export const testStyles = StyleSheet.create({
     },
     tabScreenHeader: {
         flexDirection: "row",
-        justifyContent: "center",
+        justifyContent: "flex-end",
         alignItems: "center",
         backgroundColor: "#fff",
-        marginTop: 30,
+        marginTop: 40,
         marginBottom: 15
     },
     horizontalContainer: {
@@ -111,6 +111,18 @@ export const testStyles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 6,
+    },
+
+    asterisk: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#f85454',
+    },
+
+    redTextError: {
+        color: "red",
+        textAlign: "center",
+        marginVertical: 1
     },
 
     saveButton: {
