@@ -4,6 +4,7 @@
 node_modules/
 .env
 firebase
+.DS_Store
 # .env
 
 # Expo
