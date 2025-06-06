@@ -24,10 +24,14 @@ const InitialBudget: React.FC<Props> = ({ control }) => {
             placeholderTextColor="#6B7280"
             value={displayValue}
             onChangeText={(text) => {
-              const numericValue = text.replace(/[^0-9]/g, "");
+              const isValid = /^\d*\.?\d*$/.test(text);
+              let numericValue = "";
+              if (isValid) {
+                numericValue = text;
+              }
               onChange(numericValue);
             }}
-            keyboardType="numeric"
+            keyboardType="decimal-pad"
             returnKeyType="done"
             accessibilityLabel="Initial budget input"
             accessibilityHint="Enter the estimated budget amount"
@@ -58,8 +62,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: "Poppins_700Bold",
+    fontWeight: "700",
     color: "#1F2937",
     marginBottom: 8,
     textAlign: "center",

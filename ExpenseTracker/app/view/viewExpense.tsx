@@ -10,12 +10,13 @@ import ImageViewing from 'react-native-image-viewing';
 
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
+import { useGetExpenseQuery, useDeleteExpenseMutation, useRemoveExpenseWalletMutation } from "@/store/expenseApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { getItem } from "../utils/storage";
 import { COLORS } from "../utils/constants";
+import { useToast } from "@/context/ToastContext";
 
 
 const ExpenseDetailScreen = () => {
@@ -29,9 +30,11 @@ const ExpenseDetailScreen = () => {
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [viewImage, setViewImage] = useState(false);
+  const { showToast } = useToast();
 
   const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
   const [deleteExpense, {isLoading: deleteLoading, error: deleteError}] = useDeleteExpenseMutation();
+  const [removeExWallet, {isLoading: walletRemoveLoading}] = useRemoveExpenseWalletMutation();
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
 
@@ -104,16 +107,28 @@ const ExpenseDetailScreen = () => {
 
   const handleExpenseDelete = async () => {
     try {
-      await deleteExpense(id);
+      const response = await deleteExpense(id);
+      showToast({title: `${response.message}`, type: "success"});
       router.back();
     } catch (error) {
-      console.log("error deleting split",error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({title: `${error.data.message}`, type: "error"});
+      // console.log("error deleting split",error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
+    }
+  }
+
+  const handleWalletRemove = async () => {
+    try {
+      const response = await removeExWallet( expense._id );
+      showToast({title: `${response.data.message}`, type: "success"});
+    } catch (error) {
+      showToast({title: `${error.data.message}`, type: "error"});
+      console.log(error);
     }
   }
 
@@ -158,6 +173,20 @@ const ExpenseDetailScreen = () => {
                         { text: "Yes", onPress: () => handleExpenseDelete()}
                       ]
                     )} title="Delete" />
+          {/* {expense.wallet_id && <Divider />} */}
+          {expense.wallet_id && (
+            <>
+              <Divider />
+              <Menu.Item onPress={() => Alert.alert(
+                        "Remove Wallet", 
+                        `Are you sure you want to remove wallet from ${expense?.description}`, 
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          { text: "Yes, Remove", onPress: () => handleWalletRemove()}
+                        ]
+                      )} title="Remove Wallet" />
+            </>
+          )}
         </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>

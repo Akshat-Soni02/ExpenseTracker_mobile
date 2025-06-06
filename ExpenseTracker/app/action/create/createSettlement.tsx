@@ -13,6 +13,7 @@ import { useCreateSettlementMutation } from '@/store/settlementApi';
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import { testStyles } from "@/styles/test";
+import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 export type error = {
   message: string;
 }
@@ -148,7 +149,7 @@ export default function AddSettlementScreen() {
         
         <View style={globalStyles.walletPhotoContainer}>
           <WalletSelector control={control} name="wallet"/>
-          <PhotoSelector control={control} />
+          <CustomDateTimePicker control={control} name="time" label="Time" heading="Time" useDefaultToday freeze/>
         </View>
         
         <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Settle</CustomButton>
