@@ -58,6 +58,14 @@ export const personalTransactionApi = api.injectEndpoints({
           "personalTransaction", "wallet","budget"
         ],
       }),
+
+      removeTransactionWallet: builder.mutation({
+        query: (id) => ({
+          url: `/personal-transactions/detach-wallet/${id}`,
+          method: "PUT",
+        }),
+        invalidatesTags: ["personalTransaction", "wallet"],
+      }),
   
       deletePersonalTransaction: builder.mutation<void, string>({
         query: (id) => ({
@@ -78,5 +86,6 @@ export const personalTransactionApi = api.injectEndpoints({
     useGetPersonalTransactionQuery,
     useUpdatePersonalTransactionMutation,
     useDeletePersonalTransactionMutation,
+    useRemoveTransactionWalletMutation
   } = personalTransactionApi;
   
