@@ -20,9 +20,10 @@ const WalletDetailsScreen = () => {
   const [currMonthSpent, setCurrMonthSpent] = useState<number>(0);
   const [currMonthIncome, setCurrMonthIncome] = useState<number>(0);
   const [allTransactions, setAllTransactions] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { data, isLoading, error, refetch } = useGetWalletQuery(id);
-  const { data: transactionData, isLoading: isLoadingWalletTran, error: tranErr} = useGetWalletTransactionsQuery(id);
+  const { data: transactionData, isLoading: isLoadingWalletTran, error: tranErr,refetch:refetchTransactions} = useGetWalletTransactionsQuery(id);
   const [deleteWallet, {isLoading:isLoadingDelete}] = useDeleteWalletMutation();
 
   const wallet = data?.data;
@@ -39,6 +40,17 @@ const WalletDetailsScreen = () => {
       Alert.alert("Error", errorMessage);
     }
   }, [errorMessage]);
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await refetch();
+    } catch (err) {
+      console.error("Refresh error", err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     const getCurrentMonthData = () => {
@@ -111,6 +123,8 @@ const WalletDetailsScreen = () => {
       sections={groupedByMonth}
       keyExtractor={(item) => item._id}
       style = {{marginVertical: 5, paddingBottom: 10}}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
       renderItem={({ item }) => (
         <TouchableOpacity
           onPress={() => {

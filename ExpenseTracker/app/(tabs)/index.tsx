@@ -1,4 +1,4 @@
-import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity,Dimensions, ActivityIndicator, StatusBar,Pressable,Alert, ScrollView} from 'react-native';
+import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity,Dimensions, ActivityIndicator, StatusBar,Pressable,Alert, ScrollView,RefreshControl} from 'react-native';
 import { useFocusEffect, useRouter } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
@@ -26,12 +26,13 @@ export default function HomeScreen() {
 
   const { authToken, loading } = useAuth();
   const [updateUserAccessToken] = useUpdateUserAccessTokenMutation();
+  const [refreshing, setRefreshing] = useState(false);
 
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser, isError: hasErrorUser, refetch: refetchUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error: errorExchange, isError: hasErrorExchange, refetch: refetchExchange} = useGetUserCurrentExchangeStatusQuery();
   const {data:dataGroup, isLoading:isLoadingGroup, error:errorGroup, isError: hasErrorGroup, refetch: refetchGroup} = useGetUserGroupsQuery();
   const {data: dataPendingBills, isLoading: isLoadingBills, error: errorBill, isError: hasErrorBills, refetch: refetchBill} = useGetMonthlyPendingBillsQuery();
-  const {data:todaySpend, isLoading: isLoadingSpend,refetch, error: errorSpend} = useGetTodaySpendQuery();
+  const {data:todaySpend, isLoading: isLoadingSpend,refetch:refetchTodaySpend, error: errorSpend} = useGetTodaySpendQuery();
 
   const errors = [errorExchange, errorGroup, errorUser, errorBill].filter(Boolean);
   const hasErrors = errors.length > 0;
@@ -84,6 +85,23 @@ export default function HomeScreen() {
   }, []);
 
 
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      // Call all refetch queries
+      await Promise.all([
+        refetchUser(),
+        refetchExchange(),
+        refetchGroup(),
+        refetchBill(),
+        refetchTodaySpend()
+      ]);
+    } catch (error) {
+      console.error("Refresh error:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
   // useFocusEffect(
   //   useCallback(() => {
   //     refetch();
@@ -252,7 +270,16 @@ export default function HomeScreen() {
   // }
 
   return (
-    <ScrollView style={testStyles.screen}>
+    <ScrollView style={testStyles.screen}
+    refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        colors={['#3498db']} // Android spinner color
+        // tintColor={'#3498db'} // iOS spinner color
+      />
+    }  
+  >
       <HomeHeader/>
 
       <View style={testStyles.container}>

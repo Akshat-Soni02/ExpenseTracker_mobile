@@ -9,7 +9,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import ImageViewing from 'react-native-image-viewing';
 
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
+import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation ,useDeletePersonalTransactionPhotoMutation} from "@/store/personalTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import { COLORS } from "../utils/constants";
@@ -27,7 +27,7 @@ const TransactionDetailScreen = () => {
   const { data, isLoading, error, refetch } = useGetPersonalTransactionQuery(id);
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
   const [deleteTransaction, {isLoading: deleteLoading, error: deleteError}] = useDeletePersonalTransactionMutation();
-  
+  const [deletePhoto, {isLoading: deletePhotoLoading, error: deletePhotoError}] = useDeletePersonalTransactionPhotoMutation();
 
   const transaction = data?.data;
 
@@ -70,7 +70,14 @@ const TransactionDetailScreen = () => {
       }
     }
   }
-
+  const handleDeleteImage = async () => {
+    try {
+      await deletePhoto(id);
+      setViewImage(false);
+    } catch (err) {
+      Alert.alert("Failed", "Could not delete the image.");
+    }
+  };
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   if (error) {
@@ -148,6 +155,22 @@ const TransactionDetailScreen = () => {
           imageIndex={0}
           visible={viewImage}
           onRequestClose={() => setViewImage(false)}
+          FooterComponent={() => (
+              <View style={styles.footer}>
+                <TouchableOpacity onPress={() => {
+                  Alert.alert(
+                    "Delete Image",
+                    "Are you sure you want to delete this image?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      { text: "Delete",onPress: handleDeleteImage, style: "destructive" }
+                    ]
+                  );
+                }}>
+                  <Text  style={styles.deleteText}>Delete Image</Text>
+                </TouchableOpacity>
+              </View>
+          )}
           />
         </>
       )}
@@ -208,5 +231,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     alignSelf: 'center',
     marginVertical: 7
-  }
+  },
+  footer: {
+  padding: 16,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  alignItems: 'center'
+},
+deleteText: {
+  color: 'red',
+  fontSize: 16,
+  fontWeight: '600',
+}
 });

@@ -81,11 +81,32 @@ export default function TabLayout() {
     }).start();
   }, [selectedIndex]);
 
+  useEffect(() => {
+  let newIndex = 0; 
+
+  for (let i = 0; i < TAB_ROUTES.length; i++) {
+    const route = TAB_ROUTES[i];
+    if (route === 'index' && pathname === '/') {
+      newIndex = i;
+      break;
+    } else if (pathname.startsWith(`/${route}`)) {
+      newIndex = i;
+      break;
+    }
+  }
+
+  if (newIndex !== selectedIndex) {
+    setSelectedIndex(newIndex);
+  }
+}, [pathname]);
+
+
   const onPressTab = (index: number, route: string) => {
     setSelectedIndex(index);
     router.push(route === "index" ? "/" : `/${route}`);
   };
 
+    
   return (
     <>
       <Tabs

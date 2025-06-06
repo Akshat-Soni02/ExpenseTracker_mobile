@@ -10,7 +10,7 @@ import ImageViewing from 'react-native-image-viewing';
 
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
+import { useGetExpenseQuery, useDeleteExpenseMutation,useDeleteExpensePhotoMutation } from "@/store/expenseApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -32,6 +32,8 @@ const ExpenseDetailScreen = () => {
 
   const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
   const [deleteExpense, {isLoading: deleteLoading, error: deleteError}] = useDeleteExpenseMutation();
+  const [deleteExpensePhoto, {isLoading: deleteLoadingPhoto, error: deleteErrorPhoto}] = useDeleteExpensePhotoMutation();
+
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
 
@@ -117,6 +119,14 @@ const ExpenseDetailScreen = () => {
     }
   }
 
+  const handleDeleteImage = async () => {
+    try {
+      await deleteExpensePhoto(id);
+      setViewImage(false);
+    } catch (err) {
+      Alert.alert("Failed", "Could not delete the image.");
+    }
+  };
   if (isLoading || deleteLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   
   if (error) {
@@ -230,6 +240,22 @@ const ExpenseDetailScreen = () => {
         imageIndex={0}
         visible={viewImage}
         onRequestClose={() => setViewImage(false)}
+        FooterComponent={() => (
+          <View style={styles.footer}>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Delete Image",
+                "Are you sure you want to delete this image?",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Delete",onPress: handleDeleteImage, style: "destructive" }
+                ]
+              );
+            }}>
+              <Text  style={styles.deleteText}>Delete Image</Text>
+            </TouchableOpacity>
+          </View>
+      )}
         />
       </>
       )}
@@ -328,5 +354,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     alignSelf: 'center',
     marginVertical: 7
-  }
+  },
+  footer: {
+  padding: 16,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  alignItems: 'center'
+},
+deleteText: {
+  color: 'red',
+  fontSize: 16,
+  fontWeight: '600',
+}
 });
