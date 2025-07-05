@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:41930990796:android:e459ec0044109366904e69",
+        "mobilesdk_app_id": "1:41930990796:android:5c6c45e7dbd93274904e69",
         "android_client_info": {
-          "package_name": "com.searce.splitexpensetracker"
+          "package_name": "com.dev.akshat.atharva.expenz"
         }
       },
       "oauth_client": [

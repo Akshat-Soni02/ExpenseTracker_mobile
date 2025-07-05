@@ -6,12 +6,12 @@ const PrivacyPolicyScreen = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Header/>
-      <Text style={styles.title}>Privacy Policy for ExpenZ</Text>
+      <Text style={styles.title}>Privacy Policy for Expenzz</Text>
       <Text style={styles.lastUpdated}>Last Updated: 6th June, 2025</Text>
 
       <Text style={styles.sectionTitle}>1. Introduction</Text>
       <Text style={styles.paragraph}>
-        This Privacy Policy describes how ExpenZ ("we," "us," or "our") collects, uses, and shares personal information of users ("you") of the ExpenZ mobile application (the "App"). The App is designed to help individuals register and manage their expenses, split amounts with friends, add personal transactions, create and manage splits within groups, utilize virtual wallets for transactions, and manage bills. We are committed to protecting your privacy and ensuring the security of your personal information. This policy aims to provide you with clear and comprehensive information about our data handling practices, reflecting our dedication to transparency and building trust. Our practices are designed to comply with applicable data privacy laws and regulations, including those set forth by Google Play, ensuring that your information is handled responsibly and in accordance with your rights.
+        This Privacy Policy describes how Expenzz ("we," "us," or "our") collects, uses, and shares personal information of users ("you") of the Expenzz mobile application (the "App"). The App is designed to help individuals register and manage their expenses, split amounts with friends, add personal transactions, create and manage splits within groups, utilize virtual wallets for transactions, and manage bills. We are committed to protecting your privacy and ensuring the security of your personal information. This policy aims to provide you with clear and comprehensive information about our data handling practices, reflecting our dedication to transparency and building trust. Our practices are designed to comply with applicable data privacy laws and regulations, including those set forth by Google Play, ensuring that your information is handled responsibly and in accordance with your rights.
       </Text>
 
       <Text style={styles.sectionTitle}>2. Information We Collect</Text>
@@ -92,7 +92,7 @@ const PrivacyPolicyScreen = () => {
         <Text style={styles.listItemTitle}>• For Legal Reasons:</Text> We may disclose your information if required to do so by law or in the good faith belief that such action is necessary to (i) comply with a legal obligation, (ii) protect and defend our rights or property, (iii) act in urgent circumstances to protect the personal safety of users of the App or the public, or (iv) protect against legal liability.
       </Text>
       <Text style={styles.listItem}>
-        <Text style={styles.listItemTitle}>• In Case of Business Transfers:</Text> In the event that ExpenZ is involved in a merger, acquisition, financing, reorganization, bankruptcy, receivership, dissolution, or sale of all or a portion of its assets, your information may be transferred as part of that transaction. We will notify you via email and/or a prominent notice on our App of any change in ownership or uses of your personal information, as well as any choices you may have regarding your personal information.
+        <Text style={styles.listItemTitle}>• In Case of Business Transfers:</Text> In the event that Expenzz is involved in a merger, acquisition, financing, reorganization, bankruptcy, receivership, dissolution, or sale of all or a portion of its assets, your information may be transferred as part of that transaction. We will notify you via email and/or a prominent notice on our App of any change in ownership or uses of your personal information, as well as any choices you may have regarding your personal information.
       </Text>
       <Text style={styles.listItem}>
         <Text style={styles.listItemTitle}>• With Your Consent:</Text> We may share your information with third parties when we have your explicit consent to do so.
@@ -144,7 +144,7 @@ const PrivacyPolicyScreen = () => {
 
       <Text style={styles.sectionTitle}>9. Third-Party Services</Text>
       <Text style={styles.paragraph}>
-        The App may contain links to third-party websites or services that are not owned or controlled by ExpenZ. This Privacy Policy applies only to the information collected by our App. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services. We encourage you to review the privacy policies of any third-party services you access through our App.
+        The App may contain links to third-party websites or services that are not owned or controlled by Expenzz. This Privacy Policy applies only to the information collected by our App. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services. We encourage you to review the privacy policies of any third-party services you access through our App.
       </Text>
 
       <Text style={styles.sectionTitle}>10. Contact Us</Text>
@@ -152,7 +152,7 @@ const PrivacyPolicyScreen = () => {
         If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:
       </Text>
       <Text style={styles.paragraph}>
-        ExpenZ Support
+        Expenzz Support
       </Text>
       <Text style={styles.paragraph}>
         Email: expensetracker414@gmail.com
@@ -169,7 +169,7 @@ const PrivacyPolicyScreen = () => {
       </Text>
 
       <Text style={styles.paragraph}>
-        Copyright © 2025 ExpenZ. All rights reserved.
+        Copyright © 2025 Expenzz. All rights reserved.
       </Text>
       {/* Continue adding sections 3 through 12 in a similar manner */}
     </ScrollView>

@@ -1,29 +1,29 @@
 {
   "expo": {
-    "name": "ExpenZ",
+    "name": "Expenzz",
     "slug": "ExpenseTracker",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/appIcon.png",
+    "icon": "./assets/images/appIcon1.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/appIcon.png",
+      "image": "./assets/images/appIcon1.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.searce.splitexpensetracker"
+      "bundleIdentifier": "com.dev.akshat.atharva.expenz"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/appIcon.png",
+        "foregroundImage": "./assets/images/appIcon1.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./firebase/google-services.json",
-      "package": "com.searce.splitexpensetracker"
+      "package": "com.dev.akshat.atharva.expenz"
     },
     "web": {
       "bundler": "metro",

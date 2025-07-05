@@ -50,7 +50,8 @@ export default function HomeScreen() {
 
   const getToken = async () => {
     const token = await messaging().getToken();
-    updateUserAccessToken({token:token});
+    console.log(`got the access token for mobile: ${token}`);
+    await updateUserAccessToken({token:token});
   }
 
   useEffect(() => {
