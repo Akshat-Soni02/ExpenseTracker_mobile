@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRouter,useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import _ from "lodash";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
@@ -14,6 +15,7 @@ import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
 import { useUpdateBillMutation , useGetBillQuery, Bill, Member} from "@/store/billApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 type error = {
   message: string;
@@ -43,6 +45,7 @@ type Data = {
 
 export default function EditBillScreen() {
   const router = useRouter();
+  const { showToast } = useToast(); 
   let {id} = useLocalSearchParams() as {id: string};
 
   const [updateBill, {isLoading}] = useUpdateBillMutation();
@@ -136,15 +139,23 @@ export default function EditBillScreen() {
             dataObj.members = members;
       }
       const response = await updateBill({id:id,body:dataObj}).unwrap();
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       router.back();
     } catch (error) {
-      console.error("error updating bill:", error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("error updating bill:", error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   };
 
@@ -162,7 +173,8 @@ export default function EditBillScreen() {
   }
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
 
       <Header headerText="Edit Bill"/>
 
@@ -181,6 +193,7 @@ export default function EditBillScreen() {
 
       {/* Save Button */}
       <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }

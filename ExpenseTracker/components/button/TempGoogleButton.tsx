@@ -5,6 +5,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { getItem, saveItem } from "@/app/utils/storage";
 
 import { useGoogleLoginMutation, useAutoaddFriendsMutation } from "@/store/userApi";
 import { useAuth } from "@/context/AuthProvider";
@@ -18,8 +19,8 @@ const TempGoogleLoginButton = () => {
     const { login } = useAuth();
 
     const config = {
-        androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-        webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+        androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID || "41930990796-8blks6de5mo4023v2rgj83hlcgr5cshj.apps.googleusercontent.com",
+        webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID || "41930990796-v0crd8n8lnpnolcjuqgd9do6mm4cfe5b.apps.googleusercontent.com",
     };
 
     const [request, response, promptAsync] = Google.useAuthRequest(config);
@@ -48,7 +49,7 @@ const TempGoogleLoginButton = () => {
           }
           
           await login(res.data?.token);
-          await AsyncStorage.setItem("user", JSON.stringify(res.data.userData));
+          await saveItem("user", res.data.userData);
           await autoAdd({email: res.data.userData.email}).unwrap();
           if(errorAutoAddFriends) {
             console.log("error auto adding friends", errorAutoAddFriends);
@@ -66,10 +67,10 @@ const TempGoogleLoginButton = () => {
 
       const signInWithGoogle = async () => {
         try {
-          const userJSON = await AsyncStorage.getItem("testUser");
+          const user = await getItem("user");
       
-          if (userJSON) {
-            setUserInfo(JSON.parse(userJSON));
+          if (user) {
+            setUserInfo(user);
             router.push("/(tabs)");
           } else if (response?.type === "success") {
             // If no user information is found and the response type is "success" (assuming response is defined),

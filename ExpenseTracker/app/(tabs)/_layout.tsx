@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Tabs, useRouter, usePathname } from "expo-router";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const TAB_ROUTES = [
   "index",
@@ -42,16 +43,22 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   children,
 }) => {
   return (
-    <Pressable
-      onPress={onPress}
-      android_ripple={null} // disables ripple
-      style={({ pressed }) => [
-        styles.tabContainer,
-        Platform.OS === "ios" && pressed ? { opacity: 1 } : {}, // disables iOS press effect
-      ]}
-    >
-      {children}
-    </Pressable>
+    <View style={{width: screenWidth/5, height: 60}}>
+      <Pressable
+        onPress={onPress}
+        android_ripple={null}
+        style={({ pressed }) => [
+          {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+          Platform.OS === "ios" && pressed ? { opacity: 1 } : {}, // disables iOS press effect
+        ]}
+      >
+        {children}
+      </Pressable>
+    </View>
   );
 };
 
@@ -74,11 +81,32 @@ export default function TabLayout() {
     }).start();
   }, [selectedIndex]);
 
+  useEffect(() => {
+  let newIndex = 0; 
+
+  for (let i = 0; i < TAB_ROUTES.length; i++) {
+    const route = TAB_ROUTES[i];
+    if (route === 'index' && pathname === '/') {
+      newIndex = i;
+      break;
+    } else if (pathname.startsWith(`/${route}`)) {
+      newIndex = i;
+      break;
+    }
+  }
+
+  if (newIndex !== selectedIndex) {
+    setSelectedIndex(newIndex);
+  }
+}, [pathname]);
+
+
   const onPressTab = (index: number, route: string) => {
     setSelectedIndex(index);
     router.push(route === "index" ? "/" : `/${route}`);
   };
 
+    
   return (
     <>
       <Tabs
@@ -114,7 +142,7 @@ export default function TabLayout() {
             {
               width: TAB_WIDTH,
               transform: [{ translateX }],
-              backgroundColor: "#264CA7", // Darker blue you liked
+              backgroundColor: "#264CA7",
             },
           ]}
         />
@@ -129,8 +157,9 @@ export default function TabLayout() {
             >
               <MaterialCommunityIcons
                 name={TAB_ICONS[index]}
-                size={26}
+                size={28}
                 color={focused ? "#264CA7" : "#999"}
+                style = {{width: "100%", height: "100%", textAlignVertical: "center", textAlign: "center"}}
               />
             </CustomTabButton>
           );
@@ -148,6 +177,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: "#ddd",
     position: "relative",
+    width: "100%",
+    alignItems: 'center',
+    justifyContent: "space-between"
   },
   tabContainer: {
     flex: 1,

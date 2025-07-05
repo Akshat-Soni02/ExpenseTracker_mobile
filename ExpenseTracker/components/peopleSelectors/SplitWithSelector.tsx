@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Modal, Image, FlatList, Dimensions } from "react-native";
 import { Control, Controller, useWatch ,useController} from "react-hook-form";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { UseFormSetValue } from "react-hook-form";
@@ -11,6 +10,11 @@ import { useLazyGetGroupQuery } from "@/store/groupApi";
 import { useGetUserFriendsQuery, useLazyGetUserByIdQuery } from "@/store/userApi";
 import { people } from "./AddPeopleInput";
 import { Member } from "@/store/billApi";
+import { getItem } from "@/app/utils/storage";
+import { testStyles } from "@/styles/test";
+import { FONTS } from "@/app/utils/constants";
+import SearchBar from "../SearchBar";
+import { ExpenseMedia } from "@/store/expenseApi";
 const { width } = Dimensions.get("window");
 
 type FormValues = { 
@@ -41,6 +45,7 @@ interface Props {
 type member = {
   _id: string; 
   name: string;
+  photo: ExpenseMedia;
 }
 
 type splitWith = {
@@ -85,7 +90,10 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       const newMembers = memberData.map((res:any, index:any) => ({
         user_id: memberIds[index],
         name: res?.data?.name || "Unknown",
+        photo: res?.data?.profile_photo?.url
       }));
+
+      // console.log(newMembers);
   
       return newMembers;
     } catch (error) {
@@ -108,6 +116,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       const newMembers = memberData.map((res, index) => ({
         _id: memberIds[index],
         name: res?.data?.name || "Unknown",
+        photo: res?.data?.profile_photo?.url
       }));
 
       setGroupMembers(newMembers);
@@ -128,8 +137,8 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
     const updatedArray = newSelectedUsers.map((u) => ({
       user_id: u.user_id,
-      amount: splitAmounts[u.user_id] || 0,
-    }));
+      amount: splitAmounts[u.user_id] ?? 0,
+    }));    
 
     setValue("splitWith", updatedArray);
     setUpdateUI((prev) => !prev);
@@ -139,7 +148,8 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
     if(edit){
       const memberIds = splitWith.map((item: splitWith) => item.user_id);
       if(IncludePaidBy){
-        memberIds.push(paidByUser.user_id)
+        const alreadyMember = memberIds.find((memId) => memId === paidByUser.user_id);
+        if(!alreadyMember) memberIds.push(paidByUser.user_id)
       };
       updateMembers(memberIds);
     }
@@ -148,6 +158,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   useEffect(() => {
     if (edit) {
       setSelectedUsers(members);
+      // console.log(members);
     }
   }, [members]);
   
@@ -155,18 +166,16 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const userData = await AsyncStorage.getItem("user");
-        if (userData) {
-          const user = JSON.parse(userData);
+        const user = await getItem("user");
+        if (user) {
           setLoggedInUserId(user._id);
           const defaultUser = { user_id: user._id, name: user.name, profile_photo: user.profile_photo?.url };
+          setSelectedUsers(members);
+          setSelectedUsers((prevUsers) => [...prevUsers, defaultUser]);
           if(edit){
-            setSelectedUsers(members);
-            setSelectedUsers((prevUsers) => [...members, defaultUser]);
             setPaidBy(paidByUser);
           }
           else{
-          setSelectedUsers([defaultUser]);
           setPaidBy(defaultUser);
           setValue("paidBy", defaultUser);
         }
@@ -229,118 +238,163 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   
 
   const filteredUsers = React.useMemo(() => {
-    return fromMembers?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
+    return fromMembers?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()) && user._id.toString() !== loggedInUserId?.toString() ) || [];
   }, [fromMembers, searchQuery]);
+
+  const Header = () => {
+    return (
+      <View style = {styles.splitHead}>
+        <View style={{ flex: 1 }} /> {/* Left spacer */}
+
+        <Text style={styles.title}>{title || "Split with"}</Text>
+
+        <View style={{ flex: 1, alignItems: 'flex-end'}}>
+          <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addPeopleButton}>
+            <Text style={styles.addPeopleButtonText}>+Add People</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+
+  const PaidBy = () => {
+    return (
+      <View style={styles.paidByContainer}>
+        <Text style={styles.paidByText}>Paid by</Text>
+        <TouchableOpacity style={styles.paidByButtonImproved} onPress={() => setPaidByModalVisible(true)}>
+          <Text style={styles.paidByTextImproved}>{paidBy?.name || "Select Payer"}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const handleCloseModal = useCallback(() => setModalVisible(false), []);
   
 
 
   return (
-    <View style={styles.container}>
-      <View style = {styles.splitHead}>
-        <View style={{ flex: 1 }} /> {/* Left spacer */}
-        <Text style={styles.title}>{title || "Split with"}</Text>
-        <View style={{ flex: 1, alignItems: 'flex-end'}}>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Text style={{color: "#616161"}}>+ Add people</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      
+    <View style={testStyles.formContainer}>
 
-      <View style={styles.selectedUsersContainer}>
+      <Header/>
+
+      {/* while this componenet could have been moved
+      to upper seperate componenet but that causes it to show multiple re-renders */}
+      <View style={{ padding: 10 }}>
+
         {(showMore ? selectedUsers : selectedUsers.slice(0, 3)).map((user) => (
+  
           <View key={user.user_id} style={styles.splitItem}>
-            {user.profile_photo ? (
-              <Image source={{ uri: user.profile_photo }} style={styles.userIcon} />
+
+            {user.profile_photo || user.photo ? (
+              <Image source={{ uri: user.profile_photo || user.photo }} style={styles.userIcon} />
             ) : (
               <LinearGradient colors={["#D1D5DB", "#9CA3AF"]} style={styles.userIcon} />
             )}
+
             <Text style={styles.userName}>{user.name}</Text>
+
             <Controller
               control={control}
               render={({ field: { onChange } }) => (
+
                 <TextInput
                   style={styles.amountInput}
                   value={splitAmounts[user.user_id]?.toString() || "0"}
                   onChangeText={(text) => {
-                    const numericValue = parseFloat(text) || 0;
-                    const updatedSplits = { ...splitAmounts, [user.user_id]: numericValue };
-                    setSplitAmounts(updatedSplits);
-                    setValue(
-                      "splitWith",
-                      selectedUsers.map((u) => ({
-                        user_id: u.user_id,
-                        amount: updatedSplits[u.user_id],
-                      }))
-                    );
-                    onChange(numericValue);
-                  }}                  
+                    const isValid = /^\d*\.?\d*$/.test(text);
+                    if (isValid) {
+                      onChange(text);
+                      const numericValue = parseFloat(text) || 0;
+                      const updatedSplits = { ...splitAmounts, [user.user_id]: numericValue };
+                      setSplitAmounts(updatedSplits);
+                      setValue(
+                        "splitWith",
+                        selectedUsers.map((u) => ({
+                          user_id: u.user_id,
+                          amount: updatedSplits[u.user_id],
+                        }))
+                      );
+                      onChange(numericValue);
+                    }
+                  }}
                   keyboardType="decimal-pad"
                 />
+
               )}
               name={`splitAmount_${user.user_id}`}
               defaultValue={splitAmounts[user.user_id] || 0}
             />
+
           </View>
+
         ))}
 
         {selectedUsers.length > 3 && (
-          <TouchableOpacity onPress={() => setShowMore(prev => !prev)}>
-            <Text style={{ color: "#616161" }}>
+          <TouchableOpacity onPress={() => setShowMore(prev => !prev)} style={styles.toggleShowButton}>
+            <Text style={styles.toggleShowText}>
               {showMore ? "Show less" : "Show all"}
             </Text>
           </TouchableOpacity>
         )}
 
-        {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-          <Text style={styles.addButtonText}>Add People</Text>
-        </TouchableOpacity> */}
       </View>
 
-
-
       {IncludePaidBy && (
-        <View style={styles.paidByContainer}>
-          <Text style={styles.paidByText}>Paid by</Text>
-          <TouchableOpacity style={styles.paidByButton} onPress={() => setPaidByModalVisible(true)}>
-            <Text style={styles.paidByButtonText}>{paidBy?.name || "Select Payer"}</Text>
-          </TouchableOpacity>
-        </View>
+        <PaidBy/>
       )}
 
-      <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+
+      {/* for similiar reason this also is 
+      not seperaable for now */}
+      <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={handleCloseModal}>
+
         <View style={styles.modalContainer}>
-          <TextInput
+
+          {/* <TextInput
             placeholder="Search..."
             style={styles.searchInput}
             onChangeText={setSearchQuery}
             value={searchQuery}
-          />
-          <FlashList
-            // style = {styles.flashList}
-            data={filteredUsers}
-            keyExtractor={(item) => item._id}
-            estimatedItemSize={50}
-            extraData={updateUI}
-            renderItem={({ item }) => {
-              const isSelected = selectedUsers.some((u) => u.user_id === item._id);
-              return (
-                <TouchableOpacity onPress={() => toggleUserSelection(item)} style={[styles.modalItem, isSelected && styles.selectedItem]}>
-                  <Text style={styles.modalItemText}>{item.name}</Text>
-                </TouchableOpacity>
-              );
-            }}
-            ItemSeparatorComponent={() => (
-              <View style={{  height: 2, backgroundColor: 'white'}} />
-            )}
-          />
+          /> */}
+
+          { filteredUsers.length === 0 ? (
+            <View style ={[testStyles.centeredBox, {height: "70%"} ]}>
+              <Text style = {{fontSize: FONTS.large}}>You do not have any friends</Text>
+            </View>
+          ) : (
+            <>
+              <SearchBar onSearch={setSearchQuery} value={searchQuery}/>
+              <FlashList
+                data={filteredUsers}
+                keyExtractor={(item) => item._id}
+                estimatedItemSize={50}
+                extraData={updateUI}
+                renderItem={({ item }) => {
+                  const isSelected = selectedUsers.some((u) => u.user_id === item._id);
+                  return (
+                    <TouchableOpacity onPress={() => toggleUserSelection(item)} style={[styles.modalItem, isSelected && styles.selectedItem]}>
+                      <Text style={styles.modalItemText}>{item.name}</Text>
+                    </TouchableOpacity>
+                  );
+                }}
+                ItemSeparatorComponent={() => (
+                  <View style={{  height: 2, backgroundColor: 'white'}} />
+                )}
+              />
+            </>
+          )}
           <CustomButton onPress={() => setModalVisible(false)} style={styles.modalButton}>Done</CustomButton>
         </View>
       </Modal>
+      
 
       <Modal animationType="slide" transparent={false} visible={paidByModalVisible} onRequestClose={() => setPaidByModalVisible(false)}>
-         <View style={styles.fullScreenModal}>
-           <Text style={styles.modalTitle}>Select Payer</Text>
+
+        <View style={styles.modalContainer}>
+
+          <Text style={styles.modalTitle}>Select Payer</Text>
+
           <FlatList
             style = {styles.list}
             data={selectedUsers}
@@ -358,7 +412,9 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
               </TouchableOpacity>
             )}
           />
+
         </View>
+
       </Modal>
 
     </View>
@@ -368,52 +424,133 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 export default SplitWithSelector;
 
 const styles = StyleSheet.create({
-  container: { padding: 10, borderRadius: 15, width: "100%", backgroundColor: "rgba(200, 230, 255, 0.4)" , borderWidth: 2, borderColor: "rgba(255, 255, 255, 0.2)",},
-  title: { fontSize: 18, fontWeight: "bold", textAlign: "center", marginBottom: 5 },
-  userIcon: { width: 34, height: 34, borderRadius: 17, marginRight: 10 },
-  splitHead: {flexDirection: "row", justifyContent: "center", alignItems: "center"},
-  userName: { flex: 1, fontSize: 16 },
-  modalButton: {alignSelf: "center"},
-  list: {width: "100%"},
-  selectedUsersContainer: { padding: 10, borderRadius: 10 },
-  splitItem: { flexDirection: "row", alignItems: "center", marginVertical: 1, padding: 10, borderRadius: 10, backgroundColor: "rgba(200, 230, 255, 0.7)" },
-  amountInput: { width: width * 0.25, padding: 5, textAlign: "center", backgroundColor: "#F3F4F6", borderRadius: 5, marginLeft: 10 },
-  addButton: { backgroundColor: "#355C7D", padding: 10, borderRadius: 8, alignItems: "center", marginTop: 10 },
-  addButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  modalContainer: { flex: 1, backgroundColor: "#fff", padding: 20,},
-  searchInput: { padding: 10, borderBottomWidth: 1, borderBottomColor: "#ccc", marginBottom: 10 },
-  modalItem: { paddingVertical: 15, flexDirection: "row", width: "100%", paddingHorizontal: 10 },
-  selectedItem: { backgroundColor: "rgba(111, 187, 250, 0.24)" },
-  modalItemText: { fontSize: 16 },
-    paidByContainer: {
+
+  splitHead: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+
+  title: {
+    fontSize: FONTS.medium,
+    fontWeight: "500",
+    textAlign: "center",
+    marginBottom: 5
+  },
+
+  addPeopleButton: {
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    alignSelf: "flex-end",
+  },
+  
+  addPeopleButtonText: {
+    color: "#073763",
+    fontSize: FONTS.small,
+    fontWeight: "500",
+  },
+  
+  splitItem: { 
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 1, 
+    padding: 10, 
+    borderRadius: 10, 
+    backgroundColor: "rgba(200, 230, 255, 0.7)" 
+  },
+
+  userIcon: { 
+    width: 34, 
+    height: 34, 
+    borderRadius: 17, 
+    marginRight: 10 
+  },
+
+  userName: { 
+    flex: 1, 
+    fontSize: FONTS.medium 
+  },
+
+  amountInput: { 
+    width: width * 0.25, 
+    padding: 5, 
+    textAlign: "center", 
+    backgroundColor: "#F3F4F6", 
+    borderRadius: 5, 
+    marginLeft: 10 
+  },
+
+  toggleShowButton: {
+    marginTop: 8,
+    alignSelf: "center",
+  },
+
+  toggleShowText: {
+    color: "#073763",
+    fontSize: FONTS.small,
+    fontWeight: "500",
+  },
+
+  paidByContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 15,
     alignSelf: "center",
   },
+
   paidByText: {
-    fontSize: 16,
+    fontSize: FONTS.medium,
     color: "#000",
+    fontWeight: "500"
   },
-  paidByButton: {
-    backgroundColor: "#333",
-    padding: 10,
-    borderRadius: 10,
+
+  paidByButtonImproved: {
+    backgroundColor: "#e2e8f0",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
     marginLeft: 10,
   },
-  paidByButtonText: {
-    color: "#FFF",
+
+  paidByTextImproved: {
+    fontSize: 14,
+    color: "#1e293b",
+    fontWeight: "500",
   },
-    fullScreenModal: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 20,
-    alignItems: "center",
+
+  modalContainer: { 
+    flex: 1, 
+    backgroundColor: "#fff", 
+    padding: 20 
   },
+
+  modalItem: { 
+    paddingVertical: 15, 
+    flexDirection: "row", 
+    width: "100%", 
+    paddingHorizontal: 10 
+  },
+
+  selectedItem: { 
+    backgroundColor: "rgba(111, 187, 250, 0.24)" 
+  },
+
+  modalButton: { 
+    alignSelf: "center"
+  },
+
   modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#000",
+    fontSize: FONTS.large,
+    fontWeight: "500",
     marginBottom: 10,
+    textAlign: "center",
+  },
+
+  list: {
+    width: "100%"
+  },
+
+  modalItemText: { 
+    fontSize: 16 
   },
 });

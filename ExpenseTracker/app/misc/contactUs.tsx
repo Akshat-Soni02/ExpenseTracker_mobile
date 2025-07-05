@@ -1,14 +1,21 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import Header from '@/components/Header';
+import { useRegisterFeedbackMutation } from '@/store/feedbackApi';
 
 const ContactUsScreen = () => {
   const { control, handleSubmit, reset } = useForm();
+  const [ sendFeedback, { isLoading }] = useRegisterFeedbackMutation();
 
-  const onSubmit = (data: any) => {
-    Alert.alert('Message Sent', 'Thank you for contacting us!');
-    reset();
+  const onSubmit = async (data: any) => {
+    try {
+      const res = await sendFeedback(data).unwrap();
+      Alert.alert('Message Sent', 'Thank you for contacting us!');
+      reset();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -20,7 +27,7 @@ const ContactUsScreen = () => {
 
       <View style={styles.contactBlock}>
         <Text style={styles.label}>Email:</Text>
-        <Text style={styles.link} onPress={() => Linking.openURL('mailto:expenseease414@gmail.com')}>
+        <Text style={styles.link} onPress={() => Linking.openURL('mailto:expensetracker414@gmail.com')}>
           expenseease.app
         </Text>
       </View>
@@ -82,8 +89,8 @@ const ContactUsScreen = () => {
         )}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>Send Message</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)} disabled = {isLoading}>
+        <Text style={styles.buttonText}> {isLoading ? <ActivityIndicator/> : "Send Message"}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

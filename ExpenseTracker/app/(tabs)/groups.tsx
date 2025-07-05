@@ -1,7 +1,6 @@
-import { ScrollView ,FlatList, ActivityIndicator} from "react-native";
+import { ScrollView ,FlatList, ActivityIndicator, TouchableOpacity, Text, Button} from "react-native";
 import { View } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import * as React from 'react';
 
 import TransactionCard from "@/components/readComponents/TransactionCard";
 import {useGetUserGroupsQuery} from '@/store/userApi';
@@ -11,7 +10,7 @@ import { formatCurrency } from "../utils/helpers";
 import { COLORS, FONTS } from "../utils/constants";
 import { testStyles } from "@/styles/test";
 import EmptyState from "@/components/EmptyState";
-import AppFAB from "@/components/AppFab";
+import AppFAB from "@/components/AppFAB";
 import ErrorState from "@/components/ErrorState";
 
 export default function GroupsScreen() {
@@ -27,6 +26,8 @@ export default function GroupsScreen() {
 
   const groups: Group[] = dataGroup?.data || [];
   const numberOfGroups: number = groups.length;
+
+  
 
   const formatUserState = (val: number) => {
       return val > 0 ? `You are owed ₹${formatCurrency(Math.abs(val))}` : val === 0 ? `All settled` : `You owe ₹${formatCurrency(Math.abs(val))}`
@@ -48,9 +49,9 @@ export default function GroupsScreen() {
   }
   
   return (
-    <View style={testStyles.screen}>
+    <View style={[testStyles.screen, {position: 'relative'}]}>
 
-        <ScrollView style={testStyles.container}>
+        <ScrollView style={[testStyles.container]}>
 
           <Header headerText="Groups" hideBackButton/>
           
@@ -75,12 +76,53 @@ export default function GroupsScreen() {
                 /> )}
     
         </ScrollView>
+        {/* <View style={{ padding: 20 }}> */}
+      {/* <Button
+        title="Success Toast"
+        onPress={() =>
+          showToast({
+            title: "Split created successfully",
+            // message: "Your payment has been successfully received.",
+            type: "success",
+          })
+        }
+      />
+      <Button
+        title="Error Toast"
+        onPress={() =>
+          showToast({
+            title: "Something went wrong",
+            // message: "Issue processing your subscription payment.",
+            type: "error",
+          })
+        }
+      />
+      <Button
+        title="Warning Toast"
+        onPress={() =>
+          showToast({
+            title: "Time to Pay Up!",
+            message: "Adding admins may cost more.",
+            type: "warning",
+          })
+        }
+      />
+      <Button
+        title="Info Toast"
+        onPress={() =>
+          showToast({
+            title: "Update Available",
+            message: "New features have been added.",
+            type: "info",
+          })
+        }
+      />
+    </View> */}
 
-        <AppFAB
-          icon="plus"
-          onPress={() => router.push("/action/create/createGroup")}
-        />
-        
+      <AppFAB
+        icon="plus"
+        onPress={() => router.push("/action/create/createGroup")}
+      />
     </View>
   );
 }

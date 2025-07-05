@@ -1,4 +1,4 @@
-import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity,Dimensions, ActivityIndicator, StatusBar,Pressable,Alert, ScrollView} from 'react-native';
+import { StyleSheet ,View, Text, Image, FlatList, TouchableOpacity,Dimensions, ActivityIndicator, StatusBar,Pressable,Alert, ScrollView,RefreshControl} from 'react-native';
 import { useFocusEffect, useRouter } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
@@ -26,12 +26,13 @@ export default function HomeScreen() {
 
   const { authToken, loading } = useAuth();
   const [updateUserAccessToken] = useUpdateUserAccessTokenMutation();
+  const [refreshing, setRefreshing] = useState(false);
 
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser, isError: hasErrorUser, refetch: refetchUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error: errorExchange, isError: hasErrorExchange, refetch: refetchExchange} = useGetUserCurrentExchangeStatusQuery();
   const {data:dataGroup, isLoading:isLoadingGroup, error:errorGroup, isError: hasErrorGroup, refetch: refetchGroup} = useGetUserGroupsQuery();
   const {data: dataPendingBills, isLoading: isLoadingBills, error: errorBill, isError: hasErrorBills, refetch: refetchBill} = useGetMonthlyPendingBillsQuery();
-  const {data:todaySpend, isLoading: isLoadingSpend,refetch, error: errorSpend} = useGetTodaySpendQuery();
+  const {data:todaySpend, isLoading: isLoadingSpend,refetch:refetchTodaySpend, error: errorSpend} = useGetTodaySpendQuery();
 
   const errors = [errorExchange, errorGroup, errorUser, errorBill].filter(Boolean);
   const hasErrors = errors.length > 0;
@@ -49,7 +50,8 @@ export default function HomeScreen() {
 
   const getToken = async () => {
     const token = await messaging().getToken();
-    updateUserAccessToken({token:token});
+    console.log(`got the access token for mobile: ${token}`);
+    await updateUserAccessToken({token:token});
   }
 
   useEffect(() => {
@@ -84,11 +86,28 @@ export default function HomeScreen() {
   }, []);
 
 
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch])
-  );
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      // Call all refetch queries
+      await Promise.all([
+        refetchUser(),
+        refetchExchange(),
+        refetchGroup(),
+        refetchBill(),
+        refetchTodaySpend()
+      ]);
+    } catch (error) {
+      console.error("Refresh error:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     refetch();
+  //   }, [refetch])
+  // );
 
   const groups: Group[] = dataGroup?.data || [];
 
@@ -107,7 +126,7 @@ export default function HomeScreen() {
         <View style={Styles.headerContainer}>
         {/* Top Section Animates In */}
         <Animatable.View
-          animation={"fadeIn"}
+          animation={undefined}
           delay={150}
           duration={150}
           style={{
@@ -141,7 +160,7 @@ export default function HomeScreen() {
 
           {/* Financial Info */}
           <View
-            style={[Styles.financeStats, screenWidth < 800 && {gap: 20}]}
+            style={[Styles.financeStats, screenWidth < 370 && {gap: 20}]}
           >
             {/* You Owed */}
             <View style={{ gap: 2 }}>
@@ -149,8 +168,8 @@ export default function HomeScreen() {
 
               {!isLoading && (
                 <View style={Styles.financeStatAmountContainer}>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 800 && {fontSize: FONTS.large}]}>₹</Text>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 800 && {fontSize: FONTS.large}]}>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 370 && {fontSize: FONTS.large}]}>₹</Text>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.positive}, screenWidth < 370 && {fontSize: FONTS.large}]}>
                     {formatCurrency(exchangeData?.data?.lendedAmount)}
                   </Text>
                 </View>
@@ -164,8 +183,8 @@ export default function HomeScreen() {
 
               {!isLoading && (
                 <View style={Styles.financeStatAmountContainer}>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 800 && {fontSize: FONTS.large}]}>₹</Text>
-                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 800 && {fontSize: FONTS.large}]}>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 370 && {fontSize: FONTS.large}]}>₹</Text>
+                  <Text style={[Styles.financeStatAmount, {color: COLORS.amount.negative}, screenWidth < 370 && {fontSize: FONTS.large}]}>
                     {formatCurrency(exchangeData?.data?.borrowedAmount)}
                   </Text>
                 </View>
@@ -177,10 +196,10 @@ export default function HomeScreen() {
         </Animatable.View>
 
         {/* Decorative Illustration at right */}
-        <Image
+        {/* <Image
           source={require("../../assets/images/home-header1.png")}
           style={[Styles.illustrateImage, screenWidth < 800 && {width: 100, height: 100}]}
-        />
+        /> */}
         </View>
     );
   }
@@ -252,7 +271,16 @@ export default function HomeScreen() {
   // }
 
   return (
-    <ScrollView style={testStyles.screen}>
+    <ScrollView style={testStyles.screen}
+    refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        colors={['#3498db']} // Android spinner color
+        // tintColor={'#3498db'} // iOS spinner color
+      />
+    }  
+  >
       <HomeHeader/>
 
       <View style={testStyles.container}>
@@ -262,7 +290,7 @@ export default function HomeScreen() {
 
         {/* Groups */}
         <View>
-          <View style={[testStyles.horizontalContainer, {alignItems: "center"}]}>
+          <View style={[testStyles.horizontalContainer, {alignItems: "center", marginBottom: 5}]}>
             <Text style={Styles.sectionTitle}>Recent Group</Text>
             {/* <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/groups")} rippleColor={COLORS.button.primary.background}>
                 <Text style={{color: COLORS.button.wide.background}}>View all</Text>
@@ -284,7 +312,7 @@ export default function HomeScreen() {
 
         {/* Bills */}
         <View>
-          <View style={[testStyles.horizontalContainer, {alignItems: "center"}]}>
+          <View style={[testStyles.horizontalContainer, {alignItems: "center", marginBottom: 5}]}>
             <Text style={Styles.sectionTitle}>Upcoming Bills This Month</Text>
             {/* <Button style={Styles.viewAll} onPress={()=>router.push("/(tabs)/bills")} rippleColor={COLORS.button.primary.background}>
                 <Text style={{color: COLORS.button.wide.background}}>View all</Text>
@@ -347,7 +375,7 @@ const Styles = StyleSheet.create({
   financeStats: {
     flexDirection: 'row',
     justifyContent: "flex-start",
-    gap: 28,
+    gap: 30,
   },
 
   financeStatLabel: { 
@@ -363,7 +391,7 @@ const Styles = StyleSheet.create({
   },
 
   financeStatAmount: {
-    fontSize: FONTS.xlarge,
+    fontSize: FONTS.xxlarge,
     fontWeight: '600',
     color: COLORS.amount.positive
   },

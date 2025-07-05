@@ -1,4 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -10,6 +12,7 @@ import store from '@/store/store';
 import { useColorScheme } from '@/components/useColorScheme';
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
 import { AuthProvider } from '@/context/AuthProvider';
+import { ToastProvider } from '@/context/ToastContext';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from "expo-linking";
 
@@ -67,13 +70,17 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <Provider store={store}>
-        <PaperProvider theme={paperLightTheme}>
-          <RootLayoutNav />
-        </PaperProvider>
-      </Provider>
-    </AuthProvider>
+      <AuthProvider>
+          <Provider store={store}>
+            {/* <GluestackUIProvider mode="light"> */}
+            <PaperProvider theme={paperLightTheme}>
+              <ToastProvider>
+                <RootLayoutNav />
+              </ToastProvider>
+            </PaperProvider>
+            {/* </GluestackUIProvider> */}
+        </Provider>
+      </AuthProvider>
   );
 }
 
@@ -92,6 +99,7 @@ function RootLayoutNav() {
   };
 
   return (
+   <GluestackUIProvider mode="light">
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -138,5 +146,6 @@ function RootLayoutNav() {
         <Stack.Screen name="lists/budgets" options={{headerShown:false}}/>
       </Stack>
     </ThemeProvider>
+   </GluestackUIProvider>
   );
 }

@@ -12,6 +12,8 @@ import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import CustomSnackBar from "@/components/CustomSnackBar";
+import { getItem } from "../utils/storage";
+import { useToast } from "@/context/ToastContext";
 
 type MyStateInBill = {
   user_id: string;
@@ -29,6 +31,7 @@ const BillDetailsScreen = () => {
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [visible, setVisible] = useState<boolean>(false);
+  const { showToast } = useToast();
   
   const [deleteBill, {isLoading: deleteLoading, error: deleteError}] = useDeleteBillMutation();
   const { data, isLoading, error, refetch } = useGetBillQuery(id);
@@ -47,9 +50,8 @@ const BillDetailsScreen = () => {
 
   useEffect(() => {
     const fetchUserId = async () => {
-    const userData = await AsyncStorage.getItem("user");
-    if (userData) {
-        const user = JSON.parse(userData);
+    const user = await getItem("user");
+    if (user) {
         setLoggedInUserId(user._id);
     }
     };
@@ -111,15 +113,23 @@ const BillDetailsScreen = () => {
     try {
         // setLocalLoading(true);
         const res = await updateUserStatus({billId: id, body: {status: "paid"}}).unwrap();
-        setVisible(true);
+        showToast({
+          title: `Status updated`,
+          type: "success"
+        })
+        // setVisible(true);
     } catch (error) {
-        console.log("Error updating bill status");
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+        showToast({
+          title: `${error.data.message}`,
+          type: "error"
+        })
+        // console.log("Error updating bill status");
+        // const err = error as { data?: { message?: string } };
+        // if (err?.data?.message) {
+        //   setErrorMessage(err.data.message);
+        // } else {
+        //   setErrorMessage("Something went wrong. Please try again.");
+        // }
     } finally {
         // setLocalLoading(false);
     }
@@ -129,15 +139,23 @@ const BillDetailsScreen = () => {
     try {
         // setLocalLoading(true);
         const res = await updateUserStatus({billId: id, body: {status: "pending"}}).unwrap();
+        showToast({
+          title: `Status updated`,
+          type: "success"
+        })
         setVisible(true);
     } catch (error) {
-        console.log("Error updating bill status");
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error"
+      })
+        // console.log("Error updating bill status");
+        // const err = error as { data?: { message?: string } };
+        // if (err?.data?.message) {
+        //   setErrorMessage(err.data.message);
+        // } else {
+        //   setErrorMessage("Something went wrong. Please try again.");
+        // }
     } finally {
         // setLocalLoading(false);
     }
@@ -146,15 +164,23 @@ const BillDetailsScreen = () => {
   const handleBillDelete = async () => {
     try {
       const response = await deleteBill(id);
-      console.log("bill deleting response",response);
+      showToast({
+        title: `${response.message}`,
+        type: "success"
+      })
+      // console.log("bill deleting response",response);
       router.back();
     } catch (error) {
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error"
+      })
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   }
 
@@ -264,6 +290,7 @@ const BillDetailsScreen = () => {
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
+          anchorPosition="bottom"
         >
           <Menu.Item onPress={() => router.push({pathname:"/action/edit/editBill",params : {id:id}})} title="Edit" style={{ backgroundColor: "#fff" }}/>
           <Divider />

@@ -58,6 +58,14 @@ export const personalTransactionApi = api.injectEndpoints({
           "personalTransaction", "wallet","budget"
         ],
       }),
+
+      removeTransactionWallet: builder.mutation({
+        query: (id) => ({
+          url: `/personal-transactions/detach-wallet/${id}`,
+          method: "PUT",
+        }),
+        invalidatesTags: ["personalTransaction", "wallet"],
+      }),
   
       deletePersonalTransaction: builder.mutation<void, string>({
         query: (id) => ({
@@ -69,6 +77,13 @@ export const personalTransactionApi = api.injectEndpoints({
           "personalTransaction", "wallet"
         ],
       }),
+      deletePersonalTransactionPhoto: builder.mutation<void,string>({
+        query: (id) => ({
+          url: `/personal-transactions/photo/${id}`,
+          method: "PUT",
+      }),
+        invalidatesTags: ["personalTransaction", "wallet","budget"],
+      })
     }),
   });
   
@@ -78,5 +93,7 @@ export const personalTransactionApi = api.injectEndpoints({
     useGetPersonalTransactionQuery,
     useUpdatePersonalTransactionMutation,
     useDeletePersonalTransactionMutation,
+    useDeletePersonalTransactionPhotoMutation,
+    useRemoveTransactionWalletMutation
   } = personalTransactionApi;
   

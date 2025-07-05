@@ -24,12 +24,12 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name,isFrozen=
           
           {!isLoading && (
             <View style={[styles.selectionContainer, isFrozen && styles.disabledInputWrapper]}>
-            <TouchableOpacity
-              disabled={isFrozen}
-              onPress={() => !isFrozen && setModalVisible(true)}
-            >
-              <Text style={[styles.tap, isFrozen && styles.disabledText]}>{value?.wallet_title || "Tap to select"}</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                disabled={isFrozen}
+                onPress={() => !isFrozen && setModalVisible(true)}
+              >
+                <Text style={[styles.tap, isFrozen && styles.disabledText]}>{value?.wallet_title || "Tap to select"}</Text>
+              </TouchableOpacity>
 
               {value && !isFrozen && (
                 <TouchableOpacity onPress={() => onChange(null)} style={styles.removeButton}>
@@ -73,6 +73,7 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({ control, name,isFrozen=
 };
 
 const styles = StyleSheet.create({
+  
   container: {
     borderWidth: 2,
     borderRadius: 15,
@@ -81,27 +82,38 @@ const styles = StyleSheet.create({
     padding: 12,
     width: "50%",
   },
+
   label: {
     fontSize: 16,
     fontWeight: "600",
     color: "#333",
-    marginBottom: 6,
+    marginBottom: 10,
+    textAlign: "center"
   },
+
   selectionContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    borderWidth: 1.5,
+    borderColor: "rgba(150, 150, 150, 0.4)",
   },
+
   tap: {
     color: "#252626",
     fontSize: 15,
   },
+
   removeButton: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
+
   removeText: {
     fontSize: 16,
     fontWeight: "bold",

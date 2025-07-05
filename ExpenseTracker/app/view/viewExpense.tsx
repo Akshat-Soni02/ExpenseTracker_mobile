@@ -10,10 +10,13 @@ import ImageViewing from 'react-native-image-viewing';
 
 import { useLazyGetUserByIdQuery } from "@/store/userApi";
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetExpenseQuery, useDeleteExpenseMutation } from "@/store/expenseApi";
+import { useGetExpenseQuery, useDeleteExpenseMutation,useDeleteExpensePhotoMutation, useRemoveExpenseWalletMutation } from "@/store/expenseApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { getItem } from "../utils/storage";
+import { COLORS } from "../utils/constants";
+import { useToast } from "@/context/ToastContext";
 
 
 const ExpenseDetailScreen = () => {
@@ -27,9 +30,13 @@ const ExpenseDetailScreen = () => {
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [viewImage, setViewImage] = useState(false);
+  const { showToast } = useToast();
 
   const { data, isLoading, error, refetch } = useGetExpenseQuery(id);
   const [deleteExpense, {isLoading: deleteLoading, error: deleteError}] = useDeleteExpenseMutation();
+  const [deleteExpensePhoto, {isLoading: deleteLoadingPhoto, error: deleteErrorPhoto}] = useDeleteExpensePhotoMutation();
+
+  const [removeExWallet, {isLoading: walletRemoveLoading}] = useRemoveExpenseWalletMutation();
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
 
@@ -43,9 +50,8 @@ const ExpenseDetailScreen = () => {
 
   useEffect(() => {
     const fetchUserId = async () => {
-      const userData = await AsyncStorage.getItem("user");
-      if (userData) {
-        const user = JSON.parse(userData);
+      const user = await getItem("user");
+      if (user) {
         setLoggedInUserId(user._id);
       }
     };
@@ -103,19 +109,40 @@ const ExpenseDetailScreen = () => {
 
   const handleExpenseDelete = async () => {
     try {
-      await deleteExpense(id);
+      const response = await deleteExpense(id);
+      showToast({title: `${response.message}`, type: "success"});
       router.back();
     } catch (error) {
-      console.log("error deleting split",error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({title: `${error.data.message}`, type: "error"});
+      // console.log("error deleting split",error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   }
 
+  const handleWalletRemove = async () => {
+    try {
+      const response = await removeExWallet( expense._id );
+      showToast({title: `${response.data.message}`, type: "success"});
+    } catch (error) {
+      showToast({title: `${error.data.message}`, type: "error"});
+      console.log(error);
+    }
+  }
+
+  const handleDeleteImage = async () => {
+    try {
+      await deleteExpensePhoto(id);
+      setViewImage(false);
+    } catch (err) {
+      Alert.alert("Failed", "Could not delete the image.");
+    }
+  };
+  
   if (isLoading || deleteLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
   
   if (error) {
@@ -133,7 +160,7 @@ const ExpenseDetailScreen = () => {
 
   const isLender = expense?.lenders.some((lender) => lender.user_id === loggedInUserId);
   const isBorrower = expense?.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
-  const themeColor = isLender ? "#218838" : isBorrower ? "#E74C3C" : "#374151";
+  const themeColor = isLender ? COLORS.amount.positive : isBorrower ? COLORS.amount.negative : COLORS.amount.neutral;
 
   return (
     <ScrollView style={globalStyles.viewContainer}>
@@ -145,6 +172,7 @@ const ExpenseDetailScreen = () => {
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
+          anchorPosition="bottom"
         >
           <Menu.Item onPress={() => router.push({ pathname: "/action/edit/editExpense", params: {id:id,paidByName:paidByName} })} title="Edit" />
           <Divider />
@@ -156,6 +184,20 @@ const ExpenseDetailScreen = () => {
                         { text: "Yes", onPress: () => handleExpenseDelete()}
                       ]
                     )} title="Delete" />
+          {/* {expense.wallet_id && <Divider />} */}
+          {expense.wallet_id && (
+            <>
+              <Divider />
+              <Menu.Item onPress={() => Alert.alert(
+                        "Remove Wallet", 
+                        `Are you sure you want to remove wallet from ${expense?.description}`, 
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          { text: "Yes, Remove", onPress: () => handleWalletRemove()}
+                        ]
+                      )} title="Remove Wallet" />
+            </>
+          )}
         </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>
@@ -163,7 +205,7 @@ const ExpenseDetailScreen = () => {
         <Text style={styles.exchangeTitle}>{isLender ? "You paid" : `${lenderName} paid`}</Text>
         <Text style={styles.exchangeTitle}>₹{expense?.total_amount}</Text>
         {expense?.expense_category && <Text style={styles.categoryPill}>{expense.expense_category}</Text>}
-        <Text style={styles.expenseTitle}>{expense?.description}</Text>
+        <Text style={styles.expenseTitle} numberOfLines={2} ellipsizeMode="tail">{expense?.description}</Text>
       </View>
 
       <View style = {styles.minDetails}>
@@ -228,6 +270,22 @@ const ExpenseDetailScreen = () => {
         imageIndex={0}
         visible={viewImage}
         onRequestClose={() => setViewImage(false)}
+        FooterComponent={() => (
+          <View style={styles.footer}>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Delete Image",
+                "Are you sure you want to delete this image?",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Delete",onPress: handleDeleteImage, style: "destructive" }
+                ]
+              );
+            }}>
+              <Text  style={styles.deleteText}>Delete Image</Text>
+            </TouchableOpacity>
+          </View>
+      )}
         />
       </>
       )}
@@ -326,5 +384,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     alignSelf: 'center',
     marginVertical: 7
-  }
+  },
+  footer: {
+  padding: 16,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  alignItems: 'center'
+},
+deleteText: {
+  color: 'red',
+  fontSize: 16,
+  fontWeight: '600',
+}
 });

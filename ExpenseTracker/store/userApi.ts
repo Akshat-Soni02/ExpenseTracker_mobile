@@ -236,7 +236,6 @@ export const userApi = api.injectEndpoints({
 
     getUserCurrentExchangeStatus: builder.query<{data: {lendedAmount: number, borrowedAmount: number}}, void>({
       query: () => `/users/current-exchange-status`,
-      providesTags: ["user"],
     }),
 
     remindUserBorrower: builder.mutation<void,{borrower_id: string}>({

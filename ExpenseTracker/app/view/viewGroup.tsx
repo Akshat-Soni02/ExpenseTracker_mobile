@@ -11,6 +11,7 @@ import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import ProgressBar from "@/components/ProgressBar";
 import PeopleScreen from "../../components/groupSettlements";
+import AppFAB from "@/components/AppFAB";
 
 const GroupDetailsScreen = () => {
 
@@ -20,8 +21,9 @@ const GroupDetailsScreen = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const { data, isLoading, error, refetch } = useGetGroupQuery(id);
-  const { data: history, isLoading: loading, error: historyError } = useGetGroupHistoryQuery(id);
+  const { data: history, isLoading: loading, error: historyError ,refetch: refetchHistory} = useGetGroupHistoryQuery(id);
   const [activeTab, setActiveTab] = useState<"history" | "settle">("history");
+  const [refreshing, setRefreshing] = useState(false);
 
   const { open } : { open : boolean} = state;
   const onStateChange = ({ open } : { open : boolean}) => setState({ open });
@@ -49,6 +51,16 @@ const GroupDetailsScreen = () => {
     }
   }, [errorMessage]);
 
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await refetchHistory();
+    } catch (err) {
+      console.error("Refresh error", err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
    function daysUntilDate(input: Date): string {
     const today = new Date();
@@ -171,6 +183,8 @@ const GroupDetailsScreen = () => {
                 <FlatList
                   data={groupedByMonth[month]}
                   keyExtractor={(item, index) => item._id ?? index.toString()}
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
                   renderItem={({ item }) => {
                     if (item.type === "expense") {
                       return (
@@ -260,13 +274,7 @@ const GroupDetailsScreen = () => {
     )}
     
     </View>
-      <FAB
-        icon={({ size, color }) => (
-          <Ionicons name="add" size={size} color={color} />
-        )}
-        style={globalStyles.fab}
-        onPress={() => router.push({ pathname: "/action/create/createExpense", params: { group_id: group?._id, group_name: group?.group_title } })}
-        />
+      <AppFAB onPress={() => router.push({ pathname: "/action/create/createExpense", params: { group_id: group?._id, group_name: group?.group_title } })}/>
     </View>
   </PaperProvider>
 

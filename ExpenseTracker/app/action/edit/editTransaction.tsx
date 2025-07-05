@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
+import { useToast } from "@/context/ToastContext";
+
 
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
@@ -18,6 +20,7 @@ import { useEffect } from "react";
 import {useGetWalletQuery} from "@/store/walletApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 export type error = {
   message: string;
@@ -42,6 +45,7 @@ type Data = {
 export default function EditTransactionScreen() {
   const router = useRouter();
   let {fetchedId} = useLocalSearchParams() as {fetchedId: string};
+  const { showToast } = useToast();
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
@@ -131,15 +135,23 @@ export default function EditTransactionScreen() {
         dataObj.created_at_date_time = created_at_date_time;
       }
       const response = await updatePersonalTransaction({id:fetchedId,body:dataObj}).unwrap();
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       router.back();
     } catch (error) {
-      console.error("new personal transaction failed to create:", error);
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("new personal transaction failed to create:", error);
+      //   const err = error as { data?: { message?: string } };
+      //   if (err?.data?.message) {
+      //     setErrorMessage(err.data.message);
+      //   } else {
+      //     setErrorMessage("Something went wrong. Please try again.");
+      //   }
     }
   };
 
@@ -157,7 +169,8 @@ export default function EditTransactionScreen() {
   }
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
 
       <Header headerText="Edit Transaction"/>
 
@@ -197,6 +210,7 @@ export default function EditTransactionScreen() {
       </View>
 
       <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }

@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useState } from "react";
 
 import { useRemindUserBorrowerMutation } from '@/store/userApi';
 import { useGetUserExchangeStateInGroupQuery, GroupExchangeDetail } from '@/store/groupApi';
@@ -17,8 +18,9 @@ type LocalParams = {
 export default function PeopleScreen({ group_id, group_name }: LocalParams) {
   const router = useRouter();
 
-  const { data: dataPeople, isLoading: isLoadingPeople, error: errorPeople } = useGetUserExchangeStateInGroupQuery({ group_id });
+  const { data: dataPeople, isLoading: isLoadingPeople, error: errorPeople,refetch:refetchPeople } = useGetUserExchangeStateInGroupQuery({ group_id });
   const [remindBorrower, { isLoading: loadingBorrowReq }] = useRemindUserBorrowerMutation();
+  const [refreshing, setRefreshing] = useState(false);
 
   const people: GroupExchangeDetail[] = dataPeople?.data || [];
 
@@ -29,6 +31,17 @@ export default function PeopleScreen({ group_id, group_name }: LocalParams) {
     } catch (error) {
       const err = error as { data?: { message?: string } };
       Alert.alert("Reminder Error", err?.data?.message || "Failed to send reminder.");
+    }
+  };
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await refetchPeople();
+    } catch (err) {
+      console.error("Refresh error", err);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -125,6 +138,8 @@ export default function PeopleScreen({ group_id, group_name }: LocalParams) {
         <FlatList
           data={people}
           keyExtractor={(item) => item.other_member_id}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           renderItem={renderPerson}
           contentContainerStyle={{ paddingBottom: 20 }}
           ItemSeparatorComponent={() => <View style={styles.separator} />}

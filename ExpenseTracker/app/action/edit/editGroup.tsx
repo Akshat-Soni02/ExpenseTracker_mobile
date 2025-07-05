@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIn
 import { useForm } from "react-hook-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import TitleInput from "@/components/inputs/TitleInput";
@@ -11,6 +12,7 @@ import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import { useUpdateGroupMutation,useGetGroupQuery, Group } from "@/store/groupApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 type error = {
   message: string;
@@ -31,6 +33,8 @@ export default function EditGroupScreen() {
   const { id } = useLocalSearchParams() as { id: string };
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+
+  const { showToast } = useToast();
 
   const { data: groupData, isLoading: groupIsLoading, error: errorGroup, refetch } = useGetGroupQuery(id);
   const [updateGroup, {isLoading}] = useUpdateGroupMutation();
@@ -80,15 +84,23 @@ export default function EditGroupScreen() {
       }
 
       const response = await updateGroup({id: id, body: dataObj}).unwrap();
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       router.back();
     } catch (error) {
-      console.error("group failed to update:", error);
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("group failed to update:", error);
+      //   const err = error as { data?: { message?: string } };
+      //   if (err?.data?.message) {
+      //     setErrorMessage(err.data.message);
+      //   } else {
+      //     setErrorMessage("Something went wrong. Please try again.");
+      //   }
     }
   };
 
@@ -107,7 +119,8 @@ export default function EditGroupScreen() {
 
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
 
       <Header headerText="Edit Group"/>
 
@@ -120,6 +133,7 @@ export default function EditGroupScreen() {
 
       {/* Save Button */}
       <CustomButton onPress={handleSubmit(onGroupSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }

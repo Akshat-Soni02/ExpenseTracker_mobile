@@ -20,7 +20,7 @@ export const testStyles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         backgroundColor: "#fff",
-        marginTop: 30,
+        marginTop: 40,
         marginBottom: 15
     },
     headerText: {
@@ -30,10 +30,10 @@ export const testStyles = StyleSheet.create({
     },
     tabScreenHeader: {
         flexDirection: "row",
-        justifyContent: "center",
+        justifyContent: "flex-end",
         alignItems: "center",
         backgroundColor: "#fff",
-        marginTop: 30,
+        marginTop: 40,
         marginBottom: 15
     },
     horizontalContainer: {
@@ -63,6 +63,13 @@ export const testStyles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
+    centeredPage: {
+        width: "100%",
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "white"
+    },
     // these are used in create components
     primaryBorderBox: {
         borderRadius: 15,
@@ -84,5 +91,43 @@ export const testStyles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: "#E5E7EB",
         backgroundColor: "#FFF",
+    },
+
+    horizontalBoxesContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+        height: 130,
+    },
+
+    formContainer: {
+        padding: 10,
+        borderRadius: 15,
+        width: "100%",
+        backgroundColor: COLORS.card.primary,
+        borderWidth: 2,
+        borderColor: "rgba(255, 255, 255, 0.2)",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+    },
+
+    asterisk: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#f85454',
+    },
+
+    redTextError: {
+        color: "red",
+        textAlign: "center",
+        marginVertical: 1
+    },
+
+    saveButton: {
+        marginVertical: 5,
+        alignSelf: "center",
+        marginBottom: 20
     }
 });

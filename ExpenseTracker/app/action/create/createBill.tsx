@@ -11,9 +11,11 @@ import ToggleSwitch from "@/components/inputs/ToggleSwitch";
 import SplitWithSelector from "@/components/peopleSelectors/SplitWithSelector";
 import CustomButton from "@/components/button/CustomButton";
 import { globalStyles } from "@/styles/globalStyles";
+import { useToast } from "@/context/ToastContext";
 
 import { Member, useCreateBillMutation } from "@/store/billApi";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 type error = {
   message: string;
@@ -46,6 +48,7 @@ export default function CreateBillScreen() {
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
   const [validInput, setValidInput] = useState<boolean>(true);
 
+  const { showToast } = useToast();
   const [createBill, {isLoading, error: errorBill}] = useCreateBillMutation();
 
   const { control, handleSubmit, setValue, reset, watch } = useForm<Data>({
@@ -115,16 +118,25 @@ export default function CreateBillScreen() {
         recurring: data?.recurring,
         members
       }).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       reset();
-      router.replace({ pathname: "/view/viewBill", params: { id:response?.data?._id} });
+      router.back();
     } catch (error) {
-      console.error("new bill failed to create:", error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("new bill failed to create:", error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
     
   };
@@ -132,22 +144,24 @@ export default function CreateBillScreen() {
   if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
-      <Header headerText="New Bill"/>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
+        <Header headerText="New Bill"/>
 
-      <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors} childErrors={childErrors}/>
+        <AmountDescriptionInput control={control} label = "Title" onErrorsChange={setChildErrors} childErrors={childErrors}/>
 
-      <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
+        <SplitWithSelector control={control} setValue={setValue} amount={watch("amount")} title="Share with"/>
 
-      <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
-        <CustomDateTimePicker control={control} name="date" label="Date" heading="Due Date"/>
-        <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" useDefaultToday/>
+        <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
+          <CustomDateTimePicker control={control} name="date" label="Date" heading="Due Date" disablePastDates/>
+          <CustomDateTimePicker control={control} name="time" label="Time" heading="Due Time" useDefaultToday/>
+        </View>
+
+        <CategorySelector control={control}/>
+        <ToggleSwitch control={control} name="recurring" label="Repeat"/>
+
+        <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
       </View>
-
-      <CategorySelector control={control}/>
-      <ToggleSwitch control={control} name="recurring" label="Repeat"/>
-
-      <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
     </ScrollView>
   );
 }

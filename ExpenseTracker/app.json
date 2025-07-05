@@ -1,29 +1,29 @@
 {
   "expo": {
-    "name": "ExpenseEase",
+    "name": "Expenzz",
     "slug": "ExpenseTracker",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/l.png",
+    "icon": "./assets/images/appIcon1.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/l.png",
+      "image": "./assets/images/appIcon1.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.searce.splitexpensetracker"
+      "bundleIdentifier": "com.dev.akshat.atharva.expenz"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/l.png",
+        "foregroundImage": "./assets/images/appIcon1.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./firebase/google-services.json",
-      "package": "com.searce.splitexpensetracker"
+      "package": "com.dev.akshat.atharva.expenz"
     },
     "web": {
       "bundler": "metro",
@@ -31,12 +31,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      [
-        "expo-font",
-        {
-          "fonts": ["node_modules/@expo-google-fonts/inter/Inter_900Black.ttf","node_modules/@expo-google-fonts/inter/Inter_400Regular.ttf", "node_modules/@expo-google-fonts/inter/Inter_500Medium.ttf", "node_modules/@expo-google-fonts/inter/Inter_600SemiBold.ttf", "node_modules/@expo-google-fonts/inter/Inter_700Bold.ttf"]
-        }
-      ],
       "expo-router",
       "@react-native-google-signin/google-signin"
     ],

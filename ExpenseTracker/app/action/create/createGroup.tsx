@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import TitleInput from "@/components/inputs/TitleInput";
@@ -12,6 +13,7 @@ import CustomDateTimePicker from "@/components/selectors/CustomDateTimePicker";
 import { useCreateGroupMutation } from "@/store/groupApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 
 type error = {
@@ -32,6 +34,7 @@ type Data = {
 export default function CreateGroupScreen() {
   const [createGroup, {isLoading}] = useCreateGroupMutation();
 
+  const { showToast } = useToast();
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
   const [validInput, setValidInput] = useState<boolean>(true);
@@ -78,38 +81,49 @@ export default function CreateGroupScreen() {
         initial_budget: data?.initialBudget,
         settle_up_date: data.settleUpDate
       }).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       reset();
-      router.replace({ pathname: "/view/viewGroup", params: { id:response?.data?._id} });
+      router.back();
     } catch (error) {
-      console.error("new group failed to create:", error);
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("new group failed to create:", error);
+      //   const err = error as { data?: { message?: string } };
+      //   if (err?.data?.message) {
+      //     setErrorMessage(err.data.message);
+      //   } else {
+      //     setErrorMessage("Something went wrong. Please try again.");
+      //   }
       }
     };
 
-    if(isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+    if(isLoading) return <View style = {testStyles.centeredPage}><ActivityIndicator color="#000"/></View>;
   return (
-    <ScrollView style={globalStyles.viewContainer}>
-      <Header headerText="New Group"/>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0}]}>
+        <Header headerText="New Group"/>
 
-      {/* Group Title */}
-      <TitleInput control={control} onErrorsChange={setChildErrors} childErrors={childErrors}/>
+        {/* Group Title */}
+        <TitleInput control={control} onErrorsChange={setChildErrors} childErrors={childErrors}/>
 
-      {/* Add Members */}
-      <AddPeopleInput control={control} />
+        {/* Add Members */}
+        <AddPeopleInput control={control} />
 
-      {/* Initial Budget & Date */}
-      <View style={globalStyles.dateTimeContainer}>
-        <InitialBudget control={control} />
-        <CustomDateTimePicker control={control} name="settleUpDate" label="Date" heading="Settle-up Date"/>
+        {/* Initial Budget & Date */}
+        <View style={globalStyles.dateTimeContainer}>
+          <InitialBudget control={control} />
+          <CustomDateTimePicker control={control} name="settleUpDate" label="Date" heading="Settle-up Date" disablePastDates allowClear/>
+        </View>
+
+        {/* Save Button */}
+        <CustomButton onPress={handleSubmit(onGroupSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
       </View>
-
-      {/* Save Button */}
-      <CustomButton onPress={handleSubmit(onGroupSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
     </ScrollView>
   );
 }

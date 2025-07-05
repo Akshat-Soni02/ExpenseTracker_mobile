@@ -4,12 +4,14 @@ import { useForm, Controller } from "react-hook-form";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "../../components/button/CustomButton";
 import TempGoogleLoginButton from "@/components/button/TempGoogleButton";
 import GoogleButton from "@/components/button/GoogleButton";
 import { useLoginUserMutation } from "@/store/userApi";
 import { useAuth } from "@/context/AuthProvider";
+import { saveItem } from "../utils/storage";
 
 type Data = {
   email: string;
@@ -21,6 +23,7 @@ export default function LoginScreen() {
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const { showToast } = useToast();
   
   const { authToken, loading, login } = useAuth();
   const [loginUser, { isLoading }] = useLoginUserMutation();
@@ -39,17 +42,25 @@ export default function LoginScreen() {
   const onSubmit = async (data: Data) => {
     try {
       const response = await loginUser(data).unwrap();
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
       await login(response.token);
-      await AsyncStorage.setItem("user", JSON.stringify(response.userData));
-      router.push("/(tabs)");
+      await saveItem("user", response.userData)
+      router.replace("/(tabs)");
     } catch (error) {
-      console.error("Login failed:", error);
-      const err = error as { data?: { message?: string } };
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      })
+      // console.error("Login failed:", error);
+      // const err = error as { data?: { message?: string } };
+      // if (err?.data?.message) {
+      //   setErrorMessage(err.data.message);
+      // } else {
+      //   setErrorMessage("Something went wrong. Please try again.");
+      // }
     }
   };
 
@@ -218,7 +229,7 @@ const styles = StyleSheet.create({
     color: "#777",
   },
   signupText: {
-    marginTop: 5,
+    marginTop: 15,
     fontSize: 14,
     fontFamily: "Poppins_400Regular",
     color: "#777",

@@ -78,6 +78,13 @@ export const expenseApi = api.injectEndpoints({
       }),
       invalidatesTags: ["expense", "group", "wallet", "user"],
     }),
+    removeExpenseWallet: builder.mutation({
+      query: (expense_id) => ({
+        url: `/expenses/detach-wallet/${expense_id}`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["expense", "wallet"],
+    }),
     deleteExpense: builder.mutation<void, string>({
       query: (id) => ({
         url: `/expenses/${id}`,
@@ -85,7 +92,14 @@ export const expenseApi = api.injectEndpoints({
       }),
       invalidatesTags: ["expense", "group", "wallet", "user"],
     }),
-  }),
+    deleteExpensePhoto: builder.mutation<void,string>({
+      query: (id) => ({
+        url: `/expenses/photo/${id}`,
+        method: "PUT",
+    }),
+      invalidatesTags: ["expense", "group", "wallet", "user"],
+    })
+  })
 });
 
 export const {
@@ -94,5 +108,7 @@ export const {
   useGetCustomExpensesQuery,
   useGetExpenseQuery,
   useUpdateExpenseMutation,
+  useRemoveExpenseWalletMutation,
   useDeleteExpenseMutation,
+  useDeleteExpensePhotoMutation,
 } = expenseApi;

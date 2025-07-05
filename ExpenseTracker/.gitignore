@@ -3,8 +3,9 @@
 # dependencies
 node_modules/
 .env
-# firebase
-.env
+firebase
+.DS_Store
+# .env
 
 # Expo
 .expo/

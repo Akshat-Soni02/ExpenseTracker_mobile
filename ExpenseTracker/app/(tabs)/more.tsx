@@ -14,14 +14,16 @@ import Header from "@/components/Header";
 import { testStyles } from "@/styles/test";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { FONTS } from "../utils/constants";
+import { useToast } from "@/context/ToastContext";
 
 
 export default function MoreScreen() {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const FeatureHolder = ({icon, featureText, route}) => {
     return (
-        <TouchableOpacity style={{alignItems: "center"}} onPress={() => router.push(route)}>
+        <TouchableOpacity style={{alignItems: "center"}} onPress={() => { icon === "download" ? showToast({title: "Please try again later", type: "warning"}) : router.push(route)}}>
             <MaterialCommunityIcons name={icon} size={28} color="#000" />
             <Text>{featureText}</Text>
         </TouchableOpacity>

@@ -36,7 +36,7 @@ export default function ActivityScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
 
   // Fetch queries
-  const { data: dataUnified, isLoading: loadingUnified, error: errorUnified, isError: hasErrorUnified } = useGetUnifiedHistoryQuery({});
+  const { data: dataUnified, isLoading: loadingUnified, error: errorUnified, isError: hasErrorUnified, refetch } = useGetUnifiedHistoryQuery({});
   const [fetchExpense, { data: dataExpense, isLoading: loadingExpense, error: errorExpense, isError: hasErrorExpense}] = useLazyGetUserExpensesQuery();
   const [fetchPersonalTransaction, { data: dataPersonalTransaction, isLoading: loadingPersonal, error: errorPersonal, isError: hasErrorPersonal }] = useLazyGetUserPersonalTransactionsQuery();
   const [fetchSettlement, { data: dataSettlement, isLoading: loadingSettlement, error: errorSettlemenet, isError: hasErrorSettlement }] = useLazyGetUserSettlementsQuery();
@@ -206,7 +206,13 @@ export default function ActivityScreen() {
           <Menu.Item
             onPress={() => {
               setMenuVisible(false);
-              setFilterType(option.key as Filter);
+              setFilterType((prev) => {
+                const next = option.key as Filter;
+                if (prev !== next && next === "unified") {
+                  refetch(); 
+                }
+                return next;
+              });
             }}
             titleStyle={{
               color: filterType === option.key ? COLORS.text.bluish : "#000",
@@ -241,6 +247,7 @@ export default function ActivityScreen() {
     return <ErrorState errors={errors} onRetry={handleRetry} />;
   }
 
+
   return (
     <View style={testStyles.screen}>
       <SearchHeader />
@@ -273,12 +280,12 @@ export default function ActivityScreen() {
               {
                 icon: 'arrow-collapse',
                 label: 'Transaction',
-                onPress: () => router.push("/action/create/createExpense"),
+                onPress: () => router.push("/action/create/createTransaction"),
               },
               {
                 icon: 'call-split',
                 label: 'Split Money',
-                onPress: () => router.push("/action/create/createTransaction"),
+                onPress: () => router.push("/action/create/createExpense"),
               },
             ]}
           />
@@ -304,3 +311,4 @@ export default function ActivityScreen() {
             color: COLORS.text.bluish,
           },
           });
+

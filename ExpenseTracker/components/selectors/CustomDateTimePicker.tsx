@@ -11,6 +11,9 @@ interface CustomDateTimePickerProps {
   useDefaultToday?: boolean;
   heading: string;
   disableFutureDates?: boolean;
+  disablePastDates?: boolean;
+  allowClear?: boolean;
+  freeze?: boolean;
 }
 
 const formatDate = (dateString: string | null, label: "Date" | "Time") => {
@@ -28,20 +31,27 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
   label,
   useDefaultToday,
   heading,
-  disableFutureDates
+  disableFutureDates,
+  disablePastDates,
+  allowClear,
+  freeze
 }) => {
   const [showPicker, setShowPicker] = useState(false);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{heading}</Text>
+      
       <Controller
         control={control}
         name={name}
         defaultValue={useDefaultToday ? new Date().toISOString() : null}
         render={({ field: { onChange, value } }) => (
           <>
-            <TouchableOpacity style={styles.selectionContainer} onPress={() => setShowPicker(true)}>
+            <View style = {{flexDirection: "row", justifyContent: "space-around"}}>
+              <Text style={styles.label}>{heading}</Text>
+              {allowClear && value && <TouchableOpacity onPress={() => onChange(null)}><Text style = {{textDecorationLine: "underline"}}>clear</Text></TouchableOpacity>}
+            </View>
+            <TouchableOpacity style={styles.selectionContainer} onPress={() => !freeze && setShowPicker(true)}>
               <Text style={[styles.btnText, value ? styles.selectedText : styles.placeholderText]} numberOfLines={1}>
                 {formatDate(value, label)}
               </Text>
@@ -52,6 +62,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
                 value={value ? new Date(value) : new Date()}
                 mode={label === "Time" ? "time" : "date"}
                 display="default"
+                minimumDate={label === "Date" && disablePastDates ? new Date() : undefined}
                 maximumDate={label === "Date" && disableFutureDates ? new Date() : undefined}
                 onChange={(event, selectedDate) => {
                   setShowPicker(false);

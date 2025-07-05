@@ -9,9 +9,11 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import ImageViewing from 'react-native-image-viewing';
 
 import { useLazyGetWalletQuery } from "@/store/walletApi";
-import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation } from "@/store/personalTransactionApi";
+import { useGetPersonalTransactionQuery,useDeletePersonalTransactionMutation, useRemoveTransactionWalletMutation ,useDeletePersonalTransactionPhotoMutation} from "@/store/personalTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { COLORS } from "../utils/constants";
+import { useToast } from "@/context/ToastContext";
 
 
 const TransactionDetailScreen = () => {
@@ -22,11 +24,13 @@ const TransactionDetailScreen = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [viewImage, setViewImage] = useState(false);
+  const { showToast } = useToast();
 
   const { data, isLoading, error, refetch } = useGetPersonalTransactionQuery(id);
+  const [ removePerWallet, {isLoading: loadingWalletRemove} ] = useRemoveTransactionWalletMutation();
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
   const [deleteTransaction, {isLoading: deleteLoading, error: deleteError}] = useDeletePersonalTransactionMutation();
-  
+  const [deletePhoto, {isLoading: deletePhotoLoading, error: deletePhotoError}] = useDeletePersonalTransactionPhotoMutation();
 
   const transaction = data?.data;
 
@@ -69,6 +73,23 @@ const TransactionDetailScreen = () => {
       }
     }
   }
+  const handleDeleteImage = async () => {
+    try {
+      await deletePhoto(id);
+      setViewImage(false);
+    } catch (err) {
+      Alert.alert("Failed", "Could not delete the image.");
+    }
+  };
+  const handleWalletRemove = async () => {
+    try {
+      const response = await removePerWallet( id );
+      showToast({title: `${response.data.message}`, type: "success"});
+    } catch (error) {
+      showToast({title: `${error.data.message}`, type: "error"});
+      console.log(error);
+    }
+  }
 
   if (isLoading) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
 
@@ -85,7 +106,7 @@ const TransactionDetailScreen = () => {
 
   if (!data?.data) return <Text>No transaction found</Text>;
 
-  const themeColor = transaction?.transaction_type === "income" ? "#1e9738" : "#d86161";
+  const themeColor = transaction?.transaction_type === "income" ? COLORS.amount.positive : COLORS.amount.negative;
 
   return (
     <View style={globalStyles.viewContainer}>
@@ -98,6 +119,7 @@ const TransactionDetailScreen = () => {
               <Entypo name="dots-three-vertical" size={20} color="black" />
             </TouchableOpacity>
           }
+          anchorPosition="bottom"
         >
           <Menu.Item onPress={() => {setMenuVisible(false);router.push({pathname:"/action/edit/editTransaction",params:{fetchedId:id}})}} title="Edit" />
           <Divider />
@@ -109,6 +131,19 @@ const TransactionDetailScreen = () => {
                         { text: "Yes", onPress: () => handleTransactionDelete()}
                       ]
                     )} title="Delete" />
+          {transaction.wallet_id && (
+            <>
+              <Divider />
+              <Menu.Item onPress={() => Alert.alert(
+                        "Remove Wallet", 
+                        `Are you sure you want to remove wallet from ${transaction?.description}`, 
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          { text: "Yes, Remove", onPress: () => handleWalletRemove()}
+                        ]
+                      )} title="Remove Wallet" />
+            </>
+          )}
         </Menu>}/>
 
       <View style={globalStyles.viewActivityDetailContainer}>
@@ -146,6 +181,22 @@ const TransactionDetailScreen = () => {
           imageIndex={0}
           visible={viewImage}
           onRequestClose={() => setViewImage(false)}
+          FooterComponent={() => (
+              <View style={styles.footer}>
+                <TouchableOpacity onPress={() => {
+                  Alert.alert(
+                    "Delete Image",
+                    "Are you sure you want to delete this image?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      { text: "Delete",onPress: handleDeleteImage, style: "destructive" }
+                    ]
+                  );
+                }}>
+                  <Text  style={styles.deleteText}>Delete Image</Text>
+                </TouchableOpacity>
+              </View>
+          )}
           />
         </>
       )}
@@ -206,5 +257,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     alignSelf: 'center',
     marginVertical: 7
-  }
+  },
+  footer: {
+  padding: 16,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  alignItems: 'center'
+},
+deleteText: {
+  color: 'red',
+  fontSize: 16,
+  fontWeight: '600',
+}
 });

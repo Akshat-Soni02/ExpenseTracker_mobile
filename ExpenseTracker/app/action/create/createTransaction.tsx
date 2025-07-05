@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, LayoutAnimation, Platform, UIManager} from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
+import { useToast } from "@/context/ToastContext";
 
 import CustomButton from "@/components/button/CustomButton";
 import AmountDescriptionInput from "@/components/inputs/AmountDescriptionInput";
@@ -18,6 +18,7 @@ import { useGetUserWalletsQuery } from "@/store/userApi";
 import { useDeleteDetectedTransactionMutation } from "@/store/detectedTransactionApi";
 import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
+import { testStyles } from "@/styles/test";
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -55,6 +56,7 @@ type Data = {
 export default function AddTransactionScreen() {
   const router = useRouter();
   let { detectedId, detectedAmount, detectedTransaction_type, detectedDescription, detectedCreated_at_date_time, detectedNotes} = useLocalSearchParams() as LocalParams;
+  const {showToast} = useToast();
 
   const [createPersonalTransaction, {isLoading:isLoadingPersonal}] = useCreatePersonalTransactionMutation();
   const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
@@ -153,7 +155,6 @@ export default function AddTransactionScreen() {
 
   const onTransactionSubmit = async (data: Data) => {
     try {
-      console.log(data);
       const selectedDate = new Date(data.date);
       const selectedTime = new Date(data.time);
 
@@ -165,12 +166,17 @@ export default function AddTransactionScreen() {
           selectedTime.getMinutes(),
           selectedTime.getSeconds()
       );
+
       const formData = new FormData();
       formData.append("transaction_type", transactionType);
       formData.append("description", data.Description);
+      formData.append("amount", String(data.amount));
+      formData.append("created_at_date_time", String(created_at_date_time));
+
       if (data?.wallet?._id) {
         formData.append("wallet_id", data?.wallet?._id);
       }
+
       if (data?.photo) {
         const selectedImage = data.photo;
         const fileExtension = selectedImage.split(".").pop();
@@ -182,101 +188,110 @@ export default function AddTransactionScreen() {
           name: `transaction-media.${fileExtension}`,
         } as any);
       }
+
       if (data?.category) {
         formData.append("transaction_category", data.category);
       }
+
       if (data?.notes) {
         formData.append("notes", data.notes);
       }
-      formData.append("amount", String(data.amount));
-      formData.append("created_at_date_time", String(created_at_date_time));
-      console.log(formData);
     
       const response = await createPersonalTransaction(formData).unwrap();
+
+      showToast({
+        title: `${response.message}`,
+        type: "success",
+      })
+
       if(detectedId){
         await deleteTransaction(detectedId).unwrap();
       }
+
       await refetch();
       reset();
-      router.replace({
-        pathname: "/view/viewTransaction", params: { id:response.data._id}
-      });
+      router.back();
     } catch (error) {
-      console.error("new personal transaction failed to create:", error);
-        const err = error as { data?: { message?: string } };
-        if (err?.data?.message) {
-          setErrorMessage(err.data.message);
-        } else {
-          setErrorMessage("Something went wrong. Please try again.");
-        }
+        showToast({
+          title: `${error.data.message}`,
+          type: "error",
+        })
     }
   };
 
-  if(isLoadingPersonal) return <View style = {{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: "white"}}><ActivityIndicator color="#000"/></View>;
+  if(isLoadingPersonal) return <View style = {testStyles.centeredPage}><ActivityIndicator color="#000"/></View>;
 
   return (
-    <ScrollView style={globalStyles.viewContainer}>
+    <ScrollView style={testStyles.screen}>
+      <View style={[testStyles.container, {gap: 0, marginTop: 10}]}>
       
-      <Header headerText="New Transaction"/>
+        <Header headerText="New Transaction"/>
 
-      {/* Transaction Type Selector */}
-      <View style={styles.transactionTypeContainer}>
-        {(["expense", "income"] as const).map((type) => (
-          <TouchableOpacity
-            key={type}
-            style={[
-              styles.transactionTypeButton,
-              transactionType === type && styles.selectedType,
-              detectedId && styles.disabledType,
+        {/* Transaction Type Selector */}
+        <View style={styles.transactionTypeContainer}>
 
-            ]}
-            onPress={() => {
-              if (!detectedId) { // Prevent state change when frozen
-                setTransactionType(type);
-                setValue("transactionType", type);
-              }
-            }}
-            disabled={detectedId!==undefined} 
+          {(["expense", "income"] as const).map((type) => (
 
-          >
-            <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText, detectedId && styles.disabledText, // Change text color if frozen
-            ]}>
-              {type === "expense" ? "Expense" : "Income"}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+            <TouchableOpacity
+              key={type}
+              style={[
+                styles.transactionTypeButton,
+                transactionType === type && styles.selectedType,
+                detectedId && styles.disabledType,
 
-      {detectedId?(<AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/>):<AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors}/>}
-      <TouchableOpacity onPress={toggleMoreOptions} style={{ marginVertical: 10, alignSelf: 'center' }}>
-        <Text style={{ color: '#000', fontWeight: '500', fontSize: 16 }}>
-          {showMoreOptions ? 'Hide ▲' : 'Add More Details ▼'}
-        </Text>
-      </TouchableOpacity>
-      {showMoreOptions && (
-        <>
-            <NotesInput control={control} name="notes" />
-      
-            <View style={globalStyles.walletPhotoContainer}>
-              <WalletSelector control={control} name="wallet"/>
-              <PhotoSelector control={control} />
-            </View>
+              ]}
+              onPress={() => {
+                if (!detectedId) {
+                  setTransactionType(type);
+                  setValue("transactionType", type);
+                }
+              }}
+              disabled={detectedId!==undefined} 
+            >
+              <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText, detectedId && styles.disabledText, // Change text color if frozen
+              ]}>
+                {type === "expense" ? "Expense" : "Income"}
+              </Text>
+            </TouchableOpacity>
+
+          ))}
+
+        </View>
+
+        { detectedId ? ( <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/> ) : <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors} />}
+
+        <TouchableOpacity onPress={toggleMoreOptions} style={{ marginVertical: 10, alignSelf: 'center' }}>
+          <Text style={{ color: '#000', fontWeight: '500', fontSize: 16 }}>
+            {showMoreOptions ? 'Hide ▲' : 'Add More Details ▼'}
+          </Text>
+        </TouchableOpacity>
+
+        {showMoreOptions && (
+          <>
+              <NotesInput control={control} name="notes" />
+        
+              <View style={globalStyles.walletPhotoContainer}>
+                <WalletSelector control={control} name="wallet"/>
+                <PhotoSelector control={control} />
+              </View>
 
               {transactionType === "expense" && (<CategorySelector control={control} />)}
-            <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
-              <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
-              <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
-            </View>
-        </>
-      )}
+              
+              <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
+                <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
+                <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
+              </View>
+          </>
+        )}
 
-       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
+        <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+
   transactionTypeContainer: {
     flexDirection: "row",
     backgroundColor: "#f1f1f1",
@@ -287,12 +302,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 10
   },
+
   transactionTypeButton: {
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",
     borderRadius: 20,
   },
+
   selectedType: {
     backgroundColor: "#fff",
     shadowColor: "#000",
@@ -301,24 +318,29 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
+
   transactionTypeText: {
     fontSize: 16,
     color: "#888",
     fontWeight: "500",
   },
+
   selectedText: {
     fontWeight: "bold",
     color: "#000",
   },
+
   error: {
     color: "red",
     fontSize: 12,
     marginBottom: 5,
   },
+
   disabledType: {
-    opacity: 0.8, // Make it look disabled
+    opacity: 0.8,
   },
+
   disabledText: {
-    color: "#black", // Greyed-out text
+    color: "#black",
   },
 });
