@@ -26,6 +26,7 @@ main ← staging ← dev ← feature/*
 1. **Create a feature/fix/hotfix branch** from `dev`:
    ```bash
    git checkout dev
+   git pull origin dev
    git checkout -b feat/short-description
    ```
 
@@ -35,29 +36,28 @@ main ← staging ← dev ← feature/*
    git commit -m "feat(scope): your message"
 
    # 🔁 Always pull before you push
-   git pull origin feat/short-description
+   git pull origin dev 
 
    # ✅ Then push your branch
    git push -u origin feat/short-description
    ```
 
 3. **Open a Pull Request (PR)** from your branch to `dev`.
+4. Ideally the below steps are not followed instead we might create PR in github and merge there which will not occur often.
 
-4. Once merged into `dev`, the code will be **thoroughly tested in `staging`**:
+5. Once merged into `dev`, the code will be **thoroughly tested in `staging`**:
    - Merge `dev` into `staging` when needed:
      ```bash
      git checkout staging
-     git pull origin staging        # ✅ Make sure you have the latest staging
-     git pull origin dev            # ✅ Make sure you have the latest dev
+     git pull origin staging
      git merge dev
      git push origin staging
      ```
 
-5. After successful testing, **merge `staging` into `main`** for production:
+6. After successful testing, **merge `staging` into `main`** for production:
    ```bash
    git checkout main
-   git pull origin main           # ✅ Get the latest main
-   git pull origin staging        # ✅ Ensure latest staging is fetched
+   git pull origin main
    git merge staging
    git push origin main
    ```
