@@ -12,6 +12,8 @@ interface CustomDateTimePickerProps {
   heading: string;
   disableFutureDates?: boolean;
   disablePastDates?: boolean;
+  disableFutureTime?: boolean;
+  disablePastTime?: boolean;
   allowClear?: boolean;
   freeze?: boolean;
 }
@@ -33,10 +35,13 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
   heading,
   disableFutureDates,
   disablePastDates,
+  disableFutureTime,
+  disablePastTime,
   allowClear,
   freeze
 }) => {
   const [showPicker, setShowPicker] = useState(false);
+  
 
   return (
     <View style={styles.container}>
@@ -45,6 +50,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
         control={control}
         name={name}
         defaultValue={useDefaultToday ? new Date().toISOString() : null}
+        
         render={({ field: { onChange, value } }) => (
           <>
             <View style = {{flexDirection: "row", justifyContent: "space-around"}}>
