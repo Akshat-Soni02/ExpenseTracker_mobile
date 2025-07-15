@@ -29,6 +29,9 @@ import {
 
   import auth from '@react-native-firebase/auth'
 
+  /**
+   * remove these from here
+   */
   const widgetId = "35676b666963373539323436";
   const tokenAuth = "459774T79Mx5n7pf4R6870b007P1";
   

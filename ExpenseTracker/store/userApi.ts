@@ -15,6 +15,7 @@ export type friend = {
   profile_photo: string;
   amount: number;
   type: "debit" | "credit" | undefined;
+  phone_number: number
 }
 
 type oauth = {
@@ -257,6 +258,15 @@ export const userApi = api.injectEndpoints({
       }),
     }),
 
+    addOrCreateDummy: builder.mutation<{ data: { isDummy: boolean } }, {givenName: string, phone_num: string}>({
+      query: (body) => ({
+        url: `/users/add-contact-friend`,
+        method: "POST",
+        body
+      }),
+      invalidatesTags: ["user"]
+    }),
+
     remindUserBorrower: builder.mutation<void,{borrower_id: string}>({
       query: ({ borrower_id }) => ({
         url: `/users/remind-borrower/${borrower_id}`,
@@ -340,6 +350,7 @@ export const {
   useGetUserBudgetsQuery,
   useLazyGetUserPhoneNumStatusQuery,
   useLazyGetPhoneNumAvailStatusQuery,
+  useAddOrCreateDummyMutation,
   useFirstMergeToDummyMutation,
   useGetUserBillsQuery,
   useGetUserWalletsQuery,
