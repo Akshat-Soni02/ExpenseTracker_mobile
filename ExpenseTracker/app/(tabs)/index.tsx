@@ -226,6 +226,10 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* <TouchableOpacity onPress={() => router.push("/action/create/addFriends")}>
+            <Text style={Styles.temp}>Contact Page</Text>
+          </TouchableOpacity> */}
+
         </Animatable.View>
 
         {/* Decorative Illustration at right */}
@@ -381,6 +385,11 @@ export default function HomeScreen() {
 }
 
 const Styles = StyleSheet.create({
+
+  temp: {
+    color: "black",
+    fontSize: 20
+  },
 
   //header
   headerContainer: {
