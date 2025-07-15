@@ -3,12 +3,17 @@ import React, { createContext, useState, useEffect, useContext, ReactNode } from
 import { PermissionsAndroid } from "react-native";
 import { getItem, removeItem, saveItem } from "@/app/utils/storage";
 import { hasAndroidPermission, requestAndroidPermission } from "@/app/utils/permissions";
+import { useLazyGetUserPhoneNumStatusQuery } from "@/store/userApi";
+
 // import useSMS from "@/app/misc/useSMS";
 interface AuthContextType {
   authToken: string | null;
   login: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
+  hasVerifiedPhoneNumber: boolean;
+  setHasVerifiedPhoneNumber: any;
+  setAuthToken: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,6 +21,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasVerifiedPhoneNumber, setHasVerifiedPhoneNumber] = useState(false);
+
+  const [checkPhoneNum, { data: dataNumCheck, isLoading: loadingNumCheck, error: errorNumCheck, isError: hasErrorNumCheck}] = useLazyGetUserPhoneNumStatusQuery();
   // const { checkPermissions, requestReadSMSPermission } = useSMS();
 
   useEffect(() => {
@@ -32,6 +40,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     loadToken();
   }, []);
+
+  useEffect(() => {
+    const loadNumState = async () => {
+      /**
+       * Now we are sending request each time
+       * the app loads which is not optimal, we
+       * can reduce it to send only when user loads first 
+       * time by checking if we have the value in asyncstorage
+       */
+      if(authToken) {
+        const { data } = await checkPhoneNum().unwrap();
+        setHasVerifiedPhoneNumber(data?.hasPhoneNumber || false);
+        console.log(dataNumCheck?.data?.hasPhoneNumber);
+      }
+    }
+    loadNumState();
+  }, [ loadingNumCheck, authToken ])
 
   const checkAndRequestPermission = async () => {
     const hasNotificationPermission = await hasAndroidPermission(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
@@ -60,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ authToken, login, logout, loading }}>
+    <AuthContext.Provider value={{ authToken, setAuthToken, hasVerifiedPhoneNumber, setHasVerifiedPhoneNumber, login, logout, loading: loading || loadingNumCheck }}>
       {children}
     </AuthContext.Provider>
   );
