@@ -1,5 +1,19 @@
-import { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, LayoutAnimation, Platform, UIManager} from "react-native";
+import { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+  PanResponder,
+  GestureResponderEvent,
+  PanResponderGestureState,
+} from "react-native";
 import { useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
@@ -20,18 +34,21 @@ import { globalStyles } from "@/styles/globalStyles";
 import Header from "@/components/Header";
 import { testStyles } from "@/styles/test";
 
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
 export type error = {
   message: string;
-}
+};
 
 type ChildErrors = {
   amount?: error;
   Description?: error;
-}
+};
 
 type LocalParams = {
   detectedId?: string;
@@ -40,37 +57,49 @@ type LocalParams = {
   detectedCreated_at_date_time?: string | Date;
   detectedNotes?: string;
   detectedTransaction_type?: "credit" | "debit";
-}
+};
 
 type Data = {
   date: Date | string;
   time: Date | string;
   photo?: string | null;
-  wallet?: {_id: string} | null;
+  wallet?: { _id: string } | null;
   amount: number;
   category?: string;
   notes?: string;
   Description: string;
-}
+};
+
 
 export default function AddTransactionScreen() {
   const router = useRouter();
-  let { detectedId, detectedAmount, detectedTransaction_type, detectedDescription, detectedCreated_at_date_time, detectedNotes} = useLocalSearchParams() as LocalParams;
-  const {showToast} = useToast();
+  let {
+    detectedId,
+    detectedAmount,
+    detectedTransaction_type,
+    detectedDescription,
+    detectedCreated_at_date_time,
+    detectedNotes,
+  } = useLocalSearchParams() as LocalParams;
+  const { showToast } = useToast();
 
-  const [createPersonalTransaction, {isLoading:isLoadingPersonal}] = useCreatePersonalTransactionMutation();
-  const [deleteTransaction, { isLoading:isLoadingDetected }] = useDeleteDetectedTransactionMutation();
+  const [createPersonalTransaction, { isLoading: isLoadingPersonal }] =
+    useCreatePersonalTransactionMutation();
+  const [deleteTransaction, { isLoading: isLoadingDetected }] =
+    useDeleteDetectedTransactionMutation();
   const { refetch } = useGetUserWalletsQuery();
 
-  const [transactionType, setTransactionType] = useState<"expense" | "income">("expense");
+  const [transactionType, setTransactionType] = useState<"expense" | "income">(
+    "expense"
+  );
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
   const [validInput, setValidInput] = useState<boolean>(true);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
-  
+
   const toggleMoreOptions = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowMoreOptions(prev => !prev);
+    setShowMoreOptions((prev) => !prev);
   };
 
   let detectedAmountNumber = Number(detectedAmount);
@@ -82,7 +111,14 @@ export default function AddTransactionScreen() {
 
     if (!isNaN(parsedDate.getTime())) {
       dateOnly = new Date(parsedDate.toDateString());
-      timeOnly = new Date(1970, 0, 1, parsedDate.getHours(), parsedDate.getMinutes(), parsedDate.getSeconds());
+      timeOnly = new Date(
+        1970,
+        0,
+        1,
+        parsedDate.getHours(),
+        parsedDate.getMinutes(),
+        parsedDate.getSeconds()
+      );
     } else {
       console.warn("Invalid date:", detectedCreated_at_date_time);
     }
@@ -90,30 +126,30 @@ export default function AddTransactionScreen() {
 
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: detectedId
-    ? {
-      amount: detectedAmountNumber,
-      Description: detectedDescription || "",
-      transactionType: detectedTransaction_type === "credit" ? "income" : "expense",
-      notes: detectedNotes,
-      wallet: null,
-      category: "",
-      date: dateOnly || new Date(),
-      time: timeOnly || new Date(),
-      photo: null,
-    }
-    :{
-      amount: 0,
-      Description: "",
-      transactionType: "expense",
-      notes: "",
-      wallet: null,
-      category: "",
-      date: new Date(),
-      time: new Date(),
-      photo: null,
-    },
+      ? {
+          amount: detectedAmountNumber,
+          Description: detectedDescription || "",
+          transactionType:
+            detectedTransaction_type === "credit" ? "income" : "expense",
+          notes: detectedNotes,
+          wallet: null,
+          category: "",
+          date: dateOnly || new Date(),
+          time: timeOnly || new Date(),
+          photo: null,
+        }
+      : {
+          amount: 0,
+          Description: "",
+          transactionType: "expense",
+          notes: "",
+          wallet: null,
+          category: "",
+          date: new Date(),
+          time: new Date(),
+          photo: null,
+        },
   });
-
 
   // useEffect(() => {
   //   if (Object.keys(childErrors).length !== 0) {
@@ -121,37 +157,35 @@ export default function AddTransactionScreen() {
   //       childErrors.amount?.message,
   //       childErrors.Description?.message
   //     ].filter(Boolean).join("\n");
-  
+
   //     Alert.alert("Invalid data", messages);
   //   }
   // }, [childErrors]);
 
-    useEffect(() => {
-      if (Object.keys(childErrors).length !== 0) {
-        setValidInput(false);
-      } else setValidInput(true);
-    }, [childErrors]);
+
+  useEffect(() => {
+    if (Object.keys(childErrors).length !== 0) {
+      setValidInput(false);
+    } else setValidInput(true);
+  }, [childErrors]);
 
   useEffect(() => {
     if (errorMessage) {
       Alert.alert("Error", errorMessage);
     }
   }, [errorMessage]);
-  
+
   useEffect(() => {
     if (detectedId) {
-      if(detectedTransaction_type==="credit"){
+      if (detectedTransaction_type === "credit") {
         setTransactionType("income");
         setValue("transactionType", "income");
-      }
-      else{
+      } else {
         setTransactionType("expense");
         setValue("transactionType", "expense");
       }
-      
     }
   }, [detectedId, setValue]);
-
 
   const onTransactionSubmit = async (data: Data) => {
     try {
@@ -159,12 +193,12 @@ export default function AddTransactionScreen() {
       const selectedTime = new Date(data.time);
 
       const created_at_date_time = new Date(
-          selectedDate.getFullYear(),
-          selectedDate.getMonth(),
-          selectedDate.getDate(),
-          selectedTime.getHours(),
-          selectedTime.getMinutes(),
-          selectedTime.getSeconds()
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        selectedTime.getHours(),
+        selectedTime.getMinutes(),
+        selectedTime.getSeconds()
       );
 
       const formData = new FormData();
@@ -181,7 +215,7 @@ export default function AddTransactionScreen() {
         const selectedImage = data.photo;
         const fileExtension = selectedImage.split(".").pop();
         const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
-  
+
         formData.append("media", {
           uri: selectedImage,
           type: mimeType,
@@ -196,15 +230,15 @@ export default function AddTransactionScreen() {
       if (data?.notes) {
         formData.append("notes", data.notes);
       }
-    
+
       const response = await createPersonalTransaction(formData).unwrap();
 
       showToast({
         title: `${response.message}`,
         type: "success",
-      })
+      });
 
-      if(detectedId){
+      if (detectedId) {
         await deleteTransaction(detectedId).unwrap();
       }
 
@@ -212,33 +246,55 @@ export default function AddTransactionScreen() {
       reset();
       router.back();
     } catch (error) {
-        showToast({
-          title: `${error.data.message}`,
-          type: "error",
-        })
+      showToast({
+        title: `${error.data.message}`,
+        type: "error",
+      });
     }
   };
 
-  if(isLoadingPersonal) return <View style = {testStyles.centeredPage}><ActivityIndicator color="#000"/></View>;
+  const panResponder = useRef(
+  PanResponder.create({
+    onMoveShouldSetPanResponder: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+      return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 20;
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      if (gestureState.dx > 50) {
+        if (!detectedId) {
+          setTransactionType("expense");
+          setValue("transactionType", "expense");
+        }
+      } else if (gestureState.dx < -50) {
+        if (!detectedId) {
+          setTransactionType("income");
+          setValue("transactionType", "income");
+        }
+      }
+    },
+  })
+).current;
+
+  if (isLoadingPersonal)
+    return (
+      <View style={testStyles.centeredPage}>
+        <ActivityIndicator color="#000" />
+      </View>
+    );
 
   return (
-    <ScrollView style={testStyles.screen}>
-      <View style={[testStyles.container, {gap: 0, marginTop: 10}]}>
-      
-        <Header headerText="New Transaction"/>
+    <ScrollView style={testStyles.screen} {...panResponder.panHandlers}>
+      <View style={[testStyles.container, { gap: 0, marginTop: 10 }]}>
+        <Header headerText="New Transaction" />
 
         {/* Transaction Type Selector */}
-        <View style={styles.transactionTypeContainer}>
-
+        <View style={styles.transactionTypeContainer} >
           {(["expense", "income"] as const).map((type) => (
-
             <TouchableOpacity
               key={type}
               style={[
                 styles.transactionTypeButton,
                 transactionType === type && styles.selectedType,
                 detectedId && styles.disabledType,
-
               ]}
               onPress={() => {
                 if (!detectedId) {
@@ -246,52 +302,91 @@ export default function AddTransactionScreen() {
                   setValue("transactionType", type);
                 }
               }}
-              disabled={detectedId!==undefined} 
+              disabled={detectedId !== undefined}
             >
-              <Text style={[styles.transactionTypeText, transactionType === type && styles.selectedText, detectedId && styles.disabledText, // Change text color if frozen
-              ]}>
+              <Text
+                style={[
+                  styles.transactionTypeText,
+                  transactionType === type && styles.selectedText,
+                  detectedId && styles.disabledText, // Change text color if frozen
+                ]}
+              >
                 {type === "expense" ? "Expense" : "Income"}
               </Text>
             </TouchableOpacity>
-
           ))}
-
         </View>
 
-        { detectedId ? ( <AmountDescriptionInput control={control} label="Description" isAmountFrozen={true} onErrorsChange={setChildErrors} childErrors = {childErrors}/> ) : <AmountDescriptionInput control={control} label="Description" onErrorsChange={setChildErrors} childErrors = {childErrors} />}
+        {detectedId ? (
+          <AmountDescriptionInput
+            control={control}
+            label="Description"
+            isAmountFrozen={true}
+            onErrorsChange={setChildErrors}
+            childErrors={childErrors}
+          />
+        ) : (
+          <AmountDescriptionInput
+            control={control}
+            label="Description"
+            onErrorsChange={setChildErrors}
+            childErrors={childErrors}
+          />
+        )}
 
-        <TouchableOpacity onPress={toggleMoreOptions} style={{ marginVertical: 10, alignSelf: 'center' }}>
-          <Text style={{ color: '#000', fontWeight: '500', fontSize: 16 }}>
-            {showMoreOptions ? 'Hide ▲' : 'Add More Details ▼'}
+        <TouchableOpacity
+          onPress={toggleMoreOptions}
+          style={{ marginVertical: 10, alignSelf: "center" }}
+        >
+          <Text style={{ color: "#000", fontWeight: "500", fontSize: 16 }}>
+            {showMoreOptions ? "Hide ▲" : "Add More Details ▼"}
           </Text>
         </TouchableOpacity>
 
         {showMoreOptions && (
           <>
-              <NotesInput control={control} name="notes" />
-        
-              <View style={globalStyles.walletPhotoContainer}>
-                <WalletSelector control={control} name="wallet"/>
-                <PhotoSelector control={control} />
-              </View>
+            <NotesInput control={control} name="notes" />
 
-              {transactionType === "expense" && (<CategorySelector control={control} />)}
-              
-              <View style={[globalStyles.dateTimeContainer, {height: 100}]}>
-                <CustomDateTimePicker control={control} name="date" label="Date" heading="Date" disableFutureDates/>
-                <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
-              </View>
+            <View style={globalStyles.walletPhotoContainer}>
+              <WalletSelector control={control} name="wallet" />
+              <PhotoSelector control={control} />
+            </View>
+
+            {transactionType === "expense" && (
+              <CategorySelector control={control} />
+            )}
+
+            <View style={[globalStyles.dateTimeContainer, { height: 100 }]}>
+              <CustomDateTimePicker
+                control={control}
+                name="date"
+                label="Date"
+                heading="Date"
+                disableFutureDates
+              />
+              <CustomDateTimePicker
+                control={control}
+                name="time"
+                label="Time"
+                heading="Time"
+              />
+            </View>
           </>
         )}
 
-        <CustomButton onPress={handleSubmit(onTransactionSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
+        <CustomButton
+          onPress={handleSubmit(onTransactionSubmit)}
+          style={globalStyles.saveButton}
+          disabled={!validInput}
+        >
+          Save
+        </CustomButton>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-
   transactionTypeContainer: {
     flexDirection: "row",
     backgroundColor: "#f1f1f1",
@@ -300,7 +395,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "80%",
     justifyContent: "space-between",
-    marginBottom: 10
+    marginBottom: 10,
   },
 
   transactionTypeButton: {
