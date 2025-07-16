@@ -122,7 +122,7 @@ export default function AddExpenseScreen() {
   const router = useRouter();
   const amount = watch("amount");
   const splitWith: { user_id: string, amount: number }[] = watch("splitWith");
-  const TOLERANCE = 0.1;
+  const TOLERANCE = 0.01;
   let invalidSubmit = !splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE || !validInput || splitWith.length === 1;
   
 
