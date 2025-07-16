@@ -7,7 +7,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
   // Create a base query instance
   const rawBaseQuery = fetchBaseQuery({
     // baseUrl: 'https://expenz-node-backend-331858369283.asia-south1.run.app/api/v1',
-    baseUrl : "http://192.168.195.166:3001/api/v1",
+    baseUrl : "http://192.168.0.109:3001/api/v1",
     credentials: 'include',
     prepareHeaders: (headers) => {
       if (token) {
@@ -32,7 +32,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['authToken', 'user', 'group', 'expense', 'wallet', "settlement", "bill", "budget", "detectedTransaction", "personalTransaction"],
+  tagTypes: ['authToken', 'user', 'group', 'expense', 'wallet', "settlement", "bill", "budget", "detectedTransaction", "personalTransaction", "category"],
   endpoints: () => ({}),
 });
 

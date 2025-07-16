@@ -144,6 +144,7 @@ function RootLayoutNav() {
         <Stack.Screen name="lists/wallets" options={{headerShown:false}}/>
         <Stack.Screen name="lists/detectedTransactions" options={{headerShown:false}}/>
         <Stack.Screen name="lists/budgets" options={{headerShown:false}}/>
+        <Stack.Screen name="lists/categories" options={{headerShown:false}}/>
       </Stack>
     </ThemeProvider>
    </GluestackUIProvider>

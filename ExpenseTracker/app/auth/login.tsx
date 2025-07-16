@@ -48,6 +48,7 @@ export default function LoginScreen() {
       })
       await login(response.token);
       await saveItem("user", response.userData)
+      router.dismissAll();
       router.replace("/(tabs)");
     } catch (error) {
       showToast({
