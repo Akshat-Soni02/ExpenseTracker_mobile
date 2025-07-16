@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Animated,
   Pressable,
@@ -8,28 +8,29 @@ import {
   Dimensions,
 } from "react-native";
 import { Tabs, useRouter, usePathname } from "expo-router";
+import {
+  PanResponder,
+  GestureResponderEvent,
+  PanResponderGestureState,
+} from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { TabView, SceneMap } from "react-native-tab-view";
+import IndexScreen from "./index";
+import GroupsScreen from "./groups";
+import ActivityScreen from "./activity";
+import BillsScreen from "./bills";
+import MoreScreen from "./more";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
-const TAB_ROUTES = [
-  "index",
-  "groups",
-  "activity",
-  "bills",
-  "more",
+const routes = [
+  { key: "index", title: "Home", icon: "home-outline" },
+  { key: "groups", title: "Groups", icon: "account-multiple" },
+  { key: "activity", title: "Activity", icon: "progress-clock" },
+  { key: "bills", title: "Bills", icon: "sticker-text-outline" },
+  { key: "more", title: "More", icon: "dots-horizontal" },
 ];
 
-const TAB_ICONS = [
-  "home-outline",
-  "account-multiple",
-  "progress-clock",
-  "sticker-text-outline",
-  "dots-horizontal",
-];
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const TAB_COUNT = TAB_ROUTES.length;
-const TAB_WIDTH = SCREEN_WIDTH / TAB_COUNT;
+const initialLayout = { width: Dimensions.get("window").width };
 
 interface CustomTabButtonProps {
   isFocused?: boolean;
@@ -43,15 +44,15 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   children,
 }) => {
   return (
-    <View style={{width: screenWidth/5, height: 60}}>
+    <View style={{ width: screenWidth / 5, height: 60 }}>
       <Pressable
         onPress={onPress}
         android_ripple={null}
         style={({ pressed }) => [
           {
             flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: "center",
+            alignItems: "center",
           },
           Platform.OS === "ios" && pressed ? { opacity: 1 } : {}, // disables iOS press effect
         ]}
@@ -61,81 +62,139 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
     </View>
   );
 };
-
-export default function TabLayout() {
+export default function SwipeableTabLayout() {
+  const [index, setIndex] = useState(0);
+  const indexRef = useRef(index);
+  const [tabRoutes] = useState(routes);
   const router = useRouter();
   const pathname = usePathname();
 
-  const currentIndex = TAB_ROUTES.findIndex(route => pathname.includes(route));
-  const [selectedIndex, setSelectedIndex] = useState(currentIndex >= 0 ? currentIndex : 0);
-
-  const translateX = useRef(new Animated.Value(selectedIndex * TAB_WIDTH)).current;
-
-  useEffect(() => {
-    Animated.spring(translateX, {
-      toValue: selectedIndex * TAB_WIDTH,
-      useNativeDriver: true,
-      stiffness: 200,
-      damping: 20,
-      mass: 1,
-    }).start();
-  }, [selectedIndex]);
-
-  useEffect(() => {
-  let newIndex = 0; 
-
-  for (let i = 0; i < TAB_ROUTES.length; i++) {
-    const route = TAB_ROUTES[i];
-    if (route === 'index' && pathname === '/') {
-      newIndex = i;
-      break;
-    } else if (pathname.startsWith(`/${route}`)) {
-      newIndex = i;
-      break;
-    }
-  }
-
-  if (newIndex !== selectedIndex) {
-    setSelectedIndex(newIndex);
-  }
-}, [pathname]);
-
-
-  const onPressTab = (index: number, route: string) => {
-    setSelectedIndex(index);
-    router.push(route === "index" ? "/" : `/${route}`);
+  const TAB_WIDTH = initialLayout.width / tabRoutes.length;
+  const updateIndex = (newIndex: number) => {
+    indexRef.current = newIndex;
+    setIndex(newIndex);
   };
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        const { dx, dy, moveX } = gestureState;
+        const fromEdge = moveX < 120 || moveX > screenWidth - 120;
+        const bigEnough = Math.abs(dx) > 15;
+        return bigEnough && fromEdge;
+      },
+      onPanResponderGrant: () => {},
+      onPanResponderMove: (_, gestureState) => {},
+      onPanResponderRelease: (_, gestureState) => {
+        const { dx, dy, moveX } = gestureState;
+        const fromEdge = moveX < 120 || moveX > screenWidth - 120;
+        const bigEnough = Math.abs(dx) > 150;
 
-    
+        if (bigEnough && fromEdge) {
+          if (dx > 5 && indexRef.current > 0) {
+            const newIndex = indexRef.current - 1;
+            updateIndex(newIndex);
+            router.push(routePathMap[routes[newIndex].key as RouteKey]);
+          } else if (dx < -5 && indexRef.current < routes.length - 1) {
+            const newIndex = indexRef.current + 1;
+            updateIndex(newIndex);
+            router.push(routePathMap[routes[newIndex].key as RouteKey]);
+          }
+        }
+      },
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderTerminate: () => {},
+      onShouldBlockNativeResponder: () => false,
+    })
+  ).current;
+
+  const translateX = useRef(new Animated.Value(index * TAB_WIDTH)).current;
+  const routePathMap = {
+    index: "/",
+    groups: "/groups",
+    activity: "/activity",
+    bills: "/bills",
+    more: "/more",
+  } as const;
+
+  type RouteKey = keyof typeof routePathMap;
+  const handleTabPress = useCallback((i: number, routeKey: RouteKey) => {
+    setIndex(i);
+    router.push(routePathMap[routeKey]);
+  }, []);
+
+  const renderScene = ({ route }: { route: { key: string } }) => {
+    switch (route.key) {
+      case "index":
+        return <IndexScreen />;
+      case "groups":
+        return <GroupsScreen />;
+      case "activity":
+        return <ActivityScreen />;
+      case "bills":
+        return <BillsScreen />;
+      case "more":
+        return <MoreScreen />;
+      default:
+        return null;
+    }
+  };
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      Animated.spring(translateX, {
+        toValue: index * TAB_WIDTH,
+        useNativeDriver: true,
+        stiffness: 200,
+        damping: 20,
+        mass: 1,
+      }).start();
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, [index]);
+
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
+
+  useEffect(() => {
+    let newIndex = 0;
+
+    for (let i = 0; i < tabRoutes.length; i++) {
+      const route = tabRoutes[i];
+      if (route.key === "index" && pathname === "/") {
+        newIndex = i;
+        break;
+      } else if (pathname.startsWith(`/${route.key}`)) {
+        newIndex = i;
+        break;
+      }
+    }
+
+    if (newIndex !== index) {
+      setIndex(newIndex);
+    }
+  }, [pathname, index]);
+
   return (
-    <>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle: {
-            height: 60,
-            backgroundColor: "#fff",
-            borderTopColor: "#ddd",
-            borderTopWidth: 0.5,
-          },
-          tabBarShowLabel: false,
-        }}
-      >
-        {TAB_ROUTES.map((route) => (
-          <Tabs.Screen
-            key={route}
-            name={route === "index" ? "index" : route}
-            options={{
-              headerShown: false,
-              tabBarStyle: { display: 'none' },
-            }}
-          />
-        ))}
-      </Tabs>
+    <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+      <View style={{ flex: 1, paddingBottom: 60 }}>
+        {/* Tab Screens */}
+        <TabView
+          navigationState={{ index, routes: tabRoutes }}
+          renderScene={renderScene}
+          onIndexChange={(i) => {
+            updateIndex(i);
+            router.push(routePathMap[routes[i].key as RouteKey]);
+          }}
+          initialLayout={initialLayout}
+          swipeEnabled={false}
+          renderTabBar={() => null} // HIDE default top tab bar
+        />
+      </View>
 
-      {/* Custom Tab Bar */}
+      {/* Custom Bottom Tab Bar */}
       <View style={styles.tabBar}>
-        {/* Animated top indicator line */}
         <Animated.View
           style={[
             styles.topIndicator,
@@ -146,26 +205,25 @@ export default function TabLayout() {
             },
           ]}
         />
-        {/* Render each tab button */}
-        {TAB_ROUTES.map((route, index) => {
-          const focused = index === selectedIndex;
+        {tabRoutes.map((tab, i) => {
+          const focused = i === index;
           return (
             <CustomTabButton
-              key={route}
+              key={tab.key}
               isFocused={focused}
-              onPress={() => onPressTab(index, route)}
+              onPress={() => handleTabPress(i, tab.key as RouteKey)}
             >
               <MaterialCommunityIcons
-                name={TAB_ICONS[index]}
-                size={28}
+                name={tab.icon}
+                size={30}
                 color={focused ? "#264CA7" : "#999"}
-                style = {{width: "100%", height: "100%", textAlignVertical: "center", textAlign: "center"}}
+                style={{ textAlign: "center" }}
               />
             </CustomTabButton>
           );
         })}
       </View>
-    </>
+    </View>
   );
 }
 
@@ -176,10 +234,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 0.5,
     borderTopColor: "#ddd",
-    position: "relative",
     width: "100%",
-    alignItems: 'center',
-    justifyContent: "space-between"
+    alignItems: "center",
+    justifyContent: "space-between",
+    position: "absolute",
+    paddingTop: 25,
+    bottom: 0,
   },
   tabContainer: {
     flex: 1,
@@ -192,5 +252,10 @@ const styles = StyleSheet.create({
     height: 3,
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
+  },
+  scene: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

@@ -1,5 +1,11 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  Dimensions,
+} from "react-native";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 interface SegmentProps {
@@ -14,9 +20,15 @@ interface AppProps {
   isBill: boolean;
 }
 
-const SegmentedControl: React.FC<SegmentProps> = ({ value, onChange, isBill }) => {
-  const options = isBill ? ["Pending", "Completed", "Missed"] : ["Splits", "Transactions", "Settlements"];
-  
+const SegmentedControl: React.FC<SegmentProps> = ({
+  value,
+  onChange,
+  isBill,
+}) => {
+  const options = isBill
+    ? ["Pending", "Completed", "Missed"]
+    : ["Splits", "Transactions", "Settlements"];
+
   return (
     <View style={styles.container}>
       {options.map((option, index) => {
