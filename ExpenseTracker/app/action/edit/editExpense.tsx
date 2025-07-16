@@ -60,6 +60,7 @@ export default function EditExpenseScreen() {
   const { data, isLoading, error: errorExpense, refetch } = useGetExpenseQuery(id);
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
   const [updateExpense, {isLoading: isLoadingExpense}] = useUpdateExpenseMutation();
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   let walletData, walletIsLoading, walletError;
   if (data?.data.wallet_id) {
@@ -91,18 +92,27 @@ export default function EditExpenseScreen() {
   const router = useRouter();
   const amount = watch("amount");
   const splitWith = watch("splitWith");
-  const TOLERANCE = 0.1;
-
-  useEffect(() => {
-    if (Object.keys(childErrors).length !== 0) {
-      const messages = [
-        childErrors.amount?.message,
-        childErrors.Description?.message
-      ].filter(Boolean).join("\n");
+  const TOLERANCE = 0.01;
+  let invalidSubmit = !splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE || !validInput || splitWith.length === 1;
+    
   
-      Alert.alert("Invalid data", messages);
-    }
-  }, [childErrors]);
+    // useEffect(() => {
+    //   if (Object.keys(childErrors).length !== 0) {
+    //     console.log("errors",errors)
+    //     const messages = [
+    //       childErrors.amount?.message,
+    //       childErrors.Description?.message
+    //     ].filter(Boolean).join("\n");
+    
+    //     Alert.alert("Invalid data", messages);
+    //   }
+    // }, [childErrors]);
+  
+    useEffect(() => {
+      if (Object.keys(childErrors).length !== 0) {
+        setValidInput(false);
+      } else setValidInput(true);
+    }, [childErrors]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -240,7 +250,7 @@ export default function EditExpenseScreen() {
         <CustomDateTimePicker control={control} name="time" label="Time" heading="Time"/>
       </View>
       
-      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onSubmit)} style={globalStyles.saveButton} disabled = {invalidSubmit}>Save</CustomButton>
       </View>
     </ScrollView>
   );

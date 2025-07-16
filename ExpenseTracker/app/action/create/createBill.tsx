@@ -65,7 +65,11 @@ export default function CreateBillScreen() {
   });
 
   const router = useRouter();
-
+  const amount = watch("amount");
+  const splitWith = watch("splitWith");
+  const TOLERANCE = 0.01;
+  let invalidSubmit = !splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE || !validInput ;
+  
   // useEffect(() => {
   //   if (Object.keys(childErrors).length !== 0) {
   //     const messages = [
@@ -160,7 +164,7 @@ export default function CreateBillScreen() {
         <CategorySelector control={control}/>
         <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
-        <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton} disabled={!validInput}>Save</CustomButton>
+        <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton} disabled = {invalidSubmit}>Save</CustomButton>
       </View>
     </ScrollView>
   );
