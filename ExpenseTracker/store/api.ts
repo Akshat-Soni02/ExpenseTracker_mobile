@@ -9,6 +9,8 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
     // baseUrl: 'https://expenz-node-backend-331858369283.asia-south1.run.app/api/v1',
     baseUrl: "http://192.168.195.52:3001/api/v1",
     credentials: "include",
+    baseUrl : "http://192.168.0.109:3001/api/v1",
+    credentials: 'include',
     prepareHeaders: (headers) => {
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
@@ -32,18 +34,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
 const api = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithAuth,
-  tagTypes: [
-    "authToken",
-    "user",
-    "group",
-    "expense",
-    "wallet",
-    "settlement",
-    "bill",
-    "budget",
-    "detectedTransaction",
-    "personalTransaction",
-  ],
+  tagTypes: ['authToken', 'user', 'group', 'expense', 'wallet', "settlement", "bill", "budget", "detectedTransaction", "personalTransaction", "category"],
   endpoints: () => ({}),
 });
 
