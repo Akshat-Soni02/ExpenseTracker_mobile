@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Modal, Image, FlatList, Dimensions } from "react-native";
-import { Control, Controller, useWatch ,useController} from "react-hook-form";
+import { Control, Controller, useWatch, useController } from "react-hook-form";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { UseFormSetValue } from "react-hook-form";
@@ -17,15 +17,15 @@ import SearchBar from "../SearchBar";
 import { ExpenseMedia } from "@/store/expenseApi";
 const { width } = Dimensions.get("window");
 
-type FormValues = { 
-  amount: number; 
-  Title: string; 
+type FormValues = {
+  amount: number;
+  Title: string;
   splitWith: { user_id: string; amount: number }[] | [];
   paidBy?: { user_id: string, name: string, profile_photo?: string } | null;
-  members?: Member[]; 
-  date: Date; 
-  time: Date; 
-  category?: string; 
+  members?: Member[];
+  date: Date;
+  time: Date;
+  category?: string;
   Description?: string;
   notes?: string;
   wallet?: string | null;
@@ -39,11 +39,11 @@ interface Props {
   title?: string;
   group_id?: string;
   IncludePaidBy?: boolean;
-  edit?:boolean;
+  edit?: boolean;
 }
 
 type member = {
-  _id: string; 
+  _id: string;
   name: string;
   photo: ExpenseMedia;
 }
@@ -53,7 +53,7 @@ type splitWith = {
   amount: number;
 }
 
-const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, group_id, IncludePaidBy, edit=false }) => {
+const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, group_id, IncludePaidBy, edit = false }) => {
   const [selectedUsers, setSelectedUsers] = useState<people[]>([]);
   const [splitAmounts, setSplitAmounts] = useState<Record<string, number>>({});
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -75,8 +75,8 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   const splitWith = useWatch({ control, name: "splitWith" });
   const { field } = useController({ control, name: "paidBy" });
   const paidByUser = field.value;
-  
-  
+
+
   const fetchEditMembers = async (memberIds: string[]) => {
     if (memberIds.length === 0) return;
 
@@ -84,17 +84,17 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       console.error("Invalid member IDs detected:", memberIds);
       return [];
     }
-  
+
     try {
       const memberData = await Promise.all(memberIds.map((id) => getUserById(id).unwrap()));
-      const newMembers = memberData.map((res:any, index:any) => ({
+      const newMembers = memberData.map((res: any, index: any) => ({
         user_id: memberIds[index],
         name: res?.data?.name || "Unknown",
         photo: res?.data?.profile_photo?.url
       }));
 
       // console.log(newMembers);
-  
+
       return newMembers;
     } catch (error) {
       console.error("Error fetching group members:", error);
@@ -104,7 +104,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
   const updateMembers = async (memberIds: string[]) => {
     const fetchedMembers = await fetchEditMembers(memberIds);
-    setMembers(fetchedMembers??[]); //triggering a re-render
+    setMembers(fetchedMembers ?? []); //triggering a re-render
   };
 
   const fetchGroupMembers = async (memberIds: string[]) => {
@@ -138,18 +138,18 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
     const updatedArray = newSelectedUsers.map((u) => ({
       user_id: u.user_id,
       amount: splitAmounts[u.user_id] ?? 0,
-    }));    
+    }));
 
     setValue("splitWith", updatedArray);
     setUpdateUI((prev) => !prev);
   };
 
   useEffect(() => {
-    if(edit){
+    if (edit) {
       const memberIds = splitWith.map((item: splitWith) => item.user_id);
-      if(IncludePaidBy){
+      if (IncludePaidBy) {
         const alreadyMember = memberIds.find((memId) => memId === paidByUser.user_id);
-        if(!alreadyMember) memberIds.push(paidByUser.user_id)
+        if (!alreadyMember) memberIds.push(paidByUser.user_id)
       };
       updateMembers(memberIds);
     }
@@ -161,7 +161,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       // console.log(members);
     }
   }, [members]);
-  
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -172,14 +172,14 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
           const defaultUser = { user_id: user._id, name: user.name, profile_photo: user.profile_photo?.url };
           setSelectedUsers(members);
           setSelectedUsers((prevUsers) => [...prevUsers, defaultUser]);
-          if(edit){
+          if (edit) {
             setPaidBy(paidByUser);
           }
-          else{
-          setPaidBy(defaultUser);
-          setValue("paidBy", defaultUser);
+          else {
+            setPaidBy(defaultUser);
+            setValue("paidBy", defaultUser);
+          }
         }
-      }
       } catch (error) {
         console.error("Error loading user:", error);
       }
@@ -190,7 +190,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
 
   useEffect(() => {
     if (selectedUsers.length > 0) {
-      
+
       const equalSplit = amount / selectedUsers.length;
       const formattedSplit = equalSplit % 1 === 0 ? equalSplit : parseFloat(equalSplit.toFixed(2));
       const newSplits: Record<string, number> = {};
@@ -235,20 +235,20 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       setFromMembers(userFriends?.data || []);
     }
   }, [group_id, groupMembers, userFriends]);
-  
+
 
   const filteredUsers = React.useMemo(() => {
-    return fromMembers?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()) && user._id.toString() !== loggedInUserId?.toString() ) || [];
+    return fromMembers?.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()) && user._id.toString() !== loggedInUserId?.toString()) || [];
   }, [fromMembers, searchQuery]);
 
   const Header = () => {
     return (
-      <View style = {styles.splitHead}>
+      <View style={styles.splitHead}>
         <View style={{ flex: 1 }} /> {/* Left spacer */}
 
         <Text style={styles.title}>{title || "Split with"}</Text>
 
-        <View style={{ flex: 1, alignItems: 'flex-end'}}>
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
           <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addPeopleButton}>
             <Text style={styles.addPeopleButtonText}>+Add People</Text>
           </TouchableOpacity>
@@ -270,20 +270,20 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
   }
 
   const handleCloseModal = useCallback(() => setModalVisible(false), []);
-  
+
 
 
   return (
     <View style={testStyles.formContainer}>
 
-      <Header/>
+      <Header />
 
       {/* while this componenet could have been moved
       to upper seperate componenet but that causes it to show multiple re-renders */}
       <View style={{ padding: 10 }}>
 
         {(showMore ? selectedUsers : selectedUsers.slice(0, 3)).map((user) => (
-  
+
           <View key={user.user_id} style={styles.splitItem}>
 
             {user.profile_photo || user.photo ? (
@@ -304,23 +304,23 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
                   onChangeText={(text) => {
                     const isValid = /^\d*\.?\d*$/.test(text);
                     if (isValid) {
-                      onChange(text);
-                      const numericValue = parseFloat(text) || 0;
-                      const updatedSplits = { ...splitAmounts, [user.user_id]: numericValue };
+                      const updatedSplits = {
+                        ...splitAmounts,
+                        [user.user_id]: text,
+                      };
                       setSplitAmounts(updatedSplits);
                       setValue(
                         "splitWith",
                         selectedUsers.map((u) => ({
                           user_id: u.user_id,
-                          amount: updatedSplits[u.user_id],
+                          amount: parseFloat(updatedSplits[u.user_id] || "0"),
                         }))
                       );
-                      onChange(numericValue);
+                      onChange(text); // only once
                     }
                   }}
                   keyboardType="decimal-pad"
                 />
-
               )}
               name={`splitAmount_${user.user_id}`}
               defaultValue={splitAmounts[user.user_id] || 0}
@@ -341,7 +341,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
       </View>
 
       {IncludePaidBy && (
-        <PaidBy/>
+        <PaidBy />
       )}
 
 
@@ -358,13 +358,13 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
             value={searchQuery}
           /> */}
 
-          { filteredUsers.length === 0 ? (
-            <View style ={[testStyles.centeredBox, {height: "70%"} ]}>
-              <Text style = {{fontSize: FONTS.large}}>You do not have any friends</Text>
+          {filteredUsers.length === 0 ? (
+            <View style={[testStyles.centeredBox, { height: "70%" }]}>
+              <Text style={{ fontSize: FONTS.large }}>You do not have any friends</Text>
             </View>
           ) : (
             <>
-              <SearchBar onSearch={setSearchQuery} value={searchQuery}/>
+              <SearchBar onSearch={setSearchQuery} value={searchQuery} />
               <FlashList
                 data={filteredUsers}
                 keyExtractor={(item) => item._id}
@@ -379,7 +379,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
                   );
                 }}
                 ItemSeparatorComponent={() => (
-                  <View style={{  height: 2, backgroundColor: 'white'}} />
+                  <View style={{ height: 2, backgroundColor: 'white' }} />
                 )}
               />
             </>
@@ -387,7 +387,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
           <CustomButton onPress={() => setModalVisible(false)} style={styles.modalButton}>Done</CustomButton>
         </View>
       </Modal>
-      
+
 
       <Modal animationType="slide" transparent={false} visible={paidByModalVisible} onRequestClose={() => setPaidByModalVisible(false)}>
 
@@ -396,7 +396,7 @@ const SplitWithSelector: React.FC<Props> = ({ control, setValue, amount, title, 
           <Text style={styles.modalTitle}>Select Payer</Text>
 
           <FlatList
-            style = {styles.list}
+            style={styles.list}
             data={selectedUsers}
             keyExtractor={(item) => item.user_id}
             renderItem={({ item }) => (
@@ -443,41 +443,41 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     alignSelf: "flex-end",
   },
-  
+
   addPeopleButtonText: {
     color: "#073763",
     fontSize: FONTS.small,
     fontWeight: "500",
   },
-  
-  splitItem: { 
+
+  splitItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 1, 
-    padding: 10, 
-    borderRadius: 10, 
-    backgroundColor: "rgba(200, 230, 255, 0.7)" 
+    marginVertical: 1,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "rgba(200, 230, 255, 0.7)"
   },
 
-  userIcon: { 
-    width: 34, 
-    height: 34, 
-    borderRadius: 17, 
-    marginRight: 10 
+  userIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    marginRight: 10
   },
 
-  userName: { 
-    flex: 1, 
-    fontSize: FONTS.medium 
+  userName: {
+    flex: 1,
+    fontSize: FONTS.medium
   },
 
-  amountInput: { 
-    width: width * 0.25, 
-    padding: 5, 
-    textAlign: "center", 
-    backgroundColor: "#F3F4F6", 
-    borderRadius: 5, 
-    marginLeft: 10 
+  amountInput: {
+    width: width * 0.25,
+    padding: 5,
+    textAlign: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 5,
+    marginLeft: 10
   },
 
   toggleShowButton: {
@@ -518,24 +518,24 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  modalContainer: { 
-    flex: 1, 
-    backgroundColor: "#fff", 
-    padding: 20 
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 20
   },
 
-  modalItem: { 
-    paddingVertical: 15, 
-    flexDirection: "row", 
-    width: "100%", 
-    paddingHorizontal: 10 
+  modalItem: {
+    paddingVertical: 15,
+    flexDirection: "row",
+    width: "100%",
+    paddingHorizontal: 10
   },
 
-  selectedItem: { 
-    backgroundColor: "rgba(111, 187, 250, 0.24)" 
+  selectedItem: {
+    backgroundColor: "rgba(111, 187, 250, 0.24)"
   },
 
-  modalButton: { 
+  modalButton: {
     alignSelf: "center"
   },
 
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     width: "100%"
   },
 
-  modalItemText: { 
-    fontSize: 16 
+  modalItemText: {
+    fontSize: 16
   },
 });

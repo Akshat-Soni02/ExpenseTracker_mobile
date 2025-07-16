@@ -51,6 +51,7 @@ export default function EditBillScreen() {
   const [updateBill, {isLoading}] = useUpdateBillMutation();
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [childErrors, setChildErrors] = useState<ChildErrors>({});
+  const [validInput, setValidInput] = useState<boolean>(true);
 
   const { data: billData, isLoading: billIsLoading, error: errorBill, refetch } = useGetBillQuery(id);
 
@@ -73,15 +74,28 @@ export default function EditBillScreen() {
     },
   });
 
+  const amount = watch("amount");
+  const splitWith = watch("splitWith");
+  const TOLERANCE = 0.01;
+  let invalidSubmit = !splitWith || splitWith.length == 0 || Math.abs(splitWith.reduce((sum, person) => sum + Number(person.amount), 0) - amount) > TOLERANCE || !validInput;
+  
+
+  // useEffect(() => {
+  //   if (Object.keys(childErrors).length !== 0) {
+  //     console.log("errors",errors)
+  //     const messages = [
+  //       childErrors.amount?.message,
+  //       childErrors.Description?.message
+  //     ].filter(Boolean).join("\n");
+  
+  //     Alert.alert("Invalid data", messages);
+  //   }
+  // }, [childErrors]);
+
   useEffect(() => {
     if (Object.keys(childErrors).length !== 0) {
-      const messages = [
-        childErrors.amount?.message,
-        childErrors.Title?.message
-      ].filter(Boolean).join("\n");
-  
-      Alert.alert("Invalid data", messages);
-    }
+      setValidInput(false);
+    } else setValidInput(true);
   }, [childErrors]);
 
   useEffect(() => {
@@ -192,7 +206,7 @@ export default function EditBillScreen() {
       <ToggleSwitch control={control} name="recurring" label="Repeat"/>
 
       {/* Save Button */}
-      <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton}>Save</CustomButton>
+      <CustomButton onPress={handleSubmit(onBillSubmit)} style={globalStyles.saveButton} disabled = {invalidSubmit}>Save</CustomButton>
       </View>
     </ScrollView>
   );
