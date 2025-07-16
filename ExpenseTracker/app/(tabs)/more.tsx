@@ -23,7 +23,7 @@ export default function MoreScreen() {
 
   const FeatureHolder = ({icon, featureText, route}) => {
     return (
-        <TouchableOpacity style={{alignItems: "center"}} onPress={() => { icon === "download" ? showToast({title: "Please try again later", type: "warning"}) : router.push(route)}}>
+        <TouchableOpacity style={{alignItems: "center"}} onPress={() => router.push(route)}>
             <MaterialCommunityIcons name={icon} size={28} color="#000" />
             <Text>{featureText}</Text>
         </TouchableOpacity>
@@ -37,7 +37,7 @@ export default function MoreScreen() {
             <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 150}}>
                 <FeatureHolder icon={"account"} featureText={"Friends"} route={"/lists/friends"}/>
                 <FeatureHolder icon={"wallet-outline"} featureText={"Wallets"} route={"/lists/wallets"}/>
-                <FeatureHolder icon={"download"} featureText={"Export Data"} route={"/lists/friends"}/>
+                <FeatureHolder icon={"alpha-c-box-outline"} featureText={"Categories"} route={"/lists/categories"}/>
             </View>
         </View>
     </View>
