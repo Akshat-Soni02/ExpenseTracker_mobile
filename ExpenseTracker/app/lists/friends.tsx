@@ -82,7 +82,7 @@ export default function PeopleScreen() {
 
         <AppFAB
           icon="plus"
-          onPress={() => router.push("/action/create/addPeopleManual")}
+          onPress={() => router.push({ pathname: "/action/create/addFriends", params: { people: JSON.stringify(people) } })}
         />
     </View>
   );
