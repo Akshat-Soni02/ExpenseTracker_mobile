@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  StyleSheet,
-  View,
-  SectionList,
-  Text,
-} from "react-native";
+import { StyleSheet, View, SectionList, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { Divider, Menu, IconButton } from "react-native-paper";
 import { format, parseISO, isToday } from "date-fns";
@@ -36,12 +31,47 @@ export default function ActivityScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
 
   // Fetch queries
-  const { data: dataUnified, isLoading: loadingUnified, error: errorUnified, isError: hasErrorUnified, refetch } = useGetUnifiedHistoryQuery({});
-  const [fetchExpense, { data: dataExpense, isLoading: loadingExpense, error: errorExpense, isError: hasErrorExpense}] = useLazyGetUserExpensesQuery();
-  const [fetchPersonalTransaction, { data: dataPersonalTransaction, isLoading: loadingPersonal, error: errorPersonal, isError: hasErrorPersonal }] = useLazyGetUserPersonalTransactionsQuery();
-  const [fetchSettlement, { data: dataSettlement, isLoading: loadingSettlement, error: errorSettlemenet, isError: hasErrorSettlement }] = useLazyGetUserSettlementsQuery();
+  const {
+    data: dataUnified,
+    isLoading: loadingUnified,
+    error: errorUnified,
+    isError: hasErrorUnified,
+    refetch,
+  } = useGetUnifiedHistoryQuery({});
+  const [
+    fetchExpense,
+    {
+      data: dataExpense,
+      isLoading: loadingExpense,
+      error: errorExpense,
+      isError: hasErrorExpense,
+    },
+  ] = useLazyGetUserExpensesQuery();
+  const [
+    fetchPersonalTransaction,
+    {
+      data: dataPersonalTransaction,
+      isLoading: loadingPersonal,
+      error: errorPersonal,
+      isError: hasErrorPersonal,
+    },
+  ] = useLazyGetUserPersonalTransactionsQuery();
+  const [
+    fetchSettlement,
+    {
+      data: dataSettlement,
+      isLoading: loadingSettlement,
+      error: errorSettlemenet,
+      isError: hasErrorSettlement,
+    },
+  ] = useLazyGetUserSettlementsQuery();
 
-  const errors = [errorUnified, errorExpense, errorPersonal, errorSettlemenet].filter(Boolean);
+  const errors = [
+    errorUnified,
+    errorExpense,
+    errorPersonal,
+    errorSettlemenet,
+  ].filter(Boolean);
   const hasErrors = errors.length > 0;
 
   const handleRetry = () => {
@@ -65,7 +95,11 @@ export default function ActivityScreen() {
   }, [filterType]);
 
   // Grouping helper - groups by date string and sorts each group descending by time
-  const groupTransactionsByDate = <T extends { created_at_date_time?: string; createdAt?: string }>(transactions: T[]) => {
+  const groupTransactionsByDate = <
+    T extends { created_at_date_time?: string; createdAt?: string }
+  >(
+    transactions: T[]
+  ) => {
     const grouped: Record<string, T[]> = {};
 
     transactions.forEach((transaction) => {
@@ -124,12 +158,17 @@ export default function ActivityScreen() {
   }, [search, currentList, filterType]);
 
   // Group filtered list by date for SectionList
-  const sections = useMemo(() => groupTransactionsByDate(filteredList), [filteredList]);
+  const sections = useMemo(
+    () => groupTransactionsByDate(filteredList),
+    [filteredList]
+  );
 
   // Row components - memoized for performance
   const SplitRow = React.memo(({ item }: { item: any }) => (
     <TransactionCard
-      pressFunction={() => router.push({ pathname: "/view/viewExpense", params: { id: item._id } })}
+      pressFunction={() =>
+        router.push({ pathname: "/view/viewExpense", params: { id: item._id } })
+      }
       title={item.description}
       subtitle={`Paid by ${item.giver}`}
       imageType={undefined}
@@ -141,18 +180,31 @@ export default function ActivityScreen() {
 
   const TransactionRow = React.memo(({ item }: { item: any }) => (
     <TransactionCard
-      pressFunction={() => router.push({ pathname: "/view/viewTransaction", params: { id: item._id } })}
+      pressFunction={() =>
+        router.push({
+          pathname: "/view/viewTransaction",
+          params: { id: item._id },
+        })
+      }
       title={item.description}
       imageType={item.transaction_type}
       amount={`₹${item.amount}`}
-      subtitle={format(parseISO(item.created_at_date_time || item.createdAt), "hh:mm a")}
+      subtitle={format(
+        parseISO(item.created_at_date_time || item.createdAt),
+        "hh:mm a"
+      )}
       transactionType={item.transaction_type}
     />
   ));
 
   const SettlementRow = React.memo(({ item }: { item: any }) => (
     <TransactionCard
-      pressFunction={() => router.push({ pathname: "/view/viewSettlement", params: { id: item._id } })}
+      pressFunction={() =>
+        router.push({
+          pathname: "/view/viewSettlement",
+          params: { id: item._id },
+        })
+      }
       title={item.settlement_description}
       subtitle={`${item.payer_name} paid ${item.receiver_name}`}
       imageType={undefined}
@@ -175,7 +227,8 @@ export default function ActivityScreen() {
       default:
         // For unified, differentiate by type property if exists (you can adjust as needed)
         if (item.type === "expense") return <SplitRow item={item} />;
-        if (item.type === "personalTransaction") return <TransactionRow item={item} />;
+        if (item.type === "personalTransaction")
+          return <TransactionRow item={item} />;
         if (item.type === "settlement") return <SettlementRow item={item} />;
         return null;
     }
@@ -209,7 +262,7 @@ export default function ActivityScreen() {
               setFilterType((prev) => {
                 const next = option.key as Filter;
                 if (prev !== next && next === "unified") {
-                  refetch(); 
+                  refetch();
                 }
                 return next;
               });
@@ -220,7 +273,8 @@ export default function ActivityScreen() {
             }}
             title={option.label}
             style={{
-              backgroundColor: filterType === option.key ? "#ebf0f5" : "transparent",
+              backgroundColor:
+                filterType === option.key ? "#ebf0f5" : "transparent",
             }}
           />
           {i < arr.length - 1 && <Divider />}
@@ -232,12 +286,12 @@ export default function ActivityScreen() {
   const SearchHeader = () => (
     <View style={[testStyles.horizontalContainer, styles.headContainer]}>
       <View style={{ flex: 1 }}>
-      <SearchBar
-        placeholder="Search transactions, splits..."
-        onSearch={setSearch}
-        value={search}
-        containerStyle={{ height: 40 }}
-      />
+        <SearchBar
+          placeholder="Search transactions, splits..."
+          onSearch={setSearch}
+          value={search}
+          containerStyle={{ height: 40 }}
+        />
       </View>
       <FilterMenu />
     </View>
@@ -247,19 +301,21 @@ export default function ActivityScreen() {
     return <ErrorState errors={errors} onRetry={handleRetry} />;
   }
 
-
   return (
     <View style={testStyles.screen}>
       <SearchHeader />
 
-      {loadingUnified || loadingExpense || loadingPersonal || loadingSettlement ? (
+      {loadingUnified ||
+      loadingExpense ||
+      loadingPersonal ||
+      loadingSettlement ? (
         <Text style={{ textAlign: "center", marginTop: 20 }}>Loading...</Text>
       ) : sections.length === 0 ? (
-          <EmptyState
-            title="No history"
-            subtitle="You can see all your activity here."
-            iconName="history"
-          />
+        <EmptyState
+          title="No history"
+          subtitle="You can see all your activity here."
+          iconName="history"
+        />
       ) : (
         <SectionList
           sections={sections}
@@ -267,48 +323,50 @@ export default function ActivityScreen() {
           renderItem={renderItem}
           renderSectionHeader={({ section: { title } }) => (
             <Text style={styles.sectionTitle}>
-              {isToday(parseISO(title)) ? "Today" : format(parseISO(title), "dd MMM")}
+              {isToday(parseISO(title))
+                ? "Today"
+                : format(parseISO(title), "dd MMM")}
             </Text>
           )}
-          ItemSeparatorComponent={() => <View style={{ height: 5, backgroundColor: "white" }} />}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: 5, backgroundColor: "white" }} />
+          )}
           contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 10 }}
           showsVerticalScrollIndicator={false}
-          />
-          )}
-          <MultiFAB
-            actions={[
-              {
-                icon: 'arrow-collapse',
-                label: 'Transaction',
-                onPress: () => router.push("/action/create/createTransaction"),
-              },
-              {
-                icon: 'call-split',
-                label: 'Split Money',
-                onPress: () => router.push("/action/create/createExpense"),
-              },
-            ]}
-          />
-          </View>
-          );
-        }
-
-
-        const styles = StyleSheet.create({
-          headContainer: {
-            alignItems: "center",
-            marginTop: 30,
-            gap: 12,
-            marginBottom: 12,
-            paddingHorizontal: 10
+        />
+      )}
+      <MultiFAB
+        actions={[
+          {
+            icon: "arrow-collapse",
+            label: "Transaction",
+            onPress: () => router.push("/action/create/createTransaction"),
           },
-          sectionTitle: {
-            fontWeight: "bold",
-            fontSize: 18,
-            paddingVertical: 10,
-            paddingHorizontal: 5,
-            // backgroundColor: COLORS.bg.greyLight,
-            color: COLORS.text.bluish,
+          {
+            icon: "call-split",
+            label: "Split Money",
+            onPress: () => router.push("/action/create/createExpense"),
           },
-          });
+        ]}
+      />
+    </View>
+  );
+}
 
+const styles = StyleSheet.create({
+  headContainer: {
+    alignItems: "center",
+    marginTop: 30,
+    gap: 12,
+    marginBottom: 12,
+    paddingHorizontal: 10,
+  },
+  sectionTitle: {
+    fontWeight: "bold",
+    fontSize: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    // backgroundColor: COLORS.bg.greyLight,
+    color: COLORS.text.bluish,
+  },
+});
