@@ -70,17 +70,17 @@ export default function RootLayout() {
   }
 
   return (
-      <AuthProvider>
-          <Provider store={store}>
-            {/* <GluestackUIProvider mode="light"> */}
-            <PaperProvider theme={paperLightTheme}>
-              <ToastProvider>
-                <RootLayoutNav />
-              </ToastProvider>
-            </PaperProvider>
-            {/* </GluestackUIProvider> */}
-        </Provider>
-      </AuthProvider>
+      <Provider store={store}>
+        <AuthProvider>
+          {/* <GluestackUIProvider mode="light"> */}
+          <PaperProvider theme={paperLightTheme}>
+            <ToastProvider>
+              <RootLayoutNav />
+            </ToastProvider>
+          </PaperProvider>
+          {/* </GluestackUIProvider> */}
+        </AuthProvider>
+      </Provider>
   );
 }
 

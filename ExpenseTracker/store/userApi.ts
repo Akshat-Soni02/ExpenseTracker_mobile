@@ -15,6 +15,7 @@ export type friend = {
   profile_photo: string;
   amount: number;
   type: "debit" | "credit" | undefined;
+  phone_number: number
 }
 
 type oauth = {
@@ -230,12 +231,40 @@ export const userApi = api.injectEndpoints({
       query: () => `/users/today-spend`,
     }),
 
+    getUserPhoneNumStatus: builder.query<{data: {hasPhoneNumber: boolean}}, void>({
+      query: () => `/users/user-phone-number-check`,
+    }),
+
+    getPhoneNumAvailStatus: builder.query<{data: { isPhoneNumAcquired: boolean }}, { phone_num: string }>({
+      query: ({ phone_num }) => {
+        const params = new URLSearchParams();
+        if (phone_num) params.append("phone_num", phone_num);
+        return `/users/phone-number-availability-check?${params.toString()}`;
+      },
+    }),
+
     getUserFutureFriends: builder.query<{data: [{email: string}]}, void>({
       query: () => `/users/future-friends`,
     }),
 
     getUserCurrentExchangeStatus: builder.query<{data: {lendedAmount: number, borrowedAmount: number}}, void>({
       query: () => `/users/current-exchange-status`,
+    }),
+
+    firstMergeToDummy: builder.mutation<LoginUserResponse, {phone_num: string}>({
+      query: ({ phone_num }) => ({
+        url: `/users/first-merge-to-dummy/${phone_num}`,
+        method: "POST",
+      }),
+    }),
+
+    addOrCreateDummy: builder.mutation<{ data: { isDummy: boolean } }, {givenName: string, phone_num: string}>({
+      query: (body) => ({
+        url: `/users/add-contact-friend`,
+        method: "POST",
+        body
+      }),
+      invalidatesTags: ["user"]
     }),
 
     remindUserBorrower: builder.mutation<void,{borrower_id: string}>({
@@ -319,6 +348,10 @@ export const {
   useGetUserGroupsQuery,
   useGetUserExpensesQuery,
   useGetUserBudgetsQuery,
+  useLazyGetUserPhoneNumStatusQuery,
+  useLazyGetPhoneNumAvailStatusQuery,
+  useAddOrCreateDummyMutation,
+  useFirstMergeToDummyMutation,
   useGetUserBillsQuery,
   useGetUserWalletsQuery,
   useGetUserSettlementsQuery,
