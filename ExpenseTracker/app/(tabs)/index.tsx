@@ -20,13 +20,15 @@ import { formatCurrency } from '../utils/helpers';
 import { Bill, useGetMonthlyPendingBillsQuery } from '@/store/billApi';
 import { formatDate } from '../utils/dateUtils';
 import { hasAndroidPermission } from '../utils/permissions';
+import { useToast } from '@/context/ToastContext';
 
 export default function HomeScreen() {
   const router = useRouter();
 
-  const { authToken, loading } = useAuth();
+  const { authToken, loading, hasVerifiedPhoneNumber } = useAuth();
   const [updateUserAccessToken] = useUpdateUserAccessTokenMutation();
   const [refreshing, setRefreshing] = useState(false);
+  const { showToast } = useToast();
 
   const {data: dataUser, isLoading: isLoadingUser, error: errorUser, isError: hasErrorUser, refetch: refetchUser} = useGetUserQuery();
   const {data: exchangeData, isLoading, error: errorExchange, isError: hasErrorExchange, refetch: refetchExchange} = useGetUserCurrentExchangeStatusQuery();
@@ -53,6 +55,37 @@ export default function HomeScreen() {
     console.log(`got the access token for mobile: ${token}`);
     await updateUserAccessToken({token:token});
   }
+
+  /**
+   * This runs at each homepage render,
+   * allows us to conditionally fetch phoneNumCheck
+   * and route based on that and its a workaround to
+   * let both existing and new users not having phone 
+   * number in db
+   */
+  useEffect(() => {
+    if (!loading && !hasVerifiedPhoneNumber) {
+      const timer = setTimeout(() => {
+        showToast({
+          title: "Please add your phone number",
+          type: "warning",
+          duration: 3000,
+        });
+        router.push({
+          pathname: "/action/edit/editProfile",
+          params: {
+            name: dataUser?.data.name,
+            phone_number: dataUser?.data.phone_number?.toString(),
+            daily_limit: dataUser?.data.daily_limit?.toString(),
+            profile_photo: dataUser?.data.profile_photo?.url,
+          },
+        });
+      }, 5000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [loading, hasVerifiedPhoneNumber, dataUser]);
+  
 
   useEffect(() => {
     if (!loading && !authToken) {
@@ -192,6 +225,10 @@ export default function HomeScreen() {
 
             </View>
           </View>
+
+          {/* <TouchableOpacity onPress={() => router.push("/action/create/addFriends")}>
+            <Text style={Styles.temp}>Contact Page</Text>
+          </TouchableOpacity> */}
 
         </Animatable.View>
 
@@ -348,6 +385,11 @@ export default function HomeScreen() {
 }
 
 const Styles = StyleSheet.create({
+
+  temp: {
+    color: "black",
+    fontSize: 20
+  },
 
   //header
   headerContainer: {
