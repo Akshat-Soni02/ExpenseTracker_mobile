@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useTransition,
+} from "react";
 import {
   Animated,
   Pressable,
@@ -68,6 +74,7 @@ export default function SwipeableTabLayout() {
   const [tabRoutes] = useState(routes);
   const router = useRouter();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const TAB_WIDTH = initialLayout.width / tabRoutes.length;
   const updateIndex = (newIndex: number) => {
@@ -140,17 +147,13 @@ export default function SwipeableTabLayout() {
     }
   };
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      Animated.spring(translateX, {
-        toValue: index * TAB_WIDTH,
-        useNativeDriver: true,
-        stiffness: 200,
-        damping: 20,
-        mass: 1,
-      }).start();
-    }, 0);
-
-    return () => clearTimeout(timeout);
+    Animated.spring(translateX, {
+      toValue: index * TAB_WIDTH,
+      useNativeDriver: true,
+      stiffness: 300,
+      damping: 20,
+      mass: 0.5,
+    }).start();
   }, [index]);
 
   useEffect(() => {
@@ -158,21 +161,13 @@ export default function SwipeableTabLayout() {
   }, [index]);
 
   useEffect(() => {
-    let newIndex = 0;
+    const newIndex = tabRoutes.findIndex((route) => {
+      const basePath = routePathMap[route.key as RouteKey];
+      return pathname === basePath || pathname.startsWith(basePath + "/");
+    });
 
-    for (let i = 0; i < tabRoutes.length; i++) {
-      const route = tabRoutes[i];
-      if (route.key === "index" && pathname === "/") {
-        newIndex = i;
-        break;
-      } else if (pathname.startsWith(`/${route.key}`)) {
-        newIndex = i;
-        break;
-      }
-    }
-
-    if (newIndex !== index) {
-      setIndex(newIndex);
+    if (newIndex !== -1 && newIndex !== indexRef.current) {
+      updateIndex(newIndex);
     }
   }, [pathname, index]);
 
