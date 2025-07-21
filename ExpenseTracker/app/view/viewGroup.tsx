@@ -75,6 +75,27 @@ const GroupDetailsScreen = () => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) =>
+        Math.abs(gestureState.dx) > Math.abs(gestureState.dy) &&
+        Math.abs(gestureState.dx) > 20,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderRelease: (_, gestureState) => {
+        if (activeTabRef.current === "history" && gestureState.dx < -50) {
+          console.log("Active tab", activeTabRef.current);
+          console.log("Swiped to settle");
+          setActiveTab("settle");
+        } else if (activeTabRef.current === "settle" && gestureState.dx > 50) {
+          console.log("Active tab", activeTabRef.current);
+          console.log("Swiped to history");
+          setActiveTab("history");
+        }
+      },
+    })
+  ).current;
+
   const onRefresh = async () => {
     try {
       setRefreshing(true);
@@ -157,26 +178,7 @@ const GroupDetailsScreen = () => {
     }
     return <Text style={globalStyles.pageMidError}>{errorMessage}</Text>;
   }
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) =>
-        Math.abs(gestureState.dx) > Math.abs(gestureState.dy) &&
-        Math.abs(gestureState.dx) > 20,
-      onMoveShouldSetPanResponderCapture: () => true,
-      onPanResponderRelease: (_, gestureState) => {
-        if (activeTabRef.current === "history" && gestureState.dx < -50) {
-          console.log("Active tab", activeTabRef.current);
-          console.log("Swiped to settle");
-          setActiveTab("settle");
-        } else if (activeTabRef.current === "settle" && gestureState.dx > 50) {
-          console.log("Active tab", activeTabRef.current);
-          console.log("Swiped to history");
-          setActiveTab("history");
-        }
-      },
-    })
-  ).current;
+  
 
   if (!data?.data) return <Text>No group found</Text>;
   return (

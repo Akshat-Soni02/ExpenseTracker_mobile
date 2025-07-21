@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert, SafeAreaView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
@@ -55,7 +55,7 @@ const ViewPeopleScreen = () => {
   }
 
   return (
-    <View style={[globalStyles.viewContainer, { padding: 0 }]}>
+    <SafeAreaView style={[globalStyles.viewContainer, { padding: 0 }]}>
 
       <View style={styles.header}>
 
@@ -119,7 +119,7 @@ const ViewPeopleScreen = () => {
         )}
         
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

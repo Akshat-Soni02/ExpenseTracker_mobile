@@ -160,11 +160,12 @@ const ExpenseDetailScreen = () => {
 
   const isLender = expense?.lenders.some((lender) => lender.user_id === loggedInUserId);
   const isBorrower = expense?.borrowers.some((borrower) => borrower.user_id === loggedInUserId);
+  const isIncluded = isLender || isBorrower;
   const themeColor = isLender ? COLORS.amount.positive : isBorrower ? COLORS.amount.negative : COLORS.amount.neutral;
 
   return (
     <ScrollView style={globalStyles.viewContainer}>
-      <Header headerIcon={<Menu
+      <Header headerIcon={isIncluded && <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
           anchor={
@@ -270,7 +271,7 @@ const ExpenseDetailScreen = () => {
         imageIndex={0}
         visible={viewImage}
         onRequestClose={() => setViewImage(false)}
-        FooterComponent={() => (
+        FooterComponent={() => ( isIncluded &&
           <View style={styles.footer}>
             <TouchableOpacity onPress={() => {
               Alert.alert(
