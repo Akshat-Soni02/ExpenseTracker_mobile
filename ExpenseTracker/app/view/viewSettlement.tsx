@@ -31,6 +31,7 @@ const SettlementDetailsScreen = () => {
   const [getUserById, { data: creatorData }] = useLazyGetUserByIdQuery();
   const [getWallet, { data: walletData }] = useLazyGetWalletQuery();
   let isPayer = false;
+  let isTaker = false;
   
   const settlement = data?.data;
 
@@ -75,6 +76,7 @@ const SettlementDetailsScreen = () => {
         const res = await getUserById(settlement?.receiver_id).unwrap();
         setReceiver(res.data);
         if (settlement?.receiver_id === loggedInUserId) {
+          isTaker = true;
           setReceiver(prevUser => {
             if (!prevUser) return null;
             return {
@@ -132,10 +134,12 @@ const SettlementDetailsScreen = () => {
 
   if (!data?.data || !loggedInUserId) return <Text>No settlement found</Text>;
 
+  const isIncluded = isPayer || isTaker;
+
   return (
     <View style={globalStyles.viewContainer}>
 
-      <Header headerIcon={<Menu
+      <Header headerIcon={isIncluded && <Menu
             visible={menuVisible}
             onDismiss={() => setMenuVisible(false)}
             anchor={

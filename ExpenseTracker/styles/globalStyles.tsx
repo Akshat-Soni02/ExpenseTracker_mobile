@@ -15,6 +15,7 @@ export const globalStyles = StyleSheet.create({
   viewContainer: {
     flex: 1,
     padding: 20,
+    paddingTop: 10,
     // paddingBottom: 30,
     // backgroundColor: "#F9FAFB",
     backgroundColor: "#fff",
