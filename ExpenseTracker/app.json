@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/images/appIcon1.png",
         "backgroundColor": "#ffffff"
       },
-      "googleServicesFile": "./firebase/google-services.json",
+      "googleServicesFile": "gs.json",
       "package": "com.dev.akshat.atharva.expenz"
     },
     "web": {

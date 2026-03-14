@@ -13,90 +13,90 @@ import { useAuth } from "@/context/AuthProvider";
 WebBrowser.maybeCompleteAuthSession();
 
 const TempGoogleLoginButton = () => {
-    const [userInfo, setUserInfo] = useState(null);
-    const [googleLogin, { isLoading: isLoadingGoogle, error: errorGoogle }] = useGoogleLoginMutation();
-    const [autoAdd, {isLoading: isLoadingAutoFriends, error: errorAutoAddFriends}] = useAutoaddFriendsMutation();
-    const { login } = useAuth();
+  const [userInfo, setUserInfo] = useState(null);
+  const [googleLogin, { isLoading: isLoadingGoogle, error: errorGoogle }] = useGoogleLoginMutation();
+  const [autoAdd, { isLoading: isLoadingAutoFriends, error: errorAutoAddFriends }] = useAutoaddFriendsMutation();
+  const { login } = useAuth();
 
-    const config = {
-        androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID || "41930990796-8blks6de5mo4023v2rgj83hlcgr5cshj.apps.googleusercontent.com",
-        webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID || "41930990796-v0crd8n8lnpnolcjuqgd9do6mm4cfe5b.apps.googleusercontent.com",
-    };
+  const config = {
+    androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+  };
 
-    const [request, response, promptAsync] = Google.useAuthRequest(config);
+  const [request, response, promptAsync] = Google.useAuthRequest(config);
 
-    const getUserInfo = async (token: string | undefined) => {
+  const getUserInfo = async (token: string | undefined) => {
 
-        if (!token) return;
+    if (!token) return;
 
-        try {
-          const response = await fetch(
-            process.env.EXPO_PUBLIC_GOOGLE_USERINFO_URL || "https://www.googleapis.com/userinfo/v2/me",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          const user = await response.json();
-          if (!user) {
-            Alert.alert("Google sign-in failed", "Not able to fetch user data from google Account");
-            return;
-          }
-
-          let res = await googleLogin({user});
-          if(!res.data?.token) {
-            Alert.alert("Google sign-in failed", "Token not received from server");
-            return;
-          }
-          
-          await login(res.data?.token);
-          await saveItem("user", res.data.userData);
-          await autoAdd({email: res.data.userData.email}).unwrap();
-          if(errorAutoAddFriends) {
-            console.log("error auto adding friends", errorAutoAddFriends);
-          }
-          setUserInfo(user);
-          router.push("/(tabs)");
-        } catch (error) {
-          console.error(
-            "Failed to fetch user data:",
-            response?.status,
-            response?.statusText
-          );
+    try {
+      const response = await fetch(
+        process.env.EXPO_PUBLIC_GOOGLE_USERINFO_URL || "https://www.googleapis.com/userinfo/v2/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
-      };
+      );
+      const user = await response.json();
+      if (!user) {
+        Alert.alert("Google sign-in failed", "Not able to fetch user data from google Account");
+        return;
+      }
 
-      const signInWithGoogle = async () => {
-        try {
-          const user = await getItem("user");
-      
-          if (user) {
-            setUserInfo(user);
-            router.push("/(tabs)");
-          } else if (response?.type === "success") {
-            // If no user information is found and the response type is "success" (assuming response is defined),
-            getUserInfo(response.authentication?.accessToken);
-          }
-        } catch (error) {
-          Alert.alert("Google sign-in failed", error?.message || "Not able to fetch user data from google Account");
-          console.error("Error retrieving user data from AsyncStorage:", error);
-        }
-      };
-      
-      useEffect(() => {
-        signInWithGoogle();
-      }, [response]);
+      let res = await googleLogin({ user });
+      if (!res.data?.token) {
+        Alert.alert("Google sign-in failed", "Token not received from server");
+        return;
+      }
 
-      console.log(userInfo);
+      await login(res.data?.token);
+      await saveItem("user", res.data.userData);
+      await autoAdd({ email: res.data.userData.email }).unwrap();
+      if (errorAutoAddFriends) {
+        console.log("error auto adding friends", errorAutoAddFriends);
+      }
+      setUserInfo(user);
+      router.push("/(tabs)");
+    } catch (error) {
+      console.error(
+        "Failed to fetch user data:",
+        response?.status,
+        response?.statusText
+      );
+    }
+  };
 
-    return (
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.googleButton} onPress={() => promptAsync()}>
-          <AntDesign name="google" size={20} color="#4285F4" style={styles.googleIcon} />
-          <Text style={styles.googleText}>Sign in with Google</Text>
-        </TouchableOpacity>
-      </View>
-    
-    );
+  const signInWithGoogle = async () => {
+    try {
+      const user = await getItem("user");
+
+      if (user) {
+        setUserInfo(user);
+        router.push("/(tabs)");
+      } else if (response?.type === "success") {
+        // If no user information is found and the response type is "success" (assuming response is defined),
+        getUserInfo(response.authentication?.accessToken);
+      }
+    } catch (error) {
+      Alert.alert("Google sign-in failed", error?.message || "Not able to fetch user data from google Account");
+      console.error("Error retrieving user data from AsyncStorage:", error);
+    }
+  };
+
+  useEffect(() => {
+    signInWithGoogle();
+  }, [response]);
+
+  console.log(userInfo);
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.googleButton} onPress={() => promptAsync()}>
+        <AntDesign name="google" size={20} color="#4285F4" style={styles.googleIcon} />
+        <Text style={styles.googleText}>Sign in with Google</Text>
+      </TouchableOpacity>
+    </View>
+
+  );
 }
 
 export default TempGoogleLoginButton;

@@ -1,126 +1,90 @@
-## 🚀 Git Workflow & Code Push Guidelines
+# Expenzz 💳 - Smart Expense Management
 
-We follow a structured Git workflow to ensure code quality, consistent releases, and safe collaboration. Please read and follow these guidelines before contributing.
-
----
-
-### 🌿 Branching Strategy
-
-We use a **progressive branch flow**:
-
-```
-main ← staging ← dev ← feature/*
-```
-
-| Branch     | Purpose                                                                 |
-|------------|-------------------------------------------------------------------------|
-| `main`     | Production-ready code only. Merged from `staging`.                      |
-| `staging`  | Pre-production. QA & integration testing happens here.                 |
-| `dev`      | Active development. Feature branches are merged here.                   |
-| `feature/*` / `fix/*` / `hotfix/*` | Temporary branches for individual changes.       |
+**Expenzz** is a modern, cross-platform mobile application designed to help users track their personal and group expenses efficiently. Built with React Native and Expo, it offers a seamless experience for managing budgets, wallets, and shared bills with friends.
 
 ---
 
-### 🔁 Push & Merge Flow
+## ✨ Key Features
 
-1. **Create a feature/fix/hotfix branch** from `dev`:
+### 📊 Expense Tracking
+- **Personal Expenses**: Easily log daily transactions and categorize them.
+- **Visual Analytics**: View spending patterns and activity history via the Dashboard.
+- **Multiple Wallets**: Manage different sources of funds separately.
+
+### 👥 Group Expenses & Settlements
+- **Create Groups**: Organize expenses with friends, family, or roommates.
+- **Shared Bills**: Add expenses to groups and split them automatically.
+- **Settlements**: Track who owes whom and simplify payments.
+- **Add Friends**: Connect with others via email or manual entry.
+
+### 💰 Budgeting & Bills
+- **Budget Management**: Set monthly or category-wise budgets to curb overspending.
+- **Bill Reminders**: Keep track of upcoming bills and payments.
+
+### 🔒 Secure Authentication
+- **Multiple Login Methods**: Sign in via Email/Password, Google, or OTP.
+- **Secure Handling**: Powered by Firebase Auth for robust security.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Expo](https://expo.dev/) / [React Native](https://reactnative.dev/)
+- **Language**: TypeScript
+- **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/)
+- **Styling**: [NativeWind](https://www.nativewind.dev/) (Tailwind CSS) & [Gluestack UI](https://gluestack.io/)
+- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
+- **Database/Auth**: [Firebase](https://firebase.google.com/)
+- **UI Components**: Reanimated, Flash-list, FontAwesome
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (LTS)
+- [npm](https://www.npmjs.com/)
+- [Expo Go](https://expo.dev/client) app on your mobile device (to test wirelessly)
+- (Optional) Android Studio or Xcode for local emulators
+
+### Installation
+
+1. **Clone the repository**:
    ```bash
-   git checkout dev
-   git pull origin dev
-   git checkout -b feat/short-description
+   git clone https://github.com/Akshat-Soni02/ExpenseTracker_mobile.git
+   cd ExpenseTracker_mobile/ExpenseTracker
    ```
 
-2. **Make commits, pull latest changes, then push your branch**:
+2. **Install dependencies**:
    ```bash
-   git add .
-   git commit -m "feat(scope): your message"
-
-   # 🔁 Always pull before you push
-   git pull origin dev 
-
-   # ✅ Then push your branch
-   git push -u origin feat/short-description
+   npm install
    ```
 
-3. **Open a Pull Request (PR)** from your branch to `dev`.
-4. Ideally the below steps are not followed instead we might create PR in github and merge there which will not occur often.
-
-5. Once merged into `dev`, the code will be **thoroughly tested in `staging`**:
-   - Merge `dev` into `staging` when needed:
-     ```bash
-     git checkout staging
-     git pull origin staging
-     git merge dev
-     git push origin staging
-     ```
-
-6. After successful testing, **merge `staging` into `main`** for production:
-   ```bash
-   git checkout main
-   git pull origin main
-   git merge staging
-   git push origin main
+3. **Environment Setup**:
+   Create a `.env` file in the `ExpenseTracker` directory and add your Firebase and API keys:
+   ```env
+   # Example environment variables
+   FIREBASE_API_KEY=your_api_key
+   ...
    ```
 
 ---
 
-### 🌲 Trunk-Based Development
+## 📱 App Usage Instructions
 
-We follow a lightweight version of **trunk-based development**:
-- `dev` acts as our integration branch (the "trunk").
-- All feature/fix/hotfix branches are short-lived and merged back quickly.
-- Regular merges to `staging` and `main` keep the codebase deployable.
+1. **Start the development server**:
+   ```bash
+   npx expo start
+   ```
 
----
+2. **Run on a device/emulator**:
+   - Press `i` for iOS Simulator.
+   - Press `a` for Android Emulator.
+   - Scan the QR code with **Expo Go** (Android) or the **Camera app** (iOS) to run on a physical device.
 
-### 🏷️ Branch Naming Convention
-
-Use clear prefixes to indicate the purpose of a branch:
-
-| Prefix     | Use For                        | Example                    |
-|------------|--------------------------------|----------------------------|
-| `feat/`    | New features                   | `feat/user-onboarding`     |
-| `fix/`     | Bug fixes                      | `fix/login-validation`     |
-| `hotfix/`  | Urgent production patches      | `hotfix/critical-crash`    |
-| `chore/`   | Maintenance, cleanup           | `chore/update-deps`        |
-| `docs/`    | Documentation changes          | `docs/readme-guidelines`   |
-
----
-
-### ✍️ Commit Message Guidelines
-
-Use **Conventional Commits** style:
-
-```
-<type>(<scope>): <message>
-```
-
-#### Valid types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `hotfix`: Critical fix
-- `refactor`: Code refactoring
-- `chore`: Build process, tooling, etc.
-- `docs`: Documentation only changes
-- `test`: Adding or updating tests
-- `style`: Formatting, missing semicolons, etc.
-
-#### Examples:
-- `fix(auth): handle expired token error`
-- `feat(profile): add profile picture upload`
-- `docs(readme): add API usage section`
-
-> ✅ Keep messages short, meaningful, and in present tense.
-
----
-
-### 🛡️ Branch Protection Rules (Recommended)
-
-Enable these on GitHub:
-- Require PR reviews before merging to `dev`, `staging`, or `main`
-- Require status checks (tests, linter) to pass before merge
-- Prevent force pushes and deletions
-
----
-
-By following these rules, we keep our codebase clean, stable, and deployable at all times. Happy committing! 🚀
+3. **Navigate through the app**:
+   - **Dashboard**: Home tab for overview of expenses.
+   - **Groups**: Manage shared expenses and friends.
+   - **Bills**: Track and pay your upcoming bills.
+   - **Activity**: History of all your transactions.
